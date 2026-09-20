@@ -1,0 +1,1189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anivora — Premium Anime Streaming</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<!-- PAGE LOADER -->
+<div class="page-loader" id="pageLoader">
+  <div class="loader-spinner"></div>
+</div>
+<!-- SVG ICON DEFS (hidden) -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none;">
+  <defs>
+    <symbol id="ico-play" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="ico-pause" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16" rx="1" fill="currentColor" stroke="none"/><rect x="14" y="4" width="4" height="16" rx="1" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="ico-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></symbol>
+    <symbol id="ico-bell" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></symbol>
+    <symbol id="ico-bookmark" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></symbol>
+    <symbol id="ico-user" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+    <symbol id="ico-home" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></symbol>
+    <symbol id="ico-calendar" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></symbol>
+    <symbol id="ico-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></symbol>
+    <symbol id="ico-list" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></symbol>
+    <symbol id="ico-star" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></symbol>
+    <symbol id="ico-star-o" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></symbol>
+    <symbol id="ico-heart" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></symbol>
+    <symbol id="ico-film" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="17" x2="22" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/></symbol>
+    <symbol id="ico-trending" viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></symbol>
+    <symbol id="ico-zap" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="ico-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></symbol>
+    <symbol id="ico-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></symbol>
+    <symbol id="ico-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></symbol>
+    <symbol id="ico-users" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+    <symbol id="ico-tv" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"/><polyline points="17 2 12 7 7 2"/></symbol>
+    <symbol id="ico-chart" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></symbol>
+    <symbol id="ico-chevron-r" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></symbol>
+    <symbol id="ico-chevron-l" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></symbol>
+    <symbol id="ico-x" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
+    <symbol id="ico-plus" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol>
+    <symbol id="ico-check" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></symbol>
+    <symbol id="ico-trash" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></symbol>
+    <symbol id="ico-edit" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></symbol>
+    <symbol id="ico-share" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></symbol>
+    <symbol id="ico-eye" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="ico-flag" viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></symbol>
+    <symbol id="ico-layers" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></symbol>
+    <symbol id="ico-award" viewBox="0 0 24 24"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></symbol>
+    <symbol id="ico-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></symbol>
+    <symbol id="ico-volume" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></symbol>
+    <symbol id="ico-maximize" viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></symbol>
+    <symbol id="ico-minimize" viewBox="0 0 24 24"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/></symbol>
+    <symbol id="ico-skip-f" viewBox="0 0 24 24"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></symbol>
+    <symbol id="ico-skip-b" viewBox="0 0 24 24"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5"/></symbol>
+    <symbol id="ico-cc" viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M7 10h5M7 14h3"/><path d="M15 10h2M15 14h2"/></symbol>
+    <symbol id="ico-music" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></symbol>
+    <symbol id="ico-msg" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol>
+    <symbol id="ico-lock" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+    <symbol id="ico-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></symbol>
+    <symbol id="ico-menu" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></symbol>
+    <symbol id="ico-upload" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></symbol>
+    <symbol id="ico-speed" viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 1 7.38 16.75"/><path d="M12 2A10 10 0 0 0 4.62 18.75"/><polyline points="12 12 15 9"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="ico-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></symbol>
+    <symbol id="ico-gem" viewBox="0 0 24 24"><path d="M6 3h12l4 6-10 13L2 9z"/><path d="M2 9h20"/><path d="M6 3l4 6m8-6l-4 6"/></symbol>
+    <symbol id="ico-repeat" viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></symbol>
+  </defs>
+</svg>
+
+<!-- MOBILE DRAWER -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+<div class="mobile-drawer" id="mobileDrawer">
+  <div class="drawer-header">
+    <div class="logo" style="gap:0;">
+      Ani<span>vora</span>
+    </div>
+  </div>
+  <nav class="drawer-nav">
+    <a href="#" class="active" onclick="showPage('home');closeDrawer()">
+      <svg class="icon icon-md"><use href="#ico-home"/></svg> Home
+    </a>
+    <a href="#" onclick="showPage('explore');closeDrawer()">
+      <svg class="icon icon-md"><use href="#ico-search"/></svg> Explore
+    </a>
+    <a href="#" onclick="showPage('seasonal');closeDrawer()">
+      <svg class="icon icon-md"><use href="#ico-sun"/></svg> Seasonal
+    </a>
+    <a href="#" onclick="showPage('calendar');closeDrawer()">
+      <svg class="icon icon-md"><use href="#ico-calendar"/></svg> Calendar
+    </a>
+    <a href="#" onclick="showPage('watchlist');closeDrawer()">
+      <svg class="icon icon-md"><use href="#ico-bookmark"/></svg> Watchlist
+    </a>
+    <a href="#" onclick="showPage('profile');closeDrawer()">
+      <svg class="icon icon-md"><use href="#ico-user"/></svg> Profile
+    </a>
+    <div class="drawer-divider"></div>
+    <a href="#" onclick="showPage('admin');closeDrawer()">
+      <svg class="icon icon-md"><use href="#ico-settings"/></svg> Admin Panel
+    </a>
+    <a href="#" onclick="showPage('login');closeDrawer()">
+      <svg class="icon icon-md"><use href="#ico-lock"/></svg> Sign Out
+    </a>
+  </nav>
+</div>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-inner">
+    <div style="display:flex;align-items:center;gap:18px;">
+      <button class="hamburger" onclick="openDrawer()" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="logo" onclick="showPage('home')" style="gap:0;">
+        Ani<span>vora</span>
+      </div>
+    </div>
+
+    <nav class="nav-links">
+      <a href="#" class="active" onclick="showPage('home')">Home</a>
+      <a href="#" onclick="showPage('explore')">Anime</a>
+      <a href="#" onclick="showPage('seasonal')">Seasonal</a>
+      <a href="#" onclick="showPage('explore')">Genres</a>
+      <a href="#" onclick="showPage('explore')">Popular</a>
+      <a href="#" onclick="showPage('calendar')">Calendar</a>
+    </nav>
+
+    <div class="header-actions">
+      <div class="search-bar-mini" onclick="showPage('explore')">
+        <svg class="icon icon-sm" style="color:var(--text-muted);flex-shrink:0;"><use href="#ico-search"/></svg>
+        <input type="text" placeholder="Search anime..." readonly>
+      </div>
+      <button class="icon-btn" onclick="toggleNotif()" aria-label="Notifications" style="position:relative;">
+        <svg class="icon icon-md"><use href="#ico-bell"/></svg>
+        <span class="notif-badge"></span>
+      </button>
+      <button class="icon-btn" onclick="showPage('watchlist')" aria-label="Watchlist">
+        <svg class="icon icon-md"><use href="#ico-bookmark"/></svg>
+      </button>
+      <div class="avatar" onclick="showPage('profile')">
+        <svg class="icon icon-sm" style="color:#fff;"><use href="#ico-user"/></svg>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- NOTIFICATION PANEL -->
+<div class="notif-panel" id="notifPanel">
+  <div class="notif-header">
+    <span>Notifications</span>
+    <button style="font-size:12px;color:var(--accent);background:none;border:none;cursor:pointer;font-weight:500;">Mark all read</button>
+  </div>
+  <div class="notif-item unread" onclick="showPage('watch')">
+    <div class="notif-icon"><svg class="icon icon-md"><use href="#ico-play"/></svg></div>
+    <div style="flex:1;">
+      <div class="notif-text"><strong>One Piece</strong> Episode 1142 is now available.</div>
+      <div class="notif-time">2 minutes ago</div>
+    </div>
+    <div class="notif-dot"></div>
+  </div>
+  <div class="notif-item unread">
+    <div class="notif-icon"><svg class="icon icon-md"><use href="#ico-star"/></svg></div>
+    <div style="flex:1;">
+      <div class="notif-text"><strong>Demon Slayer S4</strong> has been added to the library.</div>
+      <div class="notif-time">1 hour ago</div>
+    </div>
+    <div class="notif-dot"></div>
+  </div>
+  <div class="notif-item">
+    <div class="notif-icon"><svg class="icon icon-md"><use href="#ico-bookmark"/></svg></div>
+    <div style="flex:1;">
+      <div class="notif-text">Your watchlist anime <strong>Attack on Titan</strong> has a new episode.</div>
+      <div class="notif-time">3 hours ago</div>
+    </div>
+  </div>
+  <div class="notif-item">
+    <div class="notif-icon"><svg class="icon icon-md"><use href="#ico-award"/></svg></div>
+    <div style="flex:1;">
+      <div class="notif-text">Achievement unlocked: <strong>100 Episodes Watched!</strong></div>
+      <div class="notif-time">Yesterday</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================
+     HOME PAGE
+============================================ -->
+<div class="page active" id="page-home">
+
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-overlay"></div>
+    <div class="hero-content fade-up">
+      <div class="hero-badges">
+        <span class="badge badge-airing"><span class="airing-dot"></span>Airing</span>
+        <span class="badge badge-genre">Action</span>
+        <span class="badge badge-genre">Fantasy</span>
+        <span class="badge badge-genre">Psychological</span>
+      </div>
+      <h1 class="hero-title">Fullmetal Alchemist:<br>Brotherhood</h1>
+      <div class="hero-subtitle">Hagane no Renkinjutsushi: Fullmetal Alchemist</div>
+      <div class="hero-meta">
+        <div class="hero-rating">
+          <svg class="icon icon-sm" style="fill:var(--gold);stroke:none;"><use href="#ico-star"/></svg>
+          9.1
+        </div>
+        <span style="color:var(--text-muted);font-size:12px;">·</span>
+        <div class="hero-meta-item">
+          <svg class="icon icon-sm"><use href="#ico-calendar"/></svg> 2009
+        </div>
+        <div class="hero-meta-item">
+          <svg class="icon icon-sm"><use href="#ico-tv"/></svg> 64 Episodes
+        </div>
+        <div class="hero-meta-item">
+          <svg class="icon icon-sm"><use href="#ico-clock"/></svg> 24 min/ep
+        </div>
+      </div>
+      <p class="hero-desc">After a failed alchemical ritual leaves brothers Edward and Alphonse Elric in broken bodies, they search for the Philosopher's Stone — embarking on a journey that reveals dark conspiracies behind the country's military power.</p>
+      <div class="hero-actions">
+        <button class="btn btn-primary" onclick="showPage('watch')">
+          <svg class="icon icon-sm" style="fill:#fff;stroke:none;"><use href="#ico-play"/></svg>
+          Watch Now
+        </button>
+        <button class="btn btn-ghost">
+          <svg class="icon icon-sm"><use href="#ico-plus"/></svg>
+          Add to List
+        </button>
+        <button class="btn btn-ghost btn-icon">
+          <svg class="icon icon-md"><use href="#ico-film"/></svg>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:36px;">
+    <div class="section-header">
+      <h2 class="section-title">
+        <span class="section-title-bar"></span>
+        Continue Watching
+      </h2>
+      <a class="section-link" onclick="showPage('watchlist')">
+        View All
+        <svg class="icon icon-sm"><use href="#ico-chevron-r"/></svg>
+      </a>
+    </div>
+    <div class="scroll-row" id="continueRow"></div>
+  </section>
+
+  <section class="section" style="padding-top:0;">
+    <div class="section-header">
+      <h2 class="section-title">
+        <span class="section-title-bar"></span>
+        <svg class="icon icon-md" style="color:var(--accent);"><use href="#ico-trending"/></svg>
+        Trending Now
+      </h2>
+      <a class="section-link" onclick="showPage('explore')">See All <svg class="icon icon-sm"><use href="#ico-chevron-r"/></svg></a>
+    </div>
+    <div class="scroll-row" id="trendingRow"></div>
+  </section>
+
+  <section class="section" style="padding-top:0;">
+    <div class="section-header">
+      <h2 class="section-title">
+        <span class="section-title-bar"></span>
+        <svg class="icon icon-md" style="color:var(--accent);"><use href="#ico-zap"/></svg>
+        New Episodes
+      </h2>
+      <a class="section-link" onclick="showPage('explore')">See All <svg class="icon icon-sm"><use href="#ico-chevron-r"/></svg></a>
+    </div>
+    <div class="scroll-row" id="newEpsRow"></div>
+  </section>
+
+  <section class="section" style="padding-top:0;">
+    <div class="section-header">
+      <h2 class="section-title">
+        <span class="section-title-bar"></span>
+        <svg class="icon icon-md" style="color:var(--accent);"><use href="#ico-tv"/></svg>
+        Airing This Week
+      </h2>
+      <a class="section-link" onclick="showPage('calendar')">Calendar <svg class="icon icon-sm"><use href="#ico-chevron-r"/></svg></a>
+    </div>
+    <div class="scroll-row" id="airingRow"></div>
+  </section>
+
+  <section class="section" style="padding-top:0;">
+    <div class="section-header">
+      <h2 class="section-title">
+        <span class="section-title-bar"></span>
+        <svg class="icon icon-md" style="color:var(--accent);"><use href="#ico-chart"/></svg>
+        Most Popular
+      </h2>
+      <a class="section-link" onclick="showPage('explore')">See All <svg class="icon icon-sm"><use href="#ico-chevron-r"/></svg></a>
+    </div>
+    <div class="scroll-row" id="popularRow"></div>
+  </section>
+
+  <section class="section" style="padding-top:0;">
+    <div class="section-header">
+      <h2 class="section-title">
+        <span class="section-title-bar"></span>
+        <svg class="icon icon-md" style="color:var(--gold);"><use href="#ico-star"/></svg>
+        Highest Rated
+      </h2>
+      <a class="section-link" onclick="showPage('explore')">See All <svg class="icon icon-sm"><use href="#ico-chevron-r"/></svg></a>
+    </div>
+    <div class="scroll-row" id="ratedRow"></div>
+  </section>
+
+  <section class="section" style="padding-top:0;">
+    <div class="section-header">
+      <h2 class="section-title">
+        <span class="section-title-bar"></span>
+        <svg class="icon icon-md" style="color:var(--accent);"><use href="#ico-gem"/></svg>
+        Hidden Gems
+      </h2>
+      <a class="section-link" onclick="showPage('explore')">See All <svg class="icon icon-sm"><use href="#ico-chevron-r"/></svg></a>
+    </div>
+    <div class="scroll-row" id="gemsRow"></div>
+  </section>
+
+  <section class="section" style="padding-top:0;">
+    <div class="section-header">
+      <h2 class="section-title">
+        <span class="section-title-bar"></span>
+        <svg class="icon icon-md" style="color:var(--accent);"><use href="#ico-film"/></svg>
+        Anime Movies
+      </h2>
+      <a class="section-link" onclick="showPage('explore')">See All <svg class="icon icon-sm"><use href="#ico-chevron-r"/></svg></a>
+    </div>
+    <div class="scroll-row" id="moviesRow"></div>
+  </section>
+
+  <section class="section" style="padding-top:0;padding-bottom:60px;">
+    <div class="section-header">
+      <h2 class="section-title">
+        <span class="section-title-bar"></span>
+        <svg class="icon icon-md" style="color:var(--accent);"><use href="#ico-compass"/></svg>
+        Recommended For You
+      </h2>
+      <a class="section-link" onclick="showPage('explore')">See All <svg class="icon icon-sm"><use href="#ico-chevron-r"/></svg></a>
+    </div>
+    <div class="scroll-row" id="recommendedRow"></div>
+  </section>
+
+</div>
+
+<!-- ============================================
+     EXPLORE PAGE
+============================================ -->
+<div class="page" id="page-explore">
+  <div class="search-page">
+    <div class="search-hero">
+      <h1>Discover Anime</h1>
+      <p class="text-secondary" style="margin-bottom:20px;font-size:14px;">Search from thousands of titles</p>
+    
+      <div class="search-bar-big">
+  <svg class="icon icon-lg" style="color:var(--text-muted);flex-shrink:0;"><use href="#ico-search"/></svg>
+  <input type="text" id="mainSearchInput" placeholder="Search by title, genre, studio..." oninput="filterResults();toggleClearBtn()">
+  <button class="search-clear-btn" id="searchClearBtn" onclick="clearSearch()" aria-label="Clear">
+    <svg class="icon icon-md"><use href="#ico-x"/></svg>
+  </button>
+</div>
+    </div>
+
+    <div class="filters-wrap">
+      <div class="filters-grid">
+        <div class="filter-group">
+          <label class="filter-label">Genre</label>
+          <select class="filter-select" onchange="addFilter(this.value,'Genre');this.value=''">
+            <option value="">All Genres</option>
+            <option>Action</option><option>Adventure</option><option>Comedy</option>
+            <option>Drama</option><option>Fantasy</option><option>Horror</option>
+            <option>Mystery</option><option>Psychological</option><option>Romance</option>
+            <option>Sci-Fi</option><option>Slice of Life</option><option>Sports</option>
+            <option>Supernatural</option><option>Thriller</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">Type</label>
+          <select class="filter-select" onchange="addFilter(this.value,'Type');this.value=''">
+            <option value="">All Types</option>
+            <option>TV</option><option>Movie</option><option>OVA</option><option>ONA</option><option>Special</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">Status</label>
+          <select class="filter-select" onchange="addFilter(this.value,'Status');this.value=''">
+            <option value="">Any Status</option>
+            <option>Airing</option><option>Finished</option><option>Upcoming</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">Year</label>
+          <select class="filter-select" onchange="addFilter(this.value,'Year');this.value=''">
+            <option value="">Any Year</option>
+            <option>2024</option><option>2023</option><option>2022</option><option>2021</option>
+            <option>2020</option><option>2015–2019</option><option>2010–2014</option><option>2000–2009</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">Season</label>
+          <select class="filter-select" onchange="addFilter(this.value,'Season');this.value=''">
+            <option value="">Any Season</option>
+            <option>Winter</option><option>Spring</option><option>Summer</option><option>Fall</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">Rating</label>
+          <select class="filter-select" onchange="addFilter(this.value,'Rating');this.value=''">
+            <option value="">Any Rating</option>
+            <option>9.0+</option><option>8.0+</option><option>7.0+</option><option>6.0+</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">Episodes</label>
+          <select class="filter-select" onchange="addFilter(this.value,'Episodes');this.value=''">
+            <option value="">Any Length</option>
+            <option>1–12</option><option>13–24</option><option>25–50</option><option>51–100</option><option>100+</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">Language</label>
+          <select class="filter-select" onchange="addFilter(this.value,'Lang');this.value=''">
+            <option value="">Sub &amp; Dub</option>
+            <option>Sub Only</option><option>Dub Only</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="active-filters" id="activeFilters"></div>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:0 16px;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+      <p style="font-size:13px;color:var(--text-secondary);">Showing <strong style="color:var(--text-primary);" id="resultCount">24</strong> results</p>
+      <select class="filter-select" style="min-width:160px;">
+        <option>Sort: Relevance</option>
+        <option>Sort: Rating</option>
+        <option>Sort: Newest</option>
+        <option>Sort: Popularity</option>
+        <option>Sort: A–Z</option>
+      </select>
+    </div>
+
+    <div class="results-grid" id="resultsGrid"></div>
+
+    <div style="text-align:center;padding:32px 24px;">
+      <button class="btn btn-ghost">Load More</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================
+     DETAIL PAGE
+============================================ -->
+<div class="page" id="page-detail">
+  <div>
+    <div class="detail-backdrop">
+      <img src="https://images.unsplash.com/photo-1633356122102-3fe601e05bd2?w=1400&q=80" alt="" loading="lazy">
+      <div class="detail-backdrop-overlay"></div>
+    </div>
+    <div class="detail-main">
+      <div class="detail-top">
+        <div class="detail-poster">
+          <img src="https://picsum.photos/360/540?random=30" alt="" loading="lazy">
+        </div>
+        <div class="detail-info">
+          <div class="detail-jp-title">鋼の錬金術師 FULLMETAL ALCHEMIST</div>
+          <h1 class="detail-title">Fullmetal Alchemist: Brotherhood</h1>
+          <div class="detail-stats-row">
+            <div class="detail-stat">
+              <span class="detail-stat-label">Score</span>
+              <span class="detail-stat-value" style="color:var(--gold);display:flex;align-items:center;gap:4px;">
+                <svg class="icon icon-sm" style="fill:var(--gold);stroke:none;"><use href="#ico-star"/></svg> 9.11
+              </span>
+            </div>
+            <div class="detail-stat">
+              <span class="detail-stat-label">Year</span>
+              <span class="detail-stat-value">2009</span>
+            </div>
+            <div class="detail-stat">
+              <span class="detail-stat-label">Status</span>
+              <span class="status-badge status-finished">Finished</span>
+            </div>
+            <div class="detail-stat">
+              <span class="detail-stat-label">Episodes</span>
+              <span class="detail-stat-value">64</span>
+            </div>
+            <div class="detail-stat">
+              <span class="detail-stat-label">Type</span>
+              <span class="detail-stat-value">TV</span>
+            </div>
+            <div class="detail-stat">
+              <span class="detail-stat-label">Duration</span>
+              <span class="detail-stat-value">24 min</span>
+            </div>
+            <div class="detail-stat">
+              <span class="detail-stat-label">Studio</span>
+              <span class="detail-stat-value">Bones</span>
+            </div>
+          </div>
+          <div class="detail-genres-row">
+            <span class="tag genre-action">Action</span>
+            <span class="tag genre-fantasy">Fantasy</span>
+            <span class="tag genre-drama">Drama</span>
+            <span class="tag genre-scifi">Military</span>
+            <span class="tag badge badge-genre">Adventure</span>
+            <span class="tag badge badge-genre">Magic</span>
+          </div>
+          <div class="detail-actions-row">
+            <button class="btn btn-primary" onclick="showPage('watch')">
+              <svg class="icon icon-sm" style="fill:#fff;stroke:none;"><use href="#ico-play"/></svg>
+              Watch Now
+            </button>
+            <button class="btn btn-ghost">
+              <svg class="icon icon-sm"><use href="#ico-plus"/></svg>
+              Add to List
+            </button>
+            <button class="btn btn-ghost btn-icon" title="Favorite">
+              <svg class="icon icon-md"><use href="#ico-heart"/></svg>
+            </button>
+            <button class="btn btn-ghost btn-icon" title="Trailer">
+              <svg class="icon icon-md"><use href="#ico-film"/></svg>
+            </button>
+            <button class="btn btn-ghost btn-icon" title="Share">
+              <svg class="icon icon-md"><use href="#ico-share"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <p class="detail-desc collapsed" id="detailDesc">
+        After a failed alchemical ritual leaves brothers Edward and Alphonse Elric in broken bodies, the two embark on a journey to find the Philosopher's Stone to restore what they've lost. However, their quest reveals a dark conspiracy that threatens the very fabric of their nation, and deeper truths about alchemy itself. A story of sacrifice, brotherhood, and the true meaning of humanity.
+      </p>
+      <button class="read-more-btn" id="readMoreBtn" onclick="toggleDesc()">Read More</button>
+
+      <div class="detail-tabs">
+        <button class="tab-btn active" onclick="switchTab(this,'tab-episodes')">Episodes</button>
+        <button class="tab-btn" onclick="switchTab(this,'tab-chars')">Characters</button>
+        <button class="tab-btn" onclick="switchTab(this,'tab-staff')">Staff / VA</button>
+        <button class="tab-btn" onclick="switchTab(this,'tab-related')">Related</button>
+        <button class="tab-btn" onclick="switchTab(this,'tab-reviews')">Reviews</button>
+      </div>
+
+      <div class="tab-panel active" id="tab-episodes">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
+          <div style="display:flex;align-items:center;gap:8px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-sm);padding:7px 12px;flex:1;min-width:180px;max-width:260px;">
+            <svg class="icon icon-sm" style="color:var(--text-muted);flex-shrink:0;"><use href="#ico-search"/></svg>
+            <input type="text" style="background:transparent;border:none;outline:none;color:var(--text-primary);font-size:13px;width:100%;" placeholder="Search episodes...">
+          </div>
+          <select class="filter-select"><option>Season 1</option><option>OVA</option></select>
+          <select class="filter-select"><option>Episode Asc</option><option>Episode Desc</option></select>
+        </div>
+        <div class="season-block">
+          <div class="season-title">Season 1 <span class="season-count-badge">64 Episodes</span></div>
+          <div class="episodes-grid" id="episodesGrid"></div>
+        </div>
+      </div>
+
+      <div class="tab-panel" id="tab-chars">
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;" id="charGrid"></div>
+      </div>
+
+      <div class="tab-panel" id="tab-staff">
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;" id="staffGrid"></div>
+      </div>
+
+      <div class="tab-panel" id="tab-related">
+        <div class="scroll-row" style="padding:0;" id="relatedRow"></div>
+      </div>
+
+      <div class="tab-panel" id="tab-reviews">
+        <div style="margin-bottom:24px;">
+          <h3 style="font-size:16px;font-weight:700;margin-bottom:14px;">Write a Review</h3>
+          <div style="display:flex;gap:6px;margin-bottom:12px;" id="ratingStars">
+            <button onclick="setRating(1)" style="background:none;border:none;cursor:pointer;color:var(--text-muted);transition:color 0.15s;" class="star-btn"><svg style="width:22px;height:22px;"><use href="#ico-star-o"/></svg></button>
+            <button onclick="setRating(2)" style="background:none;border:none;cursor:pointer;color:var(--text-muted);transition:color 0.15s;" class="star-btn"><svg style="width:22px;height:22px;"><use href="#ico-star-o"/></svg></button>
+            <button onclick="setRating(3)" style="background:none;border:none;cursor:pointer;color:var(--text-muted);transition:color 0.15s;" class="star-btn"><svg style="width:22px;height:22px;"><use href="#ico-star-o"/></svg></button>
+            <button onclick="setRating(4)" style="background:none;border:none;cursor:pointer;color:var(--text-muted);transition:color 0.15s;" class="star-btn"><svg style="width:22px;height:22px;"><use href="#ico-star-o"/></svg></button>
+            <button onclick="setRating(5)" style="background:none;border:none;cursor:pointer;color:var(--text-muted);transition:color 0.15s;" class="star-btn"><svg style="width:22px;height:22px;"><use href="#ico-star-o"/></svg></button>
+          </div>
+          <textarea class="form-input" rows="3" placeholder="Share your thoughts..." style="resize:vertical;"></textarea>
+          <button class="btn btn-primary btn-sm" style="margin-top:10px;">Post Review</button>
+        </div>
+        <div id="reviewsList"></div>
+      </div>
+
+      <div style="height:48px;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================
+     WATCH PAGE
+============================================ -->
+<div class="page" id="page-watch">
+  <div class="watch-page">
+    <div class="player-wrap" onclick="handlePlayerTap(event)">
+      <div class="player-bg">
+        <img src="https://images.unsplash.com/photo-1578632767115-351597cf2477?w=1280&q=60" alt="">
+      </div>
+  <div class="player-center" id="playerCenter">
+  <div class="player-play-btn" onclick="togglePlay(event)">
+    <svg class="icon icon-lg" style="fill:#fff;stroke:none;transform:translateX(2px);"><use href="#ico-play"/></svg>
+  </div>
+</div>
+      <div class="player-controls">
+        <div class="player-progress" onclick="seekPlayer(event)">
+          <div class="player-progress-fill" id="playerProgress" style="width:42%;"></div>
+        </div>
+        <div class="player-bottom">
+          <div class="player-left">
+            <button class="player-btn" id="playPauseBtn" onclick="togglePlay(event)">
+              <svg class="icon icon-md" style="fill:rgba(255,255,255,0.85);stroke:none;"><use href="#ico-pause"/></svg>
+            </button>
+            <button class="player-btn" title="Next episode">
+              <svg class="icon icon-md"><use href="#ico-skip-f"/></svg>
+            </button>
+            <button class="player-btn">
+              <svg class="icon icon-md"><use href="#ico-volume"/></svg>
+            </button>
+            <span class="player-time">14:22 / 24:00</span>
+          </div>
+          <div class="player-right">
+            <select class="player-ctrl-select" title="Playback speed">
+              <option>0.5×</option><option>0.75×</option><option selected>1×</option>
+              <option>1.25×</option><option>1.5×</option><option>2×</option>
+            </select>
+            <select class="player-ctrl-select" title="Quality">
+              <option>Auto</option><option>1080p</option><option>720p</option>
+              <option>480p</option><option>360p</option>
+            </select>
+            <select class="player-ctrl-select" title="Subtitles">
+              <option>Sub: EN</option><option>Sub: JP</option><option>Dub: EN</option><option>Off</option>
+            </select>
+            <button class="player-btn" id="fullscreenBtn" title="Fullscreen" onclick="toggleFullscreen(event)">
+  <svg class="icon icon-md"><use href="#ico-maximize"/></svg>
+</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="watch-layout">
+      <div class="watch-main">
+        <div class="watch-info">
+          <div class="watch-ep-label">Fullmetal Alchemist: Brotherhood · Season 1</div>
+          <div class="watch-ep-title">Episode 23: "The Downward Spiral"</div>
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+            <span class="badge badge-airing"><span class="airing-dot"></span>Airing</span>
+            <span style="font-size:13px;color:var(--text-muted);display:flex;align-items:center;gap:4px;">
+              <svg class="icon icon-sm"><use href="#ico-clock"/></svg> 24 min
+            </span>
+            <div style="display:flex;gap:8px;margin-left:auto;flex-wrap:wrap;">
+              <button class="btn btn-ghost btn-sm">
+                <svg class="icon icon-sm"><use href="#ico-heart"/></svg> Like
+              </button>
+              <button class="btn btn-ghost btn-sm">
+                <svg class="icon icon-sm"><use href="#ico-plus"/></svg> Add to List
+              </button>
+              <button class="btn btn-ghost btn-sm">
+                <svg class="icon icon-sm"><use href="#ico-share"/></svg> Share
+              </button>
+            </div>
+          </div>
+          <p class="watch-ep-desc">Edward and Alphonse discover the truth about the Philosopher's Stone and must confront the terrifying reality of its creation. Meanwhile, Colonel Mustang makes a fateful decision that will change everything.</p>
+        </div>
+
+        <div style="margin-top:20px;">
+          <h3 style="font-size:15px;font-weight:700;margin-bottom:14px;">Up Next</h3>
+          <div style="display:flex;gap:12px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none;" id="upNextRow"></div>
+        </div>
+      </div>
+
+      <aside class="watch-sidebar">
+        <div class="sidebar-episodes">
+          <div class="sidebar-ep-header">
+            <span class="sidebar-ep-title">Episodes</span>
+            <select class="filter-select" style="font-size:11.5px;padding:4px 8px;min-width:0;border-color:var(--border);">
+              <option>Season 1</option>
+            </select>
+          </div>
+          <div class="sidebar-ep-list" id="sidebarEpList"></div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================
+     SEASONAL PAGE
+============================================ -->
+<div class="page" id="page-seasonal">
+  <div style="padding: 32px 0 48px;">
+    <div style="padding:0 16px;margin-bottom:28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;">
+      <h1 style="font-size:24px;font-weight:800;">Seasonal Anime</h1>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-ghost btn-sm">
+          <svg class="icon icon-sm"><use href="#ico-chevron-l"/></svg> Winter 2024
+        </button>
+        <button class="btn btn-primary btn-sm">Spring 2024</button>
+        <button class="btn btn-ghost btn-sm">
+          Summer 2024 <svg class="icon icon-sm"><use href="#ico-chevron-r"/></svg>
+        </button>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;padding:0 16px;margin-bottom:24px;">
+      <button class="list-cat-btn active">All</button>
+      <button class="list-cat-btn">TV</button>
+      <button class="list-cat-btn">Movie</button>
+      <button class="list-cat-btn">OVA</button>
+      <button class="list-cat-btn">ONA</button>
+    </div>
+    <div class="results-grid" id="seasonalGrid"></div>
+  </div>
+</div>
+
+<!-- ============================================
+     WATCHLIST PAGE
+============================================ -->
+<div class="page" id="page-watchlist">
+  <div style="padding: 32px 16px 48px; max-width:1000px;margin:0 auto;">
+    <h1 style="font-size:24px;font-weight:800;margin-bottom:24px;">My List</h1>
+    <div class="list-category-tabs">
+      <button class="list-cat-btn active">All (24)</button>
+      <button class="list-cat-btn">Watching (5)</button>
+      <button class="list-cat-btn">Completed (12)</button>
+      <button class="list-cat-btn">Plan to Watch (4)</button>
+      <button class="list-cat-btn">On Hold (2)</button>
+      <button class="list-cat-btn">Dropped (1)</button>
+    </div>
+    <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
+      <div style="display:flex;align-items:center;gap:8px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-sm);padding:7px 12px;max-width:240px;">
+        <svg class="icon icon-sm" style="color:var(--text-muted);flex-shrink:0;"><use href="#ico-search"/></svg>
+        <input type="text" style="background:transparent;border:none;outline:none;color:var(--text-primary);font-size:13px;width:100%;" placeholder="Search list...">
+      </div>
+      <select class="filter-select"><option>Sort: Recent</option><option>Sort: A–Z</option><option>Sort: Rating</option></select>
+    </div>
+    <div id="watchlistContent"></div>
+  </div>
+</div>
+
+<!-- ============================================
+     PROFILE PAGE
+============================================ -->
+<div class="page" id="page-profile">
+  <div class="profile-page">
+    <div class="profile-hero">
+      <div class="profile-hero-inner">
+
+        <div class="profile-top-row">
+          <div class="profile-avatar-lg">
+            <svg class="icon icon-xl" style="color:rgba(255,255,255,0.5);margin:auto;display:block;"><use href="#ico-user"/></svg>
+          </div>
+          <div class="profile-name-block">
+            <div class="profile-name">Anivora User</div>
+            <div class="profile-since">Member since January 2024</div>
+          </div>
+          <button class="btn btn-ghost btn-sm profile-edit-btn">
+            <svg class="icon icon-sm"><use href="#ico-edit"/></svg>
+            Edit Profile
+          </button>
+        </div>
+
+        <div class="profile-stats-strip">
+          <div class="profile-stat"><span class="profile-stat-val">148</span><span class="profile-stat-label">Anime</span></div>
+          <div class="profile-stat"><span class="profile-stat-val">2,847</span><span class="profile-stat-label">Episodes</span></div>
+          <div class="profile-stat"><span class="profile-stat-val">46d</span><span class="profile-stat-label">Watch Time</span></div>
+          <div class="profile-stat"><span class="profile-stat-val">38</span><span class="profile-stat-label">Completed</span></div>
+          <div class="profile-stat"><span class="profile-stat-val">12</span><span class="profile-stat-label">Reviews</span></div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="profile-tabs">
+      <button class="tab-btn active" onclick="switchProfileTab(this,'ptab-overview')">Overview</button>
+      <button class="tab-btn" onclick="switchProfileTab(this,'ptab-history')">History</button>
+      <button class="tab-btn" onclick="switchProfileTab(this,'ptab-favorites')">Favorites</button>
+      <button class="tab-btn" onclick="switchProfileTab(this,'ptab-stats')">Statistics</button>
+    </div>
+
+    <div class="profile-content">
+
+      <div class="tab-panel active" id="ptab-overview">
+        <div class="profile-stats-grid">
+          <div class="stat-card" style="background:var(--bg-card);border:1px solid var(--border);border-top:3px solid var(--accent);border-radius:var(--radius-md);padding:18px;text-align:center;">
+            <svg class="icon icon-md" style="color:var(--accent);margin:0 auto 10px;display:block;"><use href="#ico-tv"/></svg>
+            <div style="font-size:26px;font-weight:800;color:var(--accent);">5</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">Currently Watching</div>
+          </div>
+          <div class="stat-card" style="background:var(--bg-card);border:1px solid var(--border);border-top:3px solid var(--success);border-radius:var(--radius-md);padding:18px;text-align:center;">
+            <svg class="icon icon-md" style="color:var(--success);margin:0 auto 10px;display:block;"><use href="#ico-check"/></svg>
+            <div style="font-size:26px;font-weight:800;color:var(--success);">38</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">Completed</div>
+          </div>
+          <div class="stat-card" style="background:var(--bg-card);border:1px solid var(--border);border-top:3px solid var(--gold);border-radius:var(--radius-md);padding:18px;text-align:center;">
+            <svg class="icon icon-md" style="color:var(--gold);margin:0 auto 10px;display:block;fill:var(--gold);stroke:none;"><use href="#ico-star"/></svg>
+            <div style="font-size:26px;font-weight:800;color:var(--gold);">8.4</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">Mean Score</div>
+          </div>
+          <div class="stat-card" style="background:var(--bg-card);border:1px solid var(--border);border-top:3px solid #ff78a0;border-radius:var(--radius-md);padding:18px;text-align:center;">
+            <svg class="icon icon-md" style="color:#ff78a0;margin:0 auto 10px;display:block;"><use href="#ico-heart"/></svg>
+            <div style="font-size:26px;font-weight:800;color:#ff78a0;">24</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">Favorites</div>
+          </div>
+        </div>
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:14px;">Recent Activity</h3>
+        <div id="recentActivity"></div>
+        <h3 style="font-size:16px;font-weight:700;margin:24px 0 14px;">Favorite Genres</h3>
+        <div style="display:flex;flex-direction:column;gap:10px;" id="genreProgress"></div>
+      </div>
+
+      <div class="tab-panel" id="ptab-history"><div id="historyList"></div></div>
+      <div class="tab-panel" id="ptab-favorites"><div class="results-grid" style="padding:0;" id="favoritesGrid"></div></div>
+
+      <div class="tab-panel" id="ptab-stats">
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;">
+          <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:20px;">
+            <div style="font-size:14px;font-weight:700;margin-bottom:16px;">Top Genres</div>
+            <div id="topGenres"></div>
+          </div>
+          <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:20px;">
+            <div style="font-size:14px;font-weight:700;margin-bottom:16px;">Score Distribution</div>
+            <div id="scoreDist"></div>
+          </div>
+          <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:20px;">
+            <div style="font-size:14px;font-weight:700;margin-bottom:16px;">Watch by Year</div>
+            <div id="watchByYear"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================
+     CALENDAR PAGE
+============================================ -->
+<div class="page" id="page-calendar">
+  <div style="padding: 32px 0 48px;">
+    <div style="padding:0 16px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+      <h1 style="font-size:24px;font-weight:800;">Anime Calendar</h1>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button class="btn btn-ghost btn-sm"><svg class="icon icon-sm"><use href="#ico-chevron-l"/></svg></button>
+        <span style="font-size:13.5px;font-weight:600;color:var(--text-secondary);">June 17 – 23, 2024</span>
+        <button class="btn btn-ghost btn-sm"><svg class="icon icon-sm"><use href="#ico-chevron-r"/></svg></button>
+      </div>
+    </div>
+    <div class="calendar-grid" id="calendarGrid"></div>
+  </div>
+</div>
+
+<!-- ============================================
+     LOGIN PAGE
+============================================ -->
+<div class="page" id="page-login">
+  <div class="auth-page">
+    <div class="auth-card">
+      <div class="auth-logo" style="gap:0;">
+        Ani<span>vora</span>
+      </div>
+      <div class="auth-title" id="authTitle">Welcome Back</div>
+      <div class="auth-subtitle" id="authSubtitle">Sign in to your account</div>
+      <div id="loginForm">
+        <div class="form-group" id="usernameGroupWrap" style="display:none;">
+          <label class="form-label">Username</label>
+          <input type="text" class="form-input" placeholder="your_username">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-input" placeholder="you@example.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" class="form-input" placeholder="••••••••">
+        </div>
+        <div class="form-options">
+          <label class="checkbox-wrap"><input type="checkbox" checked> Remember me</label>
+          <a class="form-link" href="#">Forgot Password?</a>
+        </div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="showPage('home')">Sign In</button>
+        <div class="auth-divider">or</div>
+        <button class="btn btn-ghost" style="width:100%;justify-content:center;">
+          <svg class="icon icon-md"><use href="#ico-globe"/></svg>
+          Continue with Google
+        </button>
+        <div class="auth-switch">
+          Don't have an account? <a href="#" onclick="toggleAuthMode()">Create one</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================
+     ADMIN PAGE
+============================================ -->
+<div class="page" id="page-admin">
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <div style="padding:0 12px 16px;">
+        <div style="font-size:13px;font-weight:700;padding:0 10px 14px;border-bottom:1px solid var(--border);margin-bottom:12px;color:var(--text-secondary);">Admin Panel</div>
+      </div>
+      <div class="admin-menu-section">
+        <div class="admin-menu-label">Overview</div>
+        <div class="admin-menu-item active" onclick="switchAdmin(this,'admin-dashboard')">
+          <svg class="icon icon-sm"><use href="#ico-chart"/></svg> Dashboard
+        </div>
+        <div class="admin-menu-item" onclick="switchAdmin(this,'admin-analytics')">
+          <svg class="icon icon-sm"><use href="#ico-trending"/></svg> Analytics
+        </div>
+      </div>
+      <div class="admin-menu-section">
+        <div class="admin-menu-label">Content</div>
+        <div class="admin-menu-item" onclick="switchAdmin(this,'admin-anime')">
+          <svg class="icon icon-sm"><use href="#ico-layers"/></svg> Anime
+        </div>
+        <div class="admin-menu-item" onclick="switchAdmin(this,'admin-episodes')">
+          <svg class="icon icon-sm"><use href="#ico-tv"/></svg> Episodes
+        </div>
+        <div class="admin-menu-item" onclick="switchAdmin(this,'admin-genres')">
+          <svg class="icon icon-sm"><use href="#ico-grid"/></svg> Genres
+        </div>
+        <div class="admin-menu-item" onclick="switchAdmin(this,'admin-studios')">
+          <svg class="icon icon-sm"><use href="#ico-award"/></svg> Studios
+        </div>
+      </div>
+      <div class="admin-menu-section">
+        <div class="admin-menu-label">Users</div>
+        <div class="admin-menu-item" onclick="switchAdmin(this,'admin-users')">
+          <svg class="icon icon-sm"><use href="#ico-users"/></svg> Users
+        </div>
+        <div class="admin-menu-item" onclick="switchAdmin(this,'admin-comments')">
+          <svg class="icon icon-sm"><use href="#ico-msg"/></svg> Comments
+        </div>
+        <div class="admin-menu-item" onclick="switchAdmin(this,'admin-reports')">
+          <svg class="icon icon-sm"><use href="#ico-flag"/></svg> Reports
+        </div>
+      </div>
+      <div class="admin-menu-section">
+        <div class="admin-menu-label">Site</div>
+        <div class="admin-menu-item" onclick="switchAdmin(this,'admin-featured')">
+          <svg class="icon icon-sm"><use href="#ico-star"/></svg> Featured
+        </div>
+        <div class="admin-menu-item" onclick="switchAdmin(this,'admin-settings')">
+          <svg class="icon icon-sm"><use href="#ico-settings"/></svg> Settings
+        </div>
+      </div>
+    </aside>
+
+    <main class="admin-content">
+
+      <div id="admin-dashboard">
+        <div class="admin-page-title">Dashboard</div>
+        <div class="dashboard-stats">
+          <div class="stat-card">
+            <div class="stat-card-icon"><svg class="icon icon-md"><use href="#ico-users"/></svg></div>
+            <span class="stat-card-value">12,483</span>
+            <div class="stat-card-label">Total Users</div>
+            <div class="stat-card-change"><svg class="icon icon-sm"><use href="#ico-trending"/></svg> +3.2% this week</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-icon"><svg class="icon icon-md"><use href="#ico-layers"/></svg></div>
+            <span class="stat-card-value">4,820</span>
+            <div class="stat-card-label">Anime Titles</div>
+            <div class="stat-card-change"><svg class="icon icon-sm"><use href="#ico-trending"/></svg> +24 this month</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-icon"><svg class="icon icon-md"><use href="#ico-tv"/></svg></div>
+            <span class="stat-card-value">98,342</span>
+            <div class="stat-card-label">Total Episodes</div>
+            <div class="stat-card-change"><svg class="icon icon-sm"><use href="#ico-trending"/></svg> +180 this week</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-icon"><svg class="icon icon-md"><use href="#ico-eye"/></svg></div>
+            <span class="stat-card-value">2.4M</span>
+            <div class="stat-card-label">Monthly Views</div>
+            <div class="stat-card-change"><svg class="icon icon-sm"><use href="#ico-trending"/></svg> +12.5% this month</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-icon"><svg class="icon icon-md"><use href="#ico-msg"/></svg></div>
+            <span class="stat-card-value">34,120</span>
+            <div class="stat-card-label">Comments</div>
+            <div class="stat-card-change"><svg class="icon icon-sm"><use href="#ico-trending"/></svg> +540 this week</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-icon"><svg class="icon icon-md"><use href="#ico-star"/></svg></div>
+            <span class="stat-card-value">8.6</span>
+            <div class="stat-card-label">Avg. Rating</div>
+            <div class="stat-card-change" style="color:var(--text-muted);">Stable</div>
+          </div>
+        </div>
+        <div class="admin-table-wrap">
+          <div class="admin-table-header">
+            <div style="font-size:15px;font-weight:700;">Recently Added Anime</div>
+            <button class="btn btn-primary btn-sm" onclick="switchAdmin(null,'admin-anime')">
+              <svg class="icon icon-sm"><use href="#ico-plus"/></svg> Add Anime
+            </button>
+          </div>
+          <table class="admin-table">
+            <thead>
+              <tr><th>Title</th><th>Type</th><th>Status</th><th>Episodes</th><th>Score</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="adminAnimeTable"></tbody>
+          </table>
+        </div>
+        <div class="admin-table-wrap">
+          <div class="admin-table-header">
+            <div style="font-size:15px;font-weight:700;">Recent Users</div>
+            <button class="btn btn-ghost btn-sm">Manage All</button>
+          </div>
+          <table class="admin-table">
+            <thead>
+              <tr><th>User</th><th>Email</th><th>Joined</th><th>Watched</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="adminUserTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="admin-anime" style="display:none;">
+        <div class="admin-page-title">Manage Anime</div>
+        <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
+          <div style="display:flex;align-items:center;gap:8px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-sm);padding:7px 12px;flex:1;min-width:180px;max-width:280px;">
+            <svg class="icon icon-sm" style="color:var(--text-muted);flex-shrink:0;"><use href="#ico-search"/></svg>
+            <input style="background:transparent;border:none;outline:none;color:var(--text-primary);font-size:13px;width:100%;" placeholder="Search anime...">
+          </div>
+          <select class="filter-select"><option>All Status</option><option>Airing</option><option>Finished</option></select>
+          <button class="btn btn-primary btn-sm" style="margin-left:auto;">
+            <svg class="icon icon-sm"><use href="#ico-plus"/></svg> Add New Anime
+          </button>
+        </div>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead><tr><th>Title</th><th>Type</th><th>Status</th><th>Eps</th><th>Score</th><th>Actions</th></tr></thead>
+            <tbody id="adminAnimeTable2"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="admin-users" style="display:none;">
+        <div class="admin-page-title">Manage Users</div>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead><tr><th>User</th><th>Email</th><th>Role</th><th>Joined</th><th>Actions</th></tr></thead>
+            <tbody id="adminUserTable2"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="admin-analytics" style="display:none;">
+        <div class="admin-page-title">Analytics</div>
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:48px 24px;text-align:center;color:var(--text-muted);">
+          <svg class="icon icon-xl" style="margin:0 auto 14px;"><use href="#ico-chart"/></svg>
+          <div style="font-size:14px;">Analytics charts would be rendered here using Chart.js or similar library.</div>
+        </div>
+      </div>
+
+      <div id="admin-genres" style="display:none;">
+        <div class="admin-page-title">Manage Genres</div>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px;" id="genreManagement"></div>
+        <div style="display:flex;gap:10px;">
+          <input type="text" class="form-input" placeholder="New genre name..." style="max-width:240px;padding:8px 12px;font-size:13px;">
+          <button class="btn btn-primary btn-sm">
+            <svg class="icon icon-sm"><use href="#ico-plus"/></svg> Add Genre
+          </button>
+        </div>
+      </div>
+
+      <div id="admin-studios" style="display:none;">
+        <div class="admin-page-title">Manage Studios</div>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead><tr><th>Studio</th><th>Anime Count</th><th>Founded</th><th>Actions</th></tr></thead>
+            <tbody id="studioTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="admin-episodes" style="display:none;">
+        <div class="admin-page-title">Manage Episodes</div>
+        <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
+          <select class="filter-select" style="min-width:220px;"><option>Select Anime...</option></select>
+          <select class="filter-select"><option>All Seasons</option></select>
+          <button class="btn btn-primary btn-sm" style="margin-left:auto;">
+            <svg class="icon icon-sm"><use href="#ico-plus"/></svg> Add Episode
+          </button>
+        </div>
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:32px;text-align:center;color:var(--text-muted);font-size:14px;">
+          Select an anime to manage its episodes
+        </div>
+      </div>
+
+      <div id="admin-comments" style="display:none;">
+        <div class="admin-page-title">Manage Comments</div>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead><tr><th>User</th><th>Anime</th><th>Comment</th><th>Date</th><th>Actions</th></tr></thead>
+            <tbody id="commentTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="admin-reports" style="display:none;">
+        <div class="admin-page-title">Reports</div>
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:32px;text-align:center;">
+          <svg class="icon icon-lg" style="color:var(--success);margin:0 auto 10px;display:block;"><use href="#ico-check"/></svg>
+          <div style="font-size:14px;color:var(--text-muted);">No pending reports</div>
+        </div>
+      </div>
+
+      <div id="admin-featured" style="display:none;">
+        <div class="admin-page-title">Manage Featured</div>
+        <p style="font-size:13px;color:var(--text-secondary);margin-bottom:20px;">Configure the Hero section and homepage section order.</p>
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:20px;">
+          <div style="font-size:14px;font-weight:600;margin-bottom:14px;">Current Hero Anime</div>
+          <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+            <img src="https://picsum.photos/80/120?random=30" style="border-radius:8px;width:56px;height:84px;object-fit:cover;" alt="">
+            <div>
+              <div style="font-weight:600;margin-bottom:4px;">Fullmetal Alchemist: Brotherhood</div>
+              <div style="font-size:12px;color:var(--text-muted);">9.11 · TV · 64 eps</div>
+            </div>
+            <button class="btn btn-ghost btn-sm" style="margin-left:auto;">
+              <svg class="icon icon-sm"><use href="#ico-edit"/></svg> Change
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div id="admin-settings" style="display:none;">
+        <div class="admin-page-title">Site Settings</div>
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;max-width:560px;">
+          <div class="form-group">
+            <label class="form-label">Site Name</label>
+            <input type="text" class="form-input" value="Anivora">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Site Description</label>
+            <input type="text" class="form-input" value="Premium Anime Streaming Platform">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Default Language</label>
+            <select class="filter-select" style="width:100%;"><option>Sub (English)</option><option>Dub (English)</option></select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Auto-Play Next Episode</label>
+            <select class="filter-select" style="width:100%;"><option>Enabled</option><option>Disabled</option></select>
+          </div>
+          <button class="btn btn-primary">
+            <svg class="icon icon-sm"><use href="#ico-check"/></svg>
+            Save Settings
+          </button>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <div class="bottom-nav-inner">
+    <div class="bottom-nav-item active" onclick="showPage('home')">
+      <svg class="icon icon-lg"><use href="#ico-home"/></svg>
+      Home
+    </div>
+    <div class="bottom-nav-item" onclick="showPage('explore')">
+      <svg class="icon icon-lg"><use href="#ico-search"/></svg>
+      Search
+    </div>
+    <div class="bottom-nav-item" onclick="showPage('seasonal')">
+      <svg class="icon icon-lg"><use href="#ico-sun"/></svg>
+      Seasonal
+    </div>
+    <div class="bottom-nav-item" onclick="showPage('watchlist')">
+      <svg class="icon icon-lg"><use href="#ico-bookmark"/></svg>
+      My List
+    </div>
+    <div class="bottom-nav-item" onclick="showPage('profile')">
+      <svg class="icon icon-lg"><use href="#ico-user"/></svg>
+      Profile
+    </div>
+  </div>
+</nav>
+
+<script src="script.js"></script>
+</body>
+</html>
