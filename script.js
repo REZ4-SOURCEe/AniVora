@@ -13,6 +13,64 @@ function triggerPageLoader() {
 }
 
 /* ============================================
+   LOCAL STORAGE HELPERS (Watchlist / Likes)
+============================================ */
+function getStore(key) {
+  try { return JSON.parse(localStorage.getItem(key)) || []; }
+  catch(e) { return []; }
+}
+function setStore(key, val) {
+  try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) {}
+}
+function isInList(animeId) {
+  return getStore('anivora_list').includes(animeId);
+}
+function toggleList(animeId, btn) {
+  let list = getStore('anivora_list');
+  if (list.includes(animeId)) {
+    list = list.filter(id => id !== animeId);
+  } else {
+    list.push(animeId);
+  }
+  setStore('anivora_list', list);
+  // refresh all Add buttons on page
+  document.querySelectorAll(`[data-add-btn="${animeId}"]`).forEach(b => updateAddBtnUI(b, animeId));
+  if (btn) updateAddBtnUI(btn, animeId);
+}
+function updateAddBtnUI(btn, animeId) {
+  if (!btn) return;
+  const added = isInList(animeId);
+  const icon = added ? 'ico-check' : 'ico-plus';
+  const label = added ? 'Added' : 'Add to List';
+  btn.innerHTML = `<svg class="icon icon-sm"><use href="#${icon}"/></svg> ${label}`;
+  btn.classList.toggle('is-added', added);
+}
+function isLiked(animeId) {
+  return getStore('anivora_likes').includes(animeId);
+}
+function toggleLike(animeId, btn) {
+  let likes = getStore('anivora_likes');
+  if (likes.includes(animeId)) {
+    likes = likes.filter(id => id !== animeId);
+  } else {
+    likes.push(animeId);
+  }
+  setStore('anivora_likes', likes);
+  document.querySelectorAll(`[data-like-btn="${animeId}"]`).forEach(b => updateLikeBtnUI(b, animeId));
+  if (btn) updateLikeBtnUI(btn, animeId);
+}
+function updateLikeBtnUI(btn, animeId) {
+  if (!btn) return;
+  const liked = isLiked(animeId);
+  btn.classList.toggle('is-liked', liked);
+  const svg = btn.querySelector('svg use');
+  if (svg) svg.setAttribute('href', liked ? '#ico-heart-fill' : '#ico-heart');
+  // update label if there is text
+  const label = btn.querySelector('.like-label');
+  if (label) label.textContent = liked ? 'Liked' : 'Like';
+}
+
+/* ============================================
    NAVIGATION
 ============================================ */
 function showPage(id, skipHistory) {
@@ -92,6 +150,7 @@ function switchProfileTab(btn,panelId) {
 ============================================ */
 function renderAnimeCard(a) {
   const sc = a.status==='Airing'?'status-airing':a.status==='Upcoming'?'status-upcoming':'status-finished';
+  const added = isInList(a.id);
   return `
     <div class="anime-card" onclick="openAnimeDetail(${a.id})">
       <div class="card-poster">
@@ -103,8 +162,13 @@ function renderAnimeCard(a) {
         <div class="card-type">${a.type}</div>
         ${a.status==='Airing'?'<div class="card-airing-dot"></div>':''}
         <div class="card-poster-overlay">
-          <button class="card-watch-btn" onclick="event.stopPropagation();watchAnime(${a.id})">Watch</button>
-          <button class="card-list-btn" onclick="event.stopPropagation()">Add</button>
+          <button class="card-watch-btn" onclick="event.stopPropagation();watchAnime(${a.id})">
+            <svg class="icon icon-sm" style="fill:#fff;stroke:none;"><use href="#ico-play"/></svg> Watch
+          </button>
+          <button class="card-list-btn ${added?'is-added':''}" data-add-btn="${a.id}"
+                  onclick="event.stopPropagation();toggleList(${a.id}, this)">
+            <svg class="icon icon-sm"><use href="#${added?'ico-check':'ico-plus'}"/></svg> ${added?'Added':'Add'}
+          </button>
         </div>
       </div>
       <div class="card-body">
@@ -166,10 +230,115 @@ function openAnimeDetail(animeId) {
   const backdrop = document.querySelector('.detail-backdrop img');
   if (backdrop && anime.backdrop) backdrop.src = anime.backdrop;
 
+  renderDetailActions(anime);
   renderDetailEpisodes(anime);
   showPage('detail');
 }
 
+function renderDetailActions(anime) {
+  const row = document.querySelector('.detail-actions-row');
+  if (!row) return;
+  const added = isInList(anime.id);
+  const liked = isLiked(anime.id);
+  row.innerHTML = `
+    <button class="btn btn-primary" onclick="watchAnime(${anime.id})">
+      <svg class="icon icon-sm" style="fill:#fff;stroke:none;"><use href="#ico-play"/></svg>Watch Now
+    </button>
+    <button class="btn btn-ghost" data-add-btn="${anime.id}" onclick="toggleList(${anime.id}, this)">
+      <svg class="icon icon-sm"><use href="#${added?'ico-check':'ico-plus'}"/></svg> ${added?'Added':'Add to List'}
+    </button>
+    <button class="btn btn-ghost btn-icon ${liked?'is-liked':''}" data-like-btn="${anime.id}" onclick="toggleLike(${anime.id}, this)" title="Like">
+      <svg class="icon icon-md"><use href="#${liked?'ico-heart-fill':'ico-heart'}"/></svg>
+    </button>
+    <button class="btn btn-ghost btn-icon" onclick="shareAnime(${anime.id})" title="Share">
+      <svg class="icon icon-md"><use href="#ico-share"/></svg>
+    </button>
+    <button class="btn btn-ghost btn-icon" onclick="toggleDownloadMenu(event, ${anime.id}, 1)" title="Download">
+      <svg class="icon icon-md"><use href="#ico-download"/></svg>
+    </button>
+    <div class="download-menu" id="dlMenuDetail"></div>
+  `;
+}
+
+function shareAnime(animeId) {
+  const url = location.origin + location.pathname + '#detail';
+  if (navigator.share) {
+    navigator.share({ title: 'Anivora', url }).catch(()=>{});
+  } else {
+    navigator.clipboard.writeText(url).then(()=> showToast('Link copied!')).catch(()=>{});
+  }
+}
+
+function showToast(msg) {
+  let t = document.getElementById('anivoraToast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'anivoraToast';
+    t.className = 'anivora-toast';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t.__timer);
+  t.__timer = setTimeout(()=> t.classList.remove('show'), 1800);
+}
+
+/* ============================================
+   DOWNLOAD MENU
+============================================ */
+function toggleDownloadMenu(e, animeId, epNum) {
+  if (e) e.stopPropagation();
+  const anime = ANIME_DATA.find(a => a.id === animeId);
+  if (!anime) return;
+  const ep = anime.episodes.find(x => x.num === epNum) || anime.episodes[0];
+  if (!ep) return;
+  const qualities = ep.qualities && ep.qualities.length ? ep.qualities : [{label:'1080p', url: ep.videoUrl}];
+
+  // Remove existing menu
+  document.querySelectorAll('.download-menu.open').forEach(m => m.classList.remove('open'));
+
+  // Find or create menu near button
+  const btn = e ? e.currentTarget : null;
+  let menu;
+  if (btn && btn.parentElement) {
+    menu = btn.parentElement.querySelector('.download-menu');
+    if (!menu) {
+      menu = document.createElement('div');
+      menu.className = 'download-menu';
+      btn.parentElement.appendChild(menu);
+    }
+  } else {
+    menu = document.getElementById('dlMenuDetail');
+  }
+  if (!menu) return;
+
+  menu.innerHTML = `
+    <div class="download-menu-header">Download · Ep ${ep.num}</div>
+    ${qualities.map(q => `
+      <a class="download-menu-item" href="${q.url}" download target="_blank" rel="noopener" onclick="event.stopPropagation()">
+        <svg class="icon icon-sm"><use href="#ico-download"/></svg>
+        <span>${q.label}</span>
+        <span class="download-menu-size">MKV</span>
+      </a>
+    `).join('')}
+  `;
+  menu.classList.add('open');
+  setTimeout(()=> {
+    document.addEventListener('click', closeDownloadMenusOnce, { once: true });
+  }, 0);
+}
+function closeDownloadMenusOnce() {
+  document.querySelectorAll('.download-menu.open').forEach(m => m.classList.remove('open'));
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('.download-menu') && !e.target.closest('[title="Download"]')) {
+    document.querySelectorAll('.download-menu.open').forEach(m => m.classList.remove('open'));
+  }
+});
+
+/* ============================================
+   EPISODES
+============================================ */
 function renderDetailEpisodes(anime) {
   const grid = document.getElementById('episodesGrid');
   if (!grid) return;
@@ -206,7 +375,30 @@ function openEpisode(animeId, epNum) {
     loadEpisodeInPlayer(anime, ep);
     renderWatchSidebar(anime, epNum);
     renderUpNext(anime, epNum);
+    renderWatchActions(anime, ep);
   }, 100);
+}
+
+function renderWatchActions(anime, ep) {
+  const wrap = document.querySelector('.watch-info > div[style*="display:flex"] > div[style*="margin-left:auto"]');
+  if (!wrap) return;
+  const added = isInList(anime.id);
+  const liked = isLiked(anime.id);
+  wrap.innerHTML = `
+    <button class="btn btn-ghost btn-sm ${liked?'is-liked':''}" data-like-btn="${anime.id}" onclick="toggleLike(${anime.id}, this)">
+      <svg class="icon icon-sm"><use href="#${liked?'ico-heart-fill':'ico-heart'}"/></svg> <span class="like-label">${liked?'Liked':'Like'}</span>
+    </button>
+    <button class="btn btn-ghost btn-sm ${added?'is-added':''}" data-add-btn="${anime.id}" onclick="toggleList(${anime.id}, this)">
+      <svg class="icon icon-sm"><use href="#${added?'ico-check':'ico-plus'}"/></svg> <span class="add-label">${added?'Added':'Add to List'}</span>
+    </button>
+    <button class="btn btn-ghost btn-sm" onclick="shareAnime(${anime.id})">
+      <svg class="icon icon-sm"><use href="#ico-share"/></svg> Share
+    </button>
+    <button class="btn btn-ghost btn-sm" onclick="toggleDownloadMenu(event, ${anime.id}, ${ep.num})">
+      <svg class="icon icon-sm"><use href="#ico-download"/></svg> Download
+    </button>
+    <div class="download-menu" id="dlMenuWatch"></div>
+  `;
 }
 
 function loadEpisodeInPlayer(anime, ep) {
@@ -471,22 +663,54 @@ function initCalendar() {
 }
 
 /* ============================================
-   WATCHLIST
+   WATCHLIST (with filter tabs)
 ============================================ */
+let watchlistFilter = 'all';
 function initWatchlist() {
-  const el=document.getElementById('watchlistContent');
-  if(!el) return;
-  el.innerHTML=ANIME_DATA.map(a=>`
+  const el = document.getElementById('watchlistContent');
+  if (!el) return;
+  const listIds = getStore('anivora_list');
+  let items = ANIME_DATA.filter(a => listIds.includes(a.id));
+
+  if (watchlistFilter === 'watching') items = items.filter(a => a.status === 'Airing');
+  if (watchlistFilter === 'completed') items = items.filter(a => a.status === 'Finished');
+
+  if (items.length === 0) {
+    el.innerHTML = `<div style="text-align:center;padding:40px 16px;color:var(--text-muted);font-size:13.5px;">
+      <svg class="icon icon-xl" style="color:var(--text-muted);margin:0 auto 12px;display:block;"><use href="#ico-bookmark"/></svg>
+      No anime in this list yet. Add some from the cards!
+    </div>`;
+    return;
+  }
+  el.innerHTML = items.map(a => {
+    const added = isInList(a.id);
+    return `
     <div style="display:flex;align-items:center;gap:14px;padding:12px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);margin-bottom:8px;cursor:pointer;" onclick="openAnimeDetail(${a.id})">
       <img src="${a.img}" style="width:54px;height:78px;border-radius:8px;object-fit:cover;" alt="">
-      <div style="flex:1;">
+      <div style="flex:1;min-width:0;">
         <div style="font-size:14px;font-weight:600;">${a.title}</div>
         <div style="font-size:12px;color:var(--text-muted);">${a.type} · ${a.year} · ${a.eps} eps</div>
       </div>
-      <button class="btn btn-primary btn-sm" onclick="event.stopPropagation();watchAnime(${a.id})">
+      <button class="btn btn-primary btn-sm" onclick="event.stopPropagation();watchAnime(${a.id})" title="Play">
         <svg class="icon icon-sm" style="fill:#fff;stroke:none;"><use href="#ico-play"/></svg>
       </button>
-    </div>`).join('');
+      <button class="btn btn-ghost btn-sm" data-add-btn="${a.id}" onclick="event.stopPropagation();toggleList(${a.id}, this)" title="Remove">
+        <svg class="icon icon-sm"><use href="#${added?'ico-check':'ico-plus'}"/></svg>
+      </button>
+    </div>`;
+  }).join('');
+}
+function initWatchlistTabs() {
+  const btns = document.querySelectorAll('.list-cat-btn');
+  btns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      btns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const label = btn.textContent.trim().toLowerCase();
+      watchlistFilter = label === 'watching' ? 'watching' : label === 'completed' ? 'completed' : 'all';
+      initWatchlist();
+    });
+  });
 }
 
 /* ============================================
@@ -748,6 +972,7 @@ function init() {
   initReviews();
   initCalendar();
   initWatchlist();
+  initWatchlistTabs();
   initProfile();
   updateBottomNav(initialPage);
   initCustomSelects();

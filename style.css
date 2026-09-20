@@ -279,6 +279,24 @@ input, select { font-family: inherit; }
 }
 .btn-sm { padding: 6px 14px; font-size: 12px; }
 
+/* BUTTON STATES (Add / Like) */
+.btn-ghost.is-added,
+.card-list-btn.is-added {
+  background: rgba(76,175,128,0.14) !important;
+  color: var(--success) !important;
+  border-color: rgba(76,175,128,0.35) !important;
+}
+.btn-ghost.is-liked {
+  background: rgba(255,120,160,0.15) !important;
+  color: #ff78a0 !important;
+  border-color: rgba(255,120,160,0.4) !important;
+}
+.btn-ghost.is-liked svg {
+  fill: #ff78a0;
+  stroke: #ff78a0;
+}
+.btn-ghost.is-liked svg use { fill: #ff78a0; stroke: #ff78a0; }
+
 /* SECTION */
 .section { padding: 48px 0; }
 .section-header {
@@ -612,7 +630,7 @@ input, select { font-family: inherit; }
 .detail-stat-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; }
 .detail-stat-value { font-size: 14px; font-weight: 600; }
 .detail-genres-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 18px; }
-.detail-actions-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.detail-actions-row { display: flex; gap: 8px; flex-wrap: wrap; position: relative; align-items: center; }
 .detail-desc {
   margin-top: 28px;
   font-size: 14px;
@@ -1279,6 +1297,80 @@ input, select { font-family: inherit; }
 .genre-horror { background: rgba(180,40,40,0.1); color: #b42828; }
 .genre-comedy { background: rgba(80,220,160,0.1); color: #50dca0; }
 
+/* ============================================
+   DOWNLOAD MENU
+============================================ */
+.download-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  min-width: 220px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-hover);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-modal);
+  padding: 6px;
+  z-index: 999;
+  display: none;
+  animation: fadeUp 0.15s ease both;
+}
+.download-menu.open { display: block; }
+.download-menu-header {
+  padding: 8px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 4px;
+}
+.download-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: var(--text-primary);
+  transition: var(--transition);
+}
+.download-menu-item:hover { background: var(--bg-elevated); color: var(--accent); }
+.download-menu-item svg { color: var(--accent); }
+.download-menu-size {
+  margin-left: auto;
+  font-size: 10.5px;
+  color: var(--text-muted);
+  background: var(--bg-elevated);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* TOAST */
+.anivora-toast {
+  position: fixed;
+  bottom: 90px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  border: 1px solid var(--border-hover);
+  padding: 10px 20px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: var(--shadow-modal);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s;
+  z-index: 5000;
+}
+.anivora-toast.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
 /* PAGE LOADER */
 .page-loader {
   position: fixed;
@@ -1417,7 +1509,6 @@ input, select { font-family: inherit; }
   .player-ctrl-select { padding: 3px 5px; font-size: 10.5px; }
   .player-time { display: none; }
 }
-
 
 /* ============================================
    CUSTOM BOTTOM-SHEET SELECT

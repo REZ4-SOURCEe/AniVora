@@ -27,6 +27,7 @@
     <symbol id="ico-star" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></symbol>
     <symbol id="ico-star-o" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></symbol>
     <symbol id="ico-heart" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></symbol>
+    <symbol id="ico-heart-fill" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" fill="currentColor" stroke="none"/></symbol>
     <symbol id="ico-film" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="17" x2="22" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/></symbol>
     <symbol id="ico-trending" viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></symbol>
     <symbol id="ico-zap" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" fill="currentColor" stroke="none"/></symbol>
@@ -61,6 +62,7 @@
     <symbol id="ico-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></symbol>
     <symbol id="ico-menu" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></symbol>
     <symbol id="ico-upload" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></symbol>
+    <symbol id="ico-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></symbol>
     <symbol id="ico-speed" viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 1 7.38 16.75"/><path d="M12 2A10 10 0 0 0 4.62 18.75"/><polyline points="12 12 15 9"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/></symbol>
     <symbol id="ico-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></symbol>
     <symbol id="ico-gem" viewBox="0 0 24 24"><path d="M6 3h12l4 6-10 13L2 9z"/><path d="M2 9h20"/><path d="M6 3l4 6m8-6l-4 6"/></symbol>
@@ -162,8 +164,8 @@
       </div>
       <p class="hero-desc">A student joins a secret organization of Jujutsu Sorcerers to fight Curses.</p>
       <div class="hero-actions">
-        <button class="btn btn-primary" onclick="watchAnime(1)"><svg class="icon icon-sm" style="fill:#fff;stroke:none;"><use href="#ico-play"/></svg>Watch Now</button>
-        <button class="btn btn-ghost"><svg class="icon icon-sm"><use href="#ico-plus"/></svg>Add to List</button>
+        <button class="btn btn-primary" onclick="openAnimeDetail(1)"><svg class="icon icon-sm" style="fill:#fff;stroke:none;"><use href="#ico-play"/></svg>Watch Now</button>
+        <button class="btn btn-ghost" data-add-btn="1" onclick="toggleList(1, this)"><svg class="icon icon-sm"><use href="#ico-plus"/></svg> Add to List</button>
       </div>
     </div>
   </section>
@@ -288,14 +290,7 @@
           <h1 class="detail-title"></h1>
           <div class="detail-stats-row"></div>
           <div class="detail-genres-row"></div>
-          <div class="detail-actions-row">
-            <button class="btn btn-primary" onclick="watchAnime(window.__currentAnime?.id)">
-              <svg class="icon icon-sm" style="fill:#fff;stroke:none;"><use href="#ico-play"/></svg>Watch Now
-            </button>
-            <button class="btn btn-ghost"><svg class="icon icon-sm"><use href="#ico-plus"/></svg>Add to List</button>
-            <button class="btn btn-ghost btn-icon"><svg class="icon icon-md"><use href="#ico-heart"/></svg></button>
-            <button class="btn btn-ghost btn-icon"><svg class="icon icon-md"><use href="#ico-share"/></svg></button>
-          </div>
+          <div class="detail-actions-row" id="detailActionsRow"></div>
         </div>
       </div>
       <p class="detail-desc collapsed" id="detailDesc"></p>
@@ -373,11 +368,7 @@
             <span style="font-size:13px;color:var(--text-muted);display:flex;align-items:center;gap:4px;">
               <svg class="icon icon-sm"><use href="#ico-clock"/></svg> 24 min
             </span>
-            <div style="display:flex;gap:8px;margin-left:auto;flex-wrap:wrap;">
-              <button class="btn btn-ghost btn-sm"><svg class="icon icon-sm"><use href="#ico-heart"/></svg> Like</button>
-              <button class="btn btn-ghost btn-sm"><svg class="icon icon-sm"><use href="#ico-plus"/></svg> Add to List</button>
-              <button class="btn btn-ghost btn-sm"><svg class="icon icon-sm"><use href="#ico-share"/></svg> Share</button>
-            </div>
+            <div style="display:flex;gap:8px;margin-left:auto;flex-wrap:wrap;position:relative;" id="watchActionsRow"></div>
           </div>
           <p class="watch-ep-desc"></p>
         </div>
