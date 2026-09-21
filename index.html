@@ -58,6 +58,7 @@
     <symbol id="ico-award" viewBox="0 0 24 24"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></symbol>
     <symbol id="ico-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></symbol>
     <symbol id="ico-volume" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></symbol>
+    <symbol id="ico-volume-x" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></symbol>
     <symbol id="ico-maximize" viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></symbol>
     <symbol id="ico-minimize" viewBox="0 0 24 24"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/></symbol>
     <symbol id="ico-skip-f" viewBox="0 0 24 24"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></symbol>
@@ -338,16 +339,20 @@
       </div>
       <div class="player-controls">
         <div class="player-progress" onclick="seekPlayer(event)">
-          <div class="player-progress-fill" id="playerProgress" style="width:42%;"></div>
+          <div class="player-progress-fill" id="playerProgress" style="width:0%;"></div>
         </div>
         <div class="player-bottom">
           <div class="player-left">
             <button class="player-btn" id="playPauseBtn" onclick="togglePlay(event)">
               <svg class="icon icon-md" style="fill:rgba(255,255,255,0.85);stroke:none;"><use href="#ico-pause"/></svg>
             </button>
-            <button class="player-btn" title="Next episode"><svg class="icon icon-md"><use href="#ico-skip-f"/></svg></button>
-            <button class="player-btn"><svg class="icon icon-md"><use href="#ico-volume"/></svg></button>
-            <span class="player-time">14:22 / 24:00</span>
+            <button class="player-btn" id="nextBtn" title="Next episode" onclick="playNextEpisode(event)">
+  <svg class="icon icon-md"><use href="#ico-skip-f"/></svg>
+</button>
+<button class="player-btn" id="volumeBtn" title="Mute" onclick="toggleMute(event)">
+  <svg class="icon icon-md"><use href="#ico-volume"/></svg>
+</button>
+            <span class="player-time">00:00 / 00:00</span>
           </div>
           <div class="player-right">
             <select class="player-ctrl-select" title="Playback speed">

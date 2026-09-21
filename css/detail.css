@@ -350,3 +350,91 @@
   color: var(--text-secondary);
   line-height: 1.65;
 }
+
+
+
+
+
+/* ============================================
+   EPISODE THUMBNAILS (Detail Page)
+============================================ */
+.ep-thumb {
+  width: 90px;
+  height: 52px;
+  border-radius: 6px;
+  overflow: hidden;
+  flex-shrink: 0;
+  position: relative;
+  background: var(--bg-elevated);
+}
+.ep-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  position: absolute;
+  inset: 0;
+}
+.ep-play {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10,10,15,0.55);
+  opacity: 0;
+  transition: var(--transition);
+  color: #fff;
+  z-index: 2;
+}
+.episode-row:hover .ep-play {
+  opacity: 1;
+}
+
+/* ============================================
+   SIDEBAR EPISODE THUMBNAILS (Watch Page)
+============================================ */
+.sidebar-ep-thumb {
+  width: 70px;
+  height: 40px;
+  border-radius: 5px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--bg-elevated);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.sidebar-ep-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.sidebar-ep-thumb svg {
+  color: var(--text-muted);
+}
+
+/* ============================================
+   UP NEXT CARDS (Watch Page)
+============================================ */
+.up-next-thumb {
+  width: 100%;
+  height: 110px;
+  background: var(--bg-elevated);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.up-next-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.up-next-thumb svg {
+  color: var(--text-muted);
+}

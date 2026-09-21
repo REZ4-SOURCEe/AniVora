@@ -417,3 +417,75 @@
   background: var(--bg-elevated);
   border-radius: 2px;
 }
+
+
+
+
+/* ============================================
+   UP NEXT CARDS
+============================================ */
+.up-next-card {
+  flex-shrink: 0;
+  width: 200px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.up-next-card:hover {
+  border-color: var(--border-hover);
+}
+
+.up-next-thumb {
+  width: 100%;
+  height: 110px;
+  background: var(--bg-elevated);
+  position: relative;
+  overflow: hidden;
+}
+.up-next-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.up-next-play-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10,10,15,0.35);
+  color: #fff;
+  z-index: 2;
+  transition: var(--transition);
+}
+.up-next-card:hover .up-next-play-overlay {
+  background: rgba(10,10,15,0.55);
+}
+.up-next-play-overlay svg {
+  fill: #fff;
+  stroke: none;
+  width: 32px;
+  height: 32px;
+  opacity: 0.9;
+}
+
+.up-next-body {
+  padding: 10px;
+}
+.up-next-ep {
+  font-size: 10.5px;
+  color: var(--text-muted);
+  margin-bottom: 3px;
+}
+.up-next-title {
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

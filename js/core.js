@@ -49,7 +49,6 @@ export function updateAddBtnUI(btn, animeId) {
   const added = isInList(animeId);
   const icon = added ? 'ico-check' : 'ico-plus';
   const label = added ? 'Added' : 'Add to List';
-  // سازگاری با دکمه‌های کوچک (فقط آیکون)
   const hasLabel = btn.textContent.trim().length > 0 || btn.querySelector('.add-label');
   if (hasLabel) {
     const labelEl = btn.querySelector('.add-label');
@@ -114,8 +113,10 @@ export function shuffle(arr) {
 }
 export function formatTime(sec) {
   if (!sec || isNaN(sec)) return '00:00';
-  const m = Math.floor(sec / 60);
+  const h = Math.floor(sec / 3600);
+  const m = Math.floor((sec % 3600) / 60);
   const s = Math.floor(sec % 60);
+  if (h > 0) return `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
   return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
 }
 
@@ -185,6 +186,11 @@ export function initCustomSelects() {
   });
 }
 function handleCustomSelect(e) {
+  // سلکت‌های پلیر native بمونن
+  if (e.currentTarget.matches('select[title="Quality"]')) return;
+  if (e.currentTarget.matches('select[title="Playback speed"]')) return;
+  if (e.currentTarget.classList.contains('player-ctrl-select')) return;
+
   if (e.cancelable) e.preventDefault();
   const sel = e.currentTarget;
   const existing = document.querySelector('.custom-select-sheet');
@@ -243,26 +249,22 @@ export function closeCustomSheet() {
    GLOBAL EVENTS
 ============================================ */
 export function bindGlobalEvents() {
-  // close notif on outside click
   document.addEventListener('click', e => {
     if (!e.target.closest('#notifPanel') && !e.target.closest('[onclick="toggleNotif()"]')) {
       document.getElementById('notifPanel')?.classList.remove('open');
     }
   });
 
-  // close custom sheet on Escape
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') closeCustomSheet();
   });
 
-  // image error fallback
   document.addEventListener('error', e => {
     if (e.target.tagName === 'IMG') {
       e.target.src = `https://picsum.photos/200/300?random=${Math.floor(Math.random()*999)+1}`;
     }
   }, true);
 
-  // browser back/forward
   window.addEventListener('popstate', function(e) {
     if (e.state && e.state.page) showPage(e.state.page, true);
     else showPage('home', true);

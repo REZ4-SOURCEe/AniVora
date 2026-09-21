@@ -3,8 +3,7 @@
    card, player, download menu
 ============================================ */
 
-import { isInList, toggleList } from './core.js';
-import { formatTime, showToast } from './core.js';
+import { isInList, toggleList, formatTime, showToast } from './core.js';
 import { ANIME_DATA } from './data.js';
 
 /* ============================================
@@ -125,7 +124,7 @@ export function shareAnime(animeId) {
 }
 
 /* ============================================
-   PLAYER
+   PLAYER — Core
 ============================================ */
 let isPlaying = false;
 let hideControlsTimer = null;
@@ -133,11 +132,35 @@ let hideControlsTimer = null;
 export function togglePlay(e) {
   if (e) e.stopPropagation();
   const video = window.__realVideo;
+
   if (video) {
-    if (video.paused) video.play().catch(err => console.log(err));
-    else video.pause();
-    isPlaying = !video.paused;
-    updatePlayerUI();
+    if (video.paused) {
+      video.muted = false;
+      video.volume = 1;
+
+      const playPromise = video.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            isPlaying = true;
+            updatePlayerUI();
+            updateVolumeIcon();
+          })
+          .catch((error) => {
+            console.log("Play error:", error);
+            video.muted = true;
+            video.play().then(() => {
+              isPlaying = true;
+              updatePlayerUI();
+              updateVolumeIcon();
+            }).catch(()=>{});
+          });
+      }
+    } else {
+      video.pause();
+      isPlaying = false;
+      updatePlayerUI();
+    }
     return;
   }
   isPlaying = !isPlaying;
@@ -148,33 +171,89 @@ export function updatePlayerUI() {
   const center = document.getElementById('playerCenter');
   const ppBtn = document.getElementById('playPauseBtn');
   const playerWrap = document.querySelector('.player-wrap');
+  const video = window.__realVideo;
+  const playing = video ? !video.paused : isPlaying;
 
-  if (isPlaying) {
-    center?.classList.add('hidden');
+  if (playing) {
+    if (center) center.classList.add('hidden');
     if (ppBtn) ppBtn.innerHTML = `<svg class="icon icon-md" style="fill:rgba(255,255,255,0.85);stroke:none;"><use href="#ico-pause"/></svg>`;
-    playerWrap?.classList.add('playing');
+    if (playerWrap) {
+      clearTimeout(hideControlsTimer);
+      hideControlsTimer = setTimeout(() => {
+        if (video && !video.paused) {
+          playerWrap.classList.add('playing');
+        }
+      }, 3000);
+    }
   } else {
-    center?.classList.remove('hidden');
+    if (center) center.classList.remove('hidden');
     if (ppBtn) ppBtn.innerHTML = `<svg class="icon icon-md" style="fill:rgba(255,255,255,0.85);stroke:none;"><use href="#ico-play"/></svg>`;
-    playerWrap?.classList.remove('playing');
+    if (playerWrap) {
+      playerWrap.classList.remove('playing');
+      clearTimeout(hideControlsTimer);
+    }
   }
+}
+
+export function updateVolumeIcon() {
+  const video = window.__realVideo;
+  const vBtn = document.getElementById('volumeBtn');
+  if (!video || !vBtn) return;
+  if (video.muted || video.volume === 0) {
+    vBtn.innerHTML = `<svg class="icon icon-md"><use href="#ico-volume-x"/></svg>`;
+    vBtn.setAttribute('title', 'Unmute');
+  } else {
+    vBtn.innerHTML = `<svg class="icon icon-md"><use href="#ico-volume"/></svg>`;
+    vBtn.setAttribute('title', 'Mute');
+  }
+}
+
+export function toggleMute(e) {
+  if (e) e.stopPropagation();
+  const video = window.__realVideo;
+  if (!video) return;
+  video.muted = !video.muted;
+  updateVolumeIcon();
 }
 
 export function handlePlayerTap(e) {
   if (e.target.closest('button') || e.target.closest('select') || e.target.closest('.player-progress')) return;
   const playerWrap = document.querySelector('.player-wrap');
   if (!playerWrap) return;
-  if (!isPlaying) { togglePlay(); return; }
-  playerWrap.classList.toggle('playing');
+
+  const video = window.__realVideo;
+  if (!video) return;
+
+  if (video.paused) {
+    togglePlay();
+    return;
+  }
+
+  if (playerWrap.classList.contains('playing')) {
+    playerWrap.classList.remove('playing');
+    clearTimeout(hideControlsTimer);
+    hideControlsTimer = setTimeout(() => {
+      if (video && !video.paused) {
+        playerWrap.classList.add('playing');
+      }
+    }, 3000);
+  } else {
+    playerWrap.classList.add('playing');
+    clearTimeout(hideControlsTimer);
+  }
 }
 
 export function seekPlayer(e) {
   e.stopPropagation();
+  const video = window.__realVideo;
+  if (!video || !video.duration || isNaN(video.duration)) return;
+
   const bar = e.currentTarget;
   const rect = bar.getBoundingClientRect();
   const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-  const video = window.__realVideo;
-  if (video && video.duration) video.currentTime = pct * video.duration;
+
+  video.currentTime = pct * video.duration;
+
   const el = document.getElementById('playerProgress');
   if (el) el.style.width = (pct * 100) + '%';
 }
@@ -183,17 +262,75 @@ export function updatePlayerTime() {
   const video = window.__realVideo;
   if (!video) return;
   const progressFill = document.getElementById('playerProgress');
-  if (progressFill && video.duration) {
+  if (progressFill && video.duration && !isNaN(video.duration)) {
     progressFill.style.width = ((video.currentTime / video.duration) * 100) + '%';
   }
   const timeEl = document.querySelector('.player-time');
-  if (timeEl && video.duration) {
+  if (timeEl && video.duration && !isNaN(video.duration)) {
     timeEl.textContent = `${formatTime(video.currentTime)} / ${formatTime(video.duration)}`;
   }
 }
 
 /* ============================================
-   FULLSCREEN
+   QUALITY SELECTOR
+============================================ */
+export function initQualitySelector(ep, defaultQuality) {
+  const qualitySelect = document.querySelector('select[title="Quality"]');
+  if (!qualitySelect) return;
+
+  if (ep.qualities && ep.qualities.length > 0) {
+    qualitySelect.innerHTML = ep.qualities.map((q, i) =>
+      `<option value="${q.url}" ${q.label === defaultQuality.label ? 'selected' : ''}>${q.label}</option>`
+    ).join('');
+  }
+
+  qualitySelect.onchange = (e) => {
+    const video = window.__realVideo;
+    if (!video) return;
+
+    const newUrl = e.target.value;
+    if (!newUrl || video.src === newUrl) return;
+
+    const currentTime = video.currentTime;
+    const wasPlaying = !video.paused;
+    const currentRate = video.playbackRate;
+
+    video.src = newUrl;
+    video.load();
+
+    video.addEventListener('loadedmetadata', function onLoad() {
+      video.currentTime = currentTime;
+      video.playbackRate = currentRate;
+      if (wasPlaying) video.play().catch(()=>{});
+      video.removeEventListener('loadedmetadata', onLoad);
+    });
+  };
+}
+
+/* ============================================
+   SPEED SELECTOR
+============================================ */
+export function initSpeedSelector() {
+  const speedSelect = document.querySelector('select[title="Playback speed"]');
+  if (!speedSelect) return;
+
+  speedSelect.value = '1×';
+
+  speedSelect.onchange = (e) => {
+    const video = window.__realVideo;
+    if (!video) return;
+
+    const speedStr = e.target.value.replace('×', '').trim();
+    const speed = parseFloat(speedStr);
+
+    if (!isNaN(speed) && speed > 0) {
+      video.playbackRate = speed;
+    }
+  };
+}
+
+/* ============================================
+   FULLSCREEN (با چرخش افقی)
 ============================================ */
 export function toggleFullscreen(e) {
   if (e) e.stopPropagation();
@@ -201,12 +338,30 @@ export function toggleFullscreen(e) {
   if (!playerWrap) return;
 
   const isFs = document.fullscreenElement || document.webkitFullscreenElement;
+
   if (!isFs) {
     const req = playerWrap.requestFullscreen || playerWrap.webkitRequestFullscreen;
-    if (req) req.call(playerWrap).catch(() => {});
+    if (req) {
+      const result = req.call(playerWrap);
+      if (result && result.catch) result.catch(() => {});
+    }
+    setTimeout(() => {
+      if (screen.orientation && screen.orientation.lock) {
+        screen.orientation.lock('landscape').catch(() => {});
+      } else if (screen.lockOrientation) {
+        screen.lockOrientation('landscape').catch(() => {});
+      }
+    }, 100);
   } else {
     const exit = document.exitFullscreen || document.webkitExitFullscreen;
     if (exit) exit.call(document);
+    setTimeout(() => {
+      if (screen.orientation && screen.orientation.unlock) {
+        try { screen.orientation.unlock(); } catch (err) {}
+      } else if (screen.unlockOrientation) {
+        try { screen.unlockOrientation(); } catch (err) {}
+      }
+    }, 100);
   }
 }
 
@@ -214,8 +369,33 @@ export function bindFullscreenChange() {
   document.addEventListener('fullscreenchange', () => {
     const btn = document.getElementById('fullscreenBtn');
     if (!btn) return;
-    btn.innerHTML = document.fullscreenElement
-      ? `<svg class="icon icon-md"><use href="#ico-minimize"/></svg>`
-      : `<svg class="icon icon-md"><use href="#ico-maximize"/></svg>`;
+    if (document.fullscreenElement) {
+      btn.innerHTML = `<svg class="icon icon-md"><use href="#ico-minimize"/></svg>`;
+      if (screen.orientation && screen.orientation.lock) {
+        screen.orientation.lock('landscape').catch(() => {});
+      }
+    } else {
+      btn.innerHTML = `<svg class="icon icon-md"><use href="#ico-maximize"/></svg>`;
+      if (screen.orientation && screen.orientation.unlock) {
+        try { screen.orientation.unlock(); } catch (err) {}
+      }
+    }
   });
+}
+
+/* ============================================
+   NEXT EPISODE
+============================================ */
+export function playNextEpisode(e) {
+  if (e) e.stopPropagation();
+  const anime = window.__currentAnime;
+  const currentEp = window.__currentEpisode;
+  if (!anime || !currentEp) return;
+
+  const nextEp = anime.episodes.find(ep => ep.num === currentEp.num + 1);
+  if (!nextEp) {
+    alert('این آخرین قسمت این انیمه هست.');
+    return;
+  }
+  window.openEpisode(anime.id, nextEp.num);
 }

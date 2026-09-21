@@ -1,190 +1,243 @@
 /* ============================================
-   ANIVORA DATA — فقط Jujutsu Kaisen
+   ANIVORA DATA — Multi-Anime
 ============================================ */
 
+/* Thumbnails برای قسمت‌های هر انیمه */
+const EP_THUMB_SPARKS = "https://intocdn.top/wp-content/uploads/2026/07/eImcA39cNfJzCqczMEQT5FjSlPy.jpg";
+const EP_THUMB_BLACKTORCH = "https://intocdn.top/wp-content/uploads/2026/07/ceirDIa8QgeeiFKFnLcQpfAH5V7.jpg";
+
 export const ANIME_DATA = [
+  /* ============================================
+     ANIME 1 — Sparks of Tomorrow
+  ============================================ */
   {
     id: 1,
-    title: "Jujutsu Kaisen",
-    jp: "呪術廻戦",
-    score: 8.6,
-    year: 2020,
+    title: "Sparks of Tomorrow",
+    jp: "ニジュッセイキ デンキ モクロク エウレカ エヴリカ",
+    score: 8.4,
+    year: 2026,
     type: "TV",
     status: "Finished",
-    eps: 24,
-    genres: ["Action", "Supernatural"],
-    img: "https://intocdn.top/wp-content/uploads/2023/12/fHpKWq9ayzSk8nSwqRuaAUemRKh-360x480.jpg",
-    backdrop: "https://intocdn.top/wp-content/uploads/2023/12/gmECX1DvFgdUPjtio2zaL8BPYPu.jpg",
-    description: "A student joins a secret organization of Jujutsu Sorcerers to fight Curses.",
-    studio: "Mappa",
+    eps: 12,
+    genres: ["Action", "Adventure", "Sci-Fi"],
+    img: "https://intocdn.top/wp-content/uploads/2026/07/9H6s2KJSDGZ9PohHZFFUoh1cUUr-360x480.jpg",
+    backdrop: "https://intocdn.top/wp-content/uploads/2026/07/eImcA39cNfJzCqczMEQT5FjSlPy.jpg",
+    description: "In a world where humans and mysterious beings coexist, a group of young pilots discover the truth about their world and themselves.",
+    studio: "Bones",
     duration: "24 min",
     episodes: [
-      { num: 1, title: "Ryomen Sukuna", duration: "24:00",
-        videoUrl: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E01.1080p.BluRay.Farsi.Sub.Film2Media.mkv",
+      { num: 1, title: "Episode 1", duration: "24:00", img: EP_THUMB_SPARKS,
+        videoUrl: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Nijusseiki.Denki.Mokuroku.Eureka.Evrika/Nijusseiki.Denki.Mokuroku.Eureka.Evrika.S01E01.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv",
         qualities: [
-          { label: "1080p", url: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E01.1080p.BluRay.Farsi.Sub.Film2Media.mkv" },
-          { label: "720p", url: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E01.720p.BluRay.Farsi.Sub.Film2Media.mkv" }
+          { label: "1080p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Nijusseiki.Denki.Mokuroku.Eureka.Evrika/Nijusseiki.Denki.Mokuroku.Eureka.Evrika.S01E01.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+          { label: "720p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Nijusseiki.Denki.Mokuroku.Eureka.Evrika/Nijusseiki.Denki.Mokuroku.Eureka.Evrika.S01E01.720p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+          { label: "480p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Nijusseiki.Denki.Mokuroku.Eureka.Evrika/Nijusseiki.Denki.Mokuroku.Eureka.Evrika.S01E01.mkv" }
         ]
       },
-      { num: 2, title: "For Myself", duration: "24:00",
-        videoUrl: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E02.1080p.BluRay.Farsi.Sub.Film2Media.mkv",
+      { num: 2, title: "Episode 2", duration: "24:00", img: EP_THUMB_SPARKS,
+        videoUrl: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Nijusseiki.Denki.Mokuroku.Eureka.Evrika/Nijusseiki.Denki.Mokuroku.Eureka.Evrika.S01E02.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv",
         qualities: [
-          { label: "1080p", url: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E02.1080p.BluRay.Farsi.Sub.Film2Media.mkv" },
-          { label: "720p", url: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E02.720p.BluRay.Farsi.Sub.Film2Media.mkv" }
+          { label: "1080p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Nijusseiki.Denki.Mokuroku.Eureka.Evrika/Nijusseiki.Denki.Mokuroku.Eureka.Evrika.S01E02.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+          { label: "720p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Nijusseiki.Denki.Mokuroku.Eureka.Evrika/Nijusseiki.Denki.Mokuroku.Eureka.Evrika.S01E02.720p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+          { label: "480p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Nijusseiki.Denki.Mokuroku.Eureka.Evrika/Nijusseiki.Denki.Mokuroku.Eureka.Evrika.S01E02.mkv" }
         ]
       },
-      { num: 3, title: "Girl of Steel", duration: "24:00",
-        videoUrl: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E03.1080p.BluRay.Farsi.Sub.Film2Media.mkv",
+      { num: 3, title: "Episode 3", duration: "24:00", img: EP_THUMB_SPARKS,
+        videoUrl: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Nijusseiki.Denki.Mokuroku.Eureka.Evrika/Nijusseiki.Denki.Mokuroku.Eureka.Evrika.S01E03.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv",
         qualities: [
-          { label: "1080p", url: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E03.1080p.BluRay.Farsi.Sub.Film2Media.mkv" },
-          { label: "720p", url: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E03.720p.BluRay.Farsi.Sub.Film2Media.mkv" }
+          { label: "1080p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Nijusseiki.Denki.Mokuroku.Eureka.Evrika/Nijusseiki.Denki.Mokuroku.Eureka.Evrika.S01E03.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+          { label: "720p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Nijusseiki.Denki.Mokuroku.Eureka.Evrika/Nijusseiki.Denki.Mokuroku.Eureka.Evrika.S01E03.720p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+          { label: "480p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Nijusseiki.Denki.Mokuroku.Eureka.Evrika/Nijusseiki.Denki.Mokuroku.Eureka.Evrika.S01E03.mkv" }
         ]
       },
-      { num: 4, title: "Curse Womb Must Die", duration: "24:00",
-        videoUrl: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E04.1080p.BluRay.Farsi.Sub.Film2Media.mkv",
+      { num: 4, title: "Episode 4", duration: "24:00", img: EP_THUMB_SPARKS,
+        videoUrl: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Nijusseiki.Denki.Mokuroku.Eureka.Evrika/Nijusseiki.Denki.Mokuroku.Eureka.Evrika.S01E04.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv",
         qualities: [
-          { label: "1080p", url: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E04.1080p.BluRay.Farsi.Sub.Film2Media.mkv" },
-          { label: "720p", url: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E04.720p.BluRay.Farsi.Sub.Film2Media.mkv" }
+          { label: "1080p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Nijusseiki.Denki.Mokuroku.Eureka.Evrika/Nijusseiki.Denki.Mokuroku.Eureka.Evrika.S01E04.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+          { label: "720p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Nijusseiki.Denki.Mokuroku.Eureka.Evrika/Nijusseiki.Denki.Mokuroku.Eureka.Evrika.S01E04.720p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+          { label: "480p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Nijusseiki.Denki.Mokuroku.Eureka.Evrika/Nijusseiki.Denki.Mokuroku.Eureka.Evrika.S01E04.mkv" }
         ]
       },
-      { num: 5, title: "Curse Womb Must Die II", duration: "24:00",
-        videoUrl: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E05.1080p.BluRay.Farsi.Sub.Film2Media.mkv",
+      { num: 5, title: "Episode 5", duration: "24:00", img: EP_THUMB_SPARKS,
+        videoUrl: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Nijusseiki.Denki.Mokuroku.Eureka.Evrika/Nijusseiki.Denki.Mokuroku.Eureka.Evrika.S01E05.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv",
         qualities: [
-          { label: "1080p", url: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E05.1080p.BluRay.Farsi.Sub.Film2Media.mkv" },
-          { label: "720p", url: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E05.720p.BluRay.Farsi.Sub.Film2Media.mkv" }
+          { label: "1080p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Nijusseiki.Denki.Mokuroku.Eureka.Evrika/Nijusseiki.Denki.Mokuroku.Eureka.Evrika.S01E05.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+          { label: "720p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Nijusseiki.Denki.Mokuroku.Eureka.Evrika/Nijusseiki.Denki.Mokuroku.Eureka.Evrika.S01E05.720p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+          { label: "480p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Nijusseiki.Denki.Mokuroku.Eureka.Evrika/Nijusseiki.Denki.Mokuroku.Eureka.Evrika.S01E05.mkv" }
         ]
       },
-      { num: 6, title: "After Rain", duration: "24:00",
-        videoUrl: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E06.1080p.BluRay.Farsi.Sub.Film2Media.mkv",
+      { num: 6, title: "Episode 6", duration: "24:00", img: EP_THUMB_SPARKS,
+        videoUrl: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Nijusseiki.Denki.Mokuroku.Eureka.Evrika/Nijusseiki.Denki.Mokuroku.Eureka.Evrika.S01E06.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv",
         qualities: [
-          { label: "1080p", url: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E06.1080p.BluRay.Farsi.Sub.Film2Media.mkv" },
-          { label: "720p", url: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E06.720p.BluRay.Farsi.Sub.Film2Media.mkv" }
+          { label: "1080p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Nijusseiki.Denki.Mokuroku.Eureka.Evrika/Nijusseiki.Denki.Mokuroku.Eureka.Evrika.S01E06.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+          { label: "720p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Nijusseiki.Denki.Mokuroku.Eureka.Evrika/Nijusseiki.Denki.Mokuroku.Eureka.Evrika.S01E06.720p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+          { label: "480p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Nijusseiki.Denki.Mokuroku.Eureka.Evrika/Nijusseiki.Denki.Mokuroku.Eureka.Evrika.S01E06.mkv" }
         ]
       },
-      { num: 7, title: "Assault", duration: "24:00",
-        videoUrl: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E07.1080p.BluRay.Farsi.Sub.Film2Media.mkv",
+      { num: 7, title: "Episode 7", duration: "24:00", img: EP_THUMB_SPARKS,
+        videoUrl: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Nijusseiki.Denki.Mokuroku.Eureka.Evrika/Nijusseiki.Denki.Mokuroku.Eureka.Evrika.S01E07.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv",
         qualities: [
-          { label: "1080p", url: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E07.1080p.BluRay.Farsi.Sub.Film2Media.mkv" },
-          { label: "720p", url: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E07.720p.BluRay.Farsi.Sub.Film2Media.mkv" }
+          { label: "1080p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Nijusseiki.Denki.Mokuroku.Eureka.Evrika/Nijusseiki.Denki.Mokuroku.Eureka.Evrika.S01E07.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+          { label: "720p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Nijusseiki.Denki.Mokuroku.Eureka.Evrika/Nijusseiki.Denki.Mokuroku.Eureka.Evrika.S01E07.720p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+          { label: "480p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Nijusseiki.Denki.Mokuroku.Eureka.Evrika/Nijusseiki.Denki.Mokuroku.Eureka.Evrika.S01E07.mkv" }
         ]
       },
-      { num: 8, title: "Boredom", duration: "24:00",
-        videoUrl: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E08.1080p.BluRay.Farsi.Sub.Film2Media.mkv",
+      { num: 8, title: "Episode 8", duration: "24:00", img: EP_THUMB_SPARKS,
+        videoUrl: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Nijusseiki.Denki.Mokuroku.Eureka.Evrika/Nijusseiki.Denki.Mokuroku.Eureka.Evrika.S01E08.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv",
         qualities: [
-          { label: "1080p", url: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E08.1080p.BluRay.Farsi.Sub.Film2Media.mkv" },
-          { label: "720p", url: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E08.720p.BluRay.Farsi.Sub.Film2Media.mkv" }
+          { label: "1080p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Nijusseiki.Denki.Mokuroku.Eureka.Evrika/Nijusseiki.Denki.Mokuroku.Eureka.Evrika.S01E08.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+          { label: "720p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Nijusseiki.Denki.Mokuroku.Eureka.Evrika/Nijusseiki.Denki.Mokuroku.Eureka.Evrika.S01E08.720p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+          { label: "480p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Nijusseiki.Denki.Mokuroku.Eureka.Evrika/Nijusseiki.Denki.Mokuroku.Eureka.Evrika.S01E08.mkv" }
         ]
       },
-      { num: 9, title: "Small Fry and Reverse Retribution", duration: "24:00",
-        videoUrl: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E09.1080p.BluRay.Farsi.Sub.Film2Media.mkv",
+      { num: 9, title: "Episode 9", duration: "24:00", img: EP_THUMB_SPARKS,
+        videoUrl: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Nijusseiki.Denki.Mokuroku.Eureka.Evrika/Nijusseiki.Denki.Mokuroku.Eureka.Evrika.S01E09.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv",
         qualities: [
-          { label: "1080p", url: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E09.1080p.BluRay.Farsi.Sub.Film2Media.mkv" },
-          { label: "720p", url: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E09.720p.BluRay.Farsi.Sub.Film2Media.mkv" }
+          { label: "1080p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Nijusseiki.Denki.Mokuroku.Eureka.Evrika/Nijusseiki.Denki.Mokuroku.Eureka.Evrika.S01E09.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+          { label: "720p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Nijusseiki.Denki.Mokuroku.Eureka.Evrika/Nijusseiki.Denki.Mokuroku.Eureka.Evrika.S01E09.720p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+          { label: "480p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Nijusseiki.Denki.Mokuroku.Eureka.Evrika/Nijusseiki.Denki.Mokuroku.Eureka.Evrika.S01E09.mkv" }
         ]
       },
-      { num: 10, title: "Idle Transfiguration", duration: "24:00",
-        videoUrl: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E10.1080p.BluRay.Farsi.Sub.Film2Media.mkv",
+      { num: 10, title: "Episode 10", duration: "24:00", img: EP_THUMB_SPARKS,
+        videoUrl: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Nijusseiki.Denki.Mokuroku.Eureka.Evrika/Nijusseiki.Denki.Mokuroku.Eureka.Evrika.S01E10.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv",
         qualities: [
-          { label: "1080p", url: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E10.1080p.BluRay.Farsi.Sub.Film2Media.mkv" },
-          { label: "720p", url: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E10.720p.BluRay.Farsi.Sub.Film2Media.mkv" }
+          { label: "1080p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Nijusseiki.Denki.Mokuroku.Eureka.Evrika/Nijusseiki.Denki.Mokuroku.Eureka.Evrika.S01E10.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+          { label: "720p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Nijusseiki.Denki.Mokuroku.Eureka.Evrika/Nijusseiki.Denki.Mokuroku.Eureka.Evrika.S01E10.720p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+          { label: "480p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Nijusseiki.Denki.Mokuroku.Eureka.Evrika/Nijusseiki.Denki.Mokuroku.Eureka.Evrika.S01E10.mkv" }
         ]
       },
-      { num: 11, title: "Narrow-minded", duration: "24:00",
-        videoUrl: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E11.1080p.BluRay.Farsi.Sub.Film2Media.mkv",
+      { num: 11, title: "Episode 11", duration: "24:00", img: EP_THUMB_SPARKS,
+        videoUrl: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Nijusseiki.Denki.Mokuroku.Eureka.Evrika/Nijusseiki.Denki.Mokuroku.Eureka.Evrika.S01E11.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv",
         qualities: [
-          { label: "1080p", url: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E11.1080p.BluRay.Farsi.Sub.Film2Media.mkv" },
-          { label: "720p", url: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E11.720p.BluRay.Farsi.Sub.Film2Media.mkv" }
+          { label: "1080p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Nijusseiki.Denki.Mokuroku.Eureka.Evrika/Nijusseiki.Denki.Mokuroku.Eureka.Evrika.S01E11.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+          { label: "720p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Nijusseiki.Denki.Mokuroku.Eureka.Evrika/Nijusseiki.Denki.Mokuroku.Eureka.Evrika.S01E11.720p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+          { label: "480p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Nijusseiki.Denki.Mokuroku.Eureka.Evrika/Nijusseiki.Denki.Mokuroku.Eureka.Evrika.S01E11.mkv" }
         ]
       },
-      { num: 12, title: "To You, Someday", duration: "24:00",
-        videoUrl: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E12.1080p.BluRay.Farsi.Sub.Film2Media.mkv",
+      { num: 12, title: "Episode 12", duration: "24:00", img: EP_THUMB_SPARKS,
+        videoUrl: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Nijusseiki.Denki.Mokuroku.Eureka.Evrika/Nijusseiki.Denki.Mokuroku.Eureka.Evrika.S01E12.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv",
         qualities: [
-          { label: "1080p", url: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E12.1080p.BluRay.Farsi.Sub.Film2Media.mkv" },
-          { label: "720p", url: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E12.720p.BluRay.Farsi.Sub.Film2Media.mkv" }
+          { label: "1080p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Nijusseiki.Denki.Mokuroku.Eureka.Evrika/Nijusseiki.Denki.Mokuroku.Eureka.Evrika.S01E12.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+          { label: "720p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Nijusseiki.Denki.Mokuroku.Eureka.Evrika/Nijusseiki.Denki.Mokuroku.Eureka.Evrika.S01E12.720p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+          { label: "480p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Nijusseiki.Denki.Mokuroku.Eureka.Evrika/Nijusseiki.Denki.Mokuroku.Eureka.Evrika.S01E12.mkv" }
+        ]
+      }
+    ]
+  },
+
+  /* ============================================
+     ANIME 2 — Black Torch
+  ============================================ */
+  {
+    id: 2,
+    title: "Black Torch",
+    jp: "ブラックトーチ",
+    score: 8.2,
+    year: 2026,
+    type: "TV",
+    status: "Finished",
+    eps: 12,
+    genres: ["Action", "Supernatural", "Fantasy"],
+    img: "https://intocdn.top/wp-content/uploads/2026/07/blacktorch2-360x480.png",
+    backdrop: "https://intocdn.top/wp-content/uploads/2026/07/ceirDIa8QgeeiFKFnLcQpfAH5V7.jpg",
+    description: "A young ninja bonds with a mysterious creature to fight dark forces threatening the world.",
+    studio: "Bones",
+    duration: "24 min",
+    episodes: [
+      { num: 1, title: "Episode 1", duration: "24:00", img: EP_THUMB_BLACKTORCH,
+        videoUrl: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Black.Torch/Black.Torch.S01E01.1080p.WEB-Dl.Farsi.Sub.Film2Media.mkv",
+        qualities: [
+          { label: "1080p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Black.Torch/Black.Torch.S01E01.1080p.WEB-Dl.Farsi.Sub.Film2Media.mkv" },
+          { label: "720p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Black.Torch/Black.Torch.S01E01.720p.WEB-Dl.Farsi.Sub.Film2Media.mkv" },
+          { label: "480p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Black.Torch/Black.Torch.S01E01.mkv" }
         ]
       },
-      { num: 13, title: "Tomorrow", duration: "24:00",
-        videoUrl: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E13.1080p.BluRay.Farsi.Sub.Film2Media.mkv",
+      { num: 2, title: "Episode 2", duration: "24:00", img: EP_THUMB_BLACKTORCH,
+        videoUrl: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Black.Torch/Black.Torch.S01E02.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv",
         qualities: [
-          { label: "1080p", url: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E13.1080p.BluRay.Farsi.Sub.Film2Media.mkv" },
-          { label: "720p", url: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E13.720p.BluRay.Farsi.Sub.Film2Media.mkv" }
+          { label: "1080p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Black.Torch/Black.Torch.S01E02.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+          { label: "720p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Black.Torch/Black.Torch.S01E02.720p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+          { label: "480p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Black.Torch/Black.Torch.S01E02.mkv" }
         ]
       },
-      { num: 14, title: "Kyoto Sister-School Goodwill Event", duration: "24:00",
-        videoUrl: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E14.1080p.BluRay.Farsi.Sub.Film2Media.mkv",
+      { num: 3, title: "Episode 3", duration: "24:00", img: EP_THUMB_BLACKTORCH,
+        videoUrl: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Black.Torch/Black.Torch.S01E03.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv",
         qualities: [
-          { label: "1080p", url: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E14.1080p.BluRay.Farsi.Sub.Film2Media.mkv" },
-          { label: "720p", url: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E14.720p.BluRay.Farsi.Sub.Film2Media.mkv" }
+          { label: "1080p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Black.Torch/Black.Torch.S01E03.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+          { label: "720p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Black.Torch/Black.Torch.S01E03.720p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+          { label: "480p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Black.Torch/Black.Torch.S01E03.mkv" }
         ]
       },
-      { num: 15, title: "Kyoto Sister-School Goodwill Event II", duration: "24:00",
-        videoUrl: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E15.1080p.BluRay.Farsi.Sub.Film2Media.mkv",
+      { num: 4, title: "Episode 4", duration: "24:00", img: EP_THUMB_BLACKTORCH,
+        videoUrl: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Black.Torch/Black.Torch.S01E04.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv",
         qualities: [
-          { label: "1080p", url: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E15.1080p.BluRay.Farsi.Sub.Film2Media.mkv" },
-          { label: "720p", url: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E15.720p.BluRay.Farsi.Sub.Film2Media.mkv" }
+          { label: "1080p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Black.Torch/Black.Torch.S01E04.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+          { label: "720p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Black.Torch/Black.Torch.S01E04.720p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+          { label: "480p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Black.Torch/Black.Torch.S01E04.mkv" }
         ]
       },
-      { num: 16, title: "Kyoto Sister-School Goodwill Event III", duration: "24:00",
-        videoUrl: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E16.1080p.BluRay.Farsi.Sub.Film2Media.mkv",
+      { num: 5, title: "Episode 5", duration: "24:00", img: EP_THUMB_BLACKTORCH,
+        videoUrl: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Black.Torch/Black.Torch.S01E05.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv",
         qualities: [
-          { label: "1080p", url: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E16.1080p.BluRay.Farsi.Sub.Film2Media.mkv" },
-          { label: "720p", url: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E16.720p.BluRay.Farsi.Sub.Film2Media.mkv" }
+          { label: "1080p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Black.Torch/Black.Torch.S01E05.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+          { label: "720p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Black.Torch/Black.Torch.S01E05.720p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+          { label: "480p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Black.Torch/Black.Torch.S01E05.mkv" }
         ]
       },
-      { num: 17, title: "Kyoto Sister-School Goodwill Event IV", duration: "24:00",
-        videoUrl: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E17.1080p.BluRay.Farsi.Sub.Film2Media.mkv",
+      { num: 6, title: "Episode 6", duration: "24:00", img: EP_THUMB_BLACKTORCH,
+        videoUrl: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Black.Torch/Black.Torch.S01E06.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv",
         qualities: [
-          { label: "1080p", url: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E17.1080p.BluRay.Farsi.Sub.Film2Media.mkv" },
-          { label: "720p", url: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E17.720p.BluRay.Farsi.Sub.Film2Media.mkv" }
+          { label: "1080p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Black.Torch/Black.Torch.S01E06.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+          { label: "720p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Black.Torch/Black.Torch.S01E06.720p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+          { label: "480p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Black.Torch/Black.Torch.S01E06.mkv" }
         ]
       },
-      { num: 18, title: "Sage", duration: "24:00",
-        videoUrl: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E18.1080p.BluRay.Farsi.Sub.Film2Media.mkv",
+      { num: 7, title: "Episode 7", duration: "24:00", img: EP_THUMB_BLACKTORCH,
+        videoUrl: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Black.Torch/Black.Torch.S01E07.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv",
         qualities: [
-          { label: "1080p", url: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E18.1080p.BluRay.Farsi.Sub.Film2Media.mkv" },
-          { label: "720p", url: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E18.720p.BluRay.Farsi.Sub.Film2Media.mkv" }
+          { label: "1080p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Black.Torch/Black.Torch.S01E07.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+          { label: "720p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Black.Torch/Black.Torch.S01E07.720p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+          { label: "480p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Black.Torch/Black.Torch.S01E07.mkv" }
         ]
       },
-      { num: 19, title: "Black Flash", duration: "24:00",
-        videoUrl: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E19.1080p.BluRay.Farsi.Sub.Film2Media.mkv",
+      { num: 8, title: "Episode 8", duration: "24:00", img: EP_THUMB_BLACKTORCH,
+        videoUrl: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Black.Torch/Black.Torch.S01E08.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv",
         qualities: [
-          { label: "1080p", url: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E19.1080p.BluRay.Farsi.Sub.Film2Media.mkv" },
-          { label: "720p", url: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E19.720p.BluRay.Farsi.Sub.Film2Media.mkv" }
+          { label: "1080p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Black.Torch/Black.Torch.S01E08.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+          { label: "720p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Black.Torch/Black.Torch.S01E08.720p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+          { label: "480p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Black.Torch/Black.Torch.S01E08.mkv" }
         ]
       },
-      { num: 20, title: "Nonstandard", duration: "24:00",
-        videoUrl: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E20.1080p.BluRay.Farsi.Sub.Film2Media.mkv",
+      { num: 9, title: "Episode 9", duration: "24:00", img: EP_THUMB_BLACKTORCH,
+        videoUrl: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Black.Torch/Black.Torch.S01E09.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv",
         qualities: [
-          { label: "1080p", url: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E20.1080p.BluRay.Farsi.Sub.Film2Media.mkv" },
-          { label: "720p", url: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E20.720p.BluRay.Farsi.Sub.Film2Media.mkv" }
+          { label: "1080p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Black.Torch/Black.Torch.S01E09.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+          { label: "720p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Black.Torch/Black.Torch.S01E09.720p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+          { label: "480p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Black.Torch/Black.Torch.S01E09.mkv" }
         ]
       },
-      { num: 21, title: "Jujutsu Koshien", duration: "24:00",
-        videoUrl: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E21.1080p.BluRay.Farsi.Sub.Film2Media.mkv",
+      { num: 10, title: "Episode 10", duration: "24:00", img: EP_THUMB_BLACKTORCH,
+        videoUrl: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Black.Torch/Black.Torch.S01E10.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv",
         qualities: [
-          { label: "1080p", url: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E21.1080p.BluRay.Farsi.Sub.Film2Media.mkv" },
-          { label: "720p", url: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E21.720p.BluRay.Farsi.Sub.Film2Media.mkv" }
+          { label: "1080p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Black.Torch/Black.Torch.S01E10.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+          { label: "720p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Black.Torch/Black.Torch.S01E10.720p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+          { label: "480p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Black.Torch/Black.Torch.S01E10.mkv" }
         ]
       },
-      { num: 22, title: "The Origin of Obedience", duration: "24:00",
-        videoUrl: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E22.1080p.BluRay.Farsi.Sub.Film2Media.mkv",
+      { num: 11, title: "Episode 11", duration: "24:00", img: EP_THUMB_BLACKTORCH,
+        videoUrl: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Black.Torch/Black.Torch.S01E11.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv",
         qualities: [
-          { label: "1080p", url: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E22.1080p.BluRay.Farsi.Sub.Film2Media.mkv" },
-          { label: "720p", url: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E22.720p.BluRay.Farsi.Sub.Film2Media.mkv" }
+          { label: "1080p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Black.Torch/Black.Torch.S01E11.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+          { label: "720p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Black.Torch/Black.Torch.S01E11.720p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+          { label: "480p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Black.Torch/Black.Torch.S01E11.mkv" }
         ]
       },
-      { num: 23, title: "The Origin of Obedience II", duration: "24:00",
-        videoUrl: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E23.1080p.BluRay.Farsi.Sub.Film2Media.mkv",
+      { num: 12, title: "Episode 12", duration: "24:00", img: EP_THUMB_BLACKTORCH,
+        videoUrl: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Black.Torch/Black.Torch.S01E12.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv",
         qualities: [
-          { label: "1080p", url: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E23.1080p.BluRay.Farsi.Sub.Film2Media.mkv" },
-          { label: "720p", url: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E23.720p.BluRay.Farsi.Sub.Film2Media.mkv" }
-        ]
-      },
-      { num: 24, title: "Accomplices", duration: "24:00",
-        videoUrl: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E24.1080p.BluRay.Farsi.Sub.Film2Media.mkv",
-        qualities: [
-          { label: "1080p", url: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E24.1080p.BluRay.Farsi.Sub.Film2Media.mkv" },
-          { label: "720p", url: "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Jujutsu.Kaisen/Jujutsu.Kaisen.S01E24.720p.BluRay.Farsi.Sub.Film2Media.mkv" }
+          { label: "1080p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Black.Torch/Black.Torch.S01E12.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+          { label: "720p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Black.Torch/Black.Torch.S01E12.720p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+          { label: "480p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Black.Torch/Black.Torch.S01E12.mkv" }
         ]
       }
     ]
@@ -197,21 +250,21 @@ export const ANIME_DATA = [
 export const CONTINUE_WATCHING = [
   {
     animeId: 1,
-    epNum: 12,
-    title: "Jujutsu Kaisen",
-    ep: "S1 E12",
-    progress: 90,
-    timeLeft: "2 min",
-    img: "https://intocdn.top/wp-content/uploads/2023/12/gmECX1DvFgdUPjtio2zaL8BPYPu.jpg"
+    epNum: 1,
+    title: "Sparks of Tomorrow",
+    ep: "S1 E01",
+    progress: 0,
+    timeLeft: "24 min",
+    img: EP_THUMB_SPARKS
   },
   {
-    animeId: 1,
-    epNum: 5,
-    title: "Jujutsu Kaisen",
-    ep: "S1 E05",
-    progress: 45,
-    timeLeft: "13 min",
-    img: "https://intocdn.top/wp-content/uploads/2023/12/gmECX1DvFgdUPjtio2zaL8BPYPu.jpg"
+    animeId: 2,
+    epNum: 1,
+    title: "Black Torch",
+    ep: "S1 E01",
+    progress: 0,
+    timeLeft: "24 min",
+    img: EP_THUMB_BLACKTORCH
   }
 ];
 
@@ -219,42 +272,39 @@ export const CONTINUE_WATCHING = [
    CHARACTERS
 -------------------------------------------- */
 export const CHARACTERS = [
-  {name:"Yuji Itadori",role:"Main Character",img:"https://picsum.photos/80/80?random=301"},
-  {name:"Megumi Fushiguro",role:"Main Character",img:"https://picsum.photos/80/80?random=302"},
-  {name:"Nobara Kugisaki",role:"Main Character",img:"https://picsum.photos/80/80?random=303"},
-  {name:"Satoru Gojo",role:"Supporting",img:"https://picsum.photos/80/80?random=304"},
-  {name:"Ryomen Sukuna",role:"Antagonist",img:"https://picsum.photos/80/80?random=305"},
-  {name:"Maki Zenin",role:"Supporting",img:"https://picsum.photos/80/80?random=306"}
+  {name:"Main Character",role:"Protagonist",img:"https://picsum.photos/80/80?random=301"},
+  {name:"Supporting 1",role:"Supporting",img:"https://picsum.photos/80/80?random=302"},
+  {name:"Supporting 2",role:"Supporting",img:"https://picsum.photos/80/80?random=303"},
+  {name:"Rival",role:"Antagonist",img:"https://picsum.photos/80/80?random=304"}
 ];
 
 /* --------------------------------------------
    STAFF_DATA
 -------------------------------------------- */
 export const STAFF_DATA = [
-  {name:"Sunghoo Park", role:"Director", img:"https://picsum.photos/52/52?random=401"},
-  {name:"Tadashi Hiramatsu", role:"Character Design", img:"https://picsum.photos/52/52?random=402"},
-  {name:"Hiroaki Tsutsumi", role:"Music Composer", img:"https://picsum.photos/52/52?random=403"},
-  {name:"Hiroshi Seko", role:"Screenplay", img:"https://picsum.photos/52/52?random=404"}
+  {name:"Director", role:"Director", img:"https://picsum.photos/52/52?random=401"},
+  {name:"Character Designer", role:"Character Design", img:"https://picsum.photos/52/52?random=402"},
+  {name:"Composer", role:"Music Composer", img:"https://picsum.photos/52/52?random=403"}
 ];
 
 /* --------------------------------------------
    CALENDAR_DATA
 -------------------------------------------- */
 export const CALENDAR_DATA = {
-  "Monday":    [{title:"Jujutsu Kaisen", ep:"Ep 1"}],
-  "Tuesday":   [{title:"Jujutsu Kaisen", ep:"Ep 2"}],
-  "Wednesday": [{title:"Jujutsu Kaisen", ep:"Ep 3"}],
-  "Thursday":  [{title:"Jujutsu Kaisen", ep:"Ep 4"}],
-  "Friday":    [{title:"Jujutsu Kaisen", ep:"Ep 5"}],
-  "Saturday":  [{title:"Jujutsu Kaisen", ep:"Ep 6"}],
-  "Sunday":    [{title:"Jujutsu Kaisen", ep:"Ep 7"}]
+  "Monday":    [{title:"Sparks of Tomorrow", ep:"Ep 1"}],
+  "Tuesday":   [{title:"Black Torch", ep:"Ep 1"}],
+  "Wednesday": [{title:"Sparks of Tomorrow", ep:"Ep 3"}],
+  "Thursday":  [{title:"Black Torch", ep:"Ep 4"}],
+  "Friday":    [{title:"Sparks of Tomorrow", ep:"Ep 5"}],
+  "Saturday":  [{title:"Black Torch", ep:"Ep 6"}],
+  "Sunday":    [{title:"Sparks of Tomorrow", ep:"Ep 7"}]
 };
 
 /* --------------------------------------------
    STUDIOS
 -------------------------------------------- */
 export const STUDIOS = [
-  {name:"Mappa", count:32, founded:"2011"}
+  {name:"Bones", count:48, founded:"1998"}
 ];
 
 /* --------------------------------------------
@@ -264,15 +314,15 @@ export const REVIEWS = [
   {
     user:"otaku_master",
     initial:"O",
-    score:10,
-    text:"An absolute masterpiece. The storytelling, characters, and animation are all top-tier.",
+    score:9,
+    text:"A fantastic sci-fi adventure with beautiful animation and compelling characters.",
     date:"2 days ago"
   },
   {
     user:"anime_critic",
     initial:"A",
-    score:9,
-    text:"Phenomenal series with incredible character development.",
+    score:8,
+    text:"Strong storytelling and great world-building. Highly recommended.",
     date:"1 week ago"
   }
 ];

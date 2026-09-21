@@ -14,7 +14,8 @@ import {
 import {
   toggleDownloadMenu, shareAnime, togglePlay, handlePlayerTap,
   seekPlayer, toggleFullscreen, bindFullscreenChange, bindDownloadOutsideClick,
-  renderAnimeCard, populateSection
+  renderAnimeCard, populateSection,
+  toggleMute, playNextEpisode, initQualitySelector, initSpeedSelector
 } from './components.js';
 
 import {
@@ -41,6 +42,8 @@ window.togglePlay = togglePlay;
 window.handlePlayerTap = handlePlayerTap;
 window.seekPlayer = seekPlayer;
 window.toggleFullscreen = toggleFullscreen;
+window.toggleMute = toggleMute;
+window.playNextEpisode = playNextEpisode;
 window.openAnimeDetail = openAnimeDetail;
 window.openEpisode = openEpisode;
 window.watchAnime = watchAnime;
@@ -91,7 +94,6 @@ function init() {
 
 /* ============================================
    REFRESH STORED BUTTONS
-   (اگه کاربر قبلاً چیزی رو Add/Like کرده بود)
 ============================================ */
 function refreshStoredButtons() {
   document.querySelectorAll('[data-add-btn]').forEach(btn => {

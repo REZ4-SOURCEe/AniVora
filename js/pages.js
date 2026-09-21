@@ -7,15 +7,16 @@ import { ANIME_DATA, CONTINUE_WATCHING, CHARACTERS, STAFF_DATA, CALENDAR_DATA, R
 import {
   showPage, updateBottomNav, triggerPageLoader,
   isInList, isLiked, toggleList, toggleLike, showToast, shuffle,
-  getStore
+  getStore, formatTime
 } from './core.js';
 import {
   renderAnimeCard, populateSection, toggleDownloadMenu,
-  shareAnime, updatePlayerTime, togglePlay, toggleFullscreen
+  shareAnime, updatePlayerTime, togglePlay, toggleFullscreen,
+  initQualitySelector, initSpeedSelector
 } from './components.js';
 
 /* ============================================
-   STATE (برای فیلترها)
+   STATE
 ============================================ */
 let activeFilters = [];
 let watchlistFilter = 'all';
@@ -208,8 +209,11 @@ export function renderDetailEpisodes(anime) {
   document.querySelector('.season-count-badge').textContent = `${anime.episodes.length} Episodes`;
   grid.innerHTML = anime.episodes.map(ep => `
     <div class="episode-row" onclick="openEpisode(${anime.id}, ${ep.num})">
-      <div class="ep-thumb" style="background:linear-gradient(135deg,var(--bg-elevated),var(--bg-card));">
-        <div class="ep-play"><svg class="icon icon-md" style="fill:#fff;stroke:none;"><use href="#ico-play"/></svg></div>
+      <div class="ep-thumb">
+        <img src="${ep.img || ''}" alt="" loading="lazy" onerror="this.style.display='none'">
+        <div class="ep-play">
+          <svg class="icon icon-md" style="fill:#fff;stroke:none;"><use href="#ico-play"/></svg>
+        </div>
       </div>
       <div class="ep-info">
         <div class="ep-number">Episode ${ep.num}</div>
@@ -319,19 +323,39 @@ function loadEpisodeInPlayer(anime, ep) {
   document.querySelector('.watch-ep-label').textContent = `${anime.title} · Season 1`;
   document.querySelector('.watch-ep-desc').textContent = anime.description || '';
 
+  const progressFill = document.getElementById('playerProgress');
+  if (progressFill) progressFill.style.width = '0%';
+  const timeEl = document.querySelector('.player-time');
+  if (timeEl) timeEl.textContent = '00:00 / 00:00';
+
   const playerWrap = document.querySelector('.player-wrap');
   if (!playerWrap) return;
 
+  playerWrap.classList.remove('playing');
+
   const oldVideo = playerWrap.querySelector('video');
-  if (oldVideo) oldVideo.remove();
+  if (oldVideo) {
+    oldVideo.pause();
+    oldVideo.removeAttribute('src');
+    oldVideo.load();
+    oldVideo.remove();
+  }
+
+  // پایین‌ترین کیفیت به عنوان پیش‌فرض
+  const defaultQuality = ep.qualities && ep.qualities.length > 0
+    ? ep.qualities[ep.qualities.length - 1]
+    : { url: ep.videoUrl, label: 'Auto' };
 
   const video = document.createElement('video');
   video.id = 'realVideo';
-  video.src = ep.videoUrl;
+  video.src = defaultQuality.url;
   video.controls = false;
   video.playsInline = true;
+  video.muted = false;
+  video.volume = 1;
   video.preload = 'metadata';
   video.setAttribute('playsinline', '');
+  video.setAttribute('webkit-playsinline', '');
   video.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000;z-index:2;';
 
   playerWrap.insertBefore(video, playerWrap.firstChild);
@@ -344,8 +368,28 @@ function loadEpisodeInPlayer(anime, ep) {
   const center = document.getElementById('playerCenter');
   if (center) center.classList.remove('hidden');
 
+  const vBtn = document.getElementById('volumeBtn');
+  if (vBtn) {
+    vBtn.innerHTML = `<svg class="icon icon-md"><use href="#ico-volume"/></svg>`;
+    vBtn.setAttribute('title', 'Mute');
+  }
+
+  video.addEventListener('loadedmetadata', () => {
+    const pf = document.getElementById('playerProgress');
+    if (pf) pf.style.width = '0%';
+    const tEl = document.querySelector('.player-time');
+    if (tEl && video.duration && !isNaN(video.duration)) {
+      tEl.textContent = `00:00 / ${formatTime(video.duration)}`;
+    }
+  });
+
   video.addEventListener('timeupdate', updatePlayerTime);
-  video.addEventListener('loadedmetadata', updatePlayerTime);
+
+  initQualitySelector(ep, defaultQuality);
+  initSpeedSelector();
+
+  // پخش خودکار غیرفعال
+  window.__playerIsPlaying = false;
 }
 
 function renderWatchActions(anime, ep) {
@@ -401,7 +445,10 @@ function renderUpNext(anime, currentEpNum) {
   row.innerHTML = nextEps.map(ep => `
     <div class="up-next-card" onclick="openEpisode(${anime.id}, ${ep.num})">
       <div class="up-next-thumb">
-        <svg class="icon icon-lg"><use href="#ico-play"/></svg>
+        ${ep.img ? `<img src="${ep.img}" alt="" loading="lazy">` : ''}
+        <div class="up-next-play-overlay">
+          <svg class="icon icon-lg" style="fill:#fff;stroke:none;"><use href="#ico-play"/></svg>
+        </div>
       </div>
       <div class="up-next-body">
         <div class="up-next-ep">Episode ${ep.num}</div>
