@@ -8,14 +8,15 @@ import {
   triggerPageLoader, toggleList, toggleLike, showToast,
   initCustomSelects, bindGlobalEvents, isInList, isLiked,
   getListStatus, setListStatus, openListStatusSheet, closeListStatusSheet,
-  updateAddBtnUI
+  updateAddBtnUI, getLastPage
 } from './core.js';
 
 import {
   toggleDownloadMenu, shareAnime, togglePlay, handlePlayerTap,
   seekPlayer, toggleFullscreen, bindFullscreenChange, bindDownloadOutsideClick,
   renderAnimeCard, populateSection,
-  toggleMute, playNextEpisode, initQualitySelector, initSpeedSelector
+  toggleMute, playNextEpisode, initQualitySelector, initSpeedSelector,
+  bindPlayerKeyboard, bindPlayerMouseMove
 } from './components.js';
 
 import {
@@ -25,13 +26,13 @@ import {
   toggleClearBtn, clearSearch, addFilter, removeFilter, filterResults,
   renderCharsAndStaff, renderReviews, renderDetailEpisodes,
   removeFromWatchingUI, removeFromFavoritesUI,
-  bindWatchlistEvents
+  bindWatchlistEvents, restoreStateAfterRefresh
 } from './pages.js';
 
 import { ANIME_DATA } from './data.js';
 
 /* ============================================
-   EXPOSE ANIME_DATA TO WINDOW (برای sheet)
+   EXPOSE ANIME_DATA TO WINDOW
 ============================================ */
 window.__animeData = {};
 ANIME_DATA.forEach(a => { window.__animeData[a.id] = a; });
@@ -78,21 +79,7 @@ window.setListStatus = setListStatus;
    INIT
 ============================================ */
 function init() {
-  const startPage = (location.hash ? location.hash.replace('#', '') : 'home');
-  const validPages = ['home', 'explore', 'detail', 'watch', 'seasonal', 'watchlist', 'profile', 'calendar', 'login'];
-  const initialPage = validPages.includes(startPage) ? startPage : 'home';
-
-  if (!history.state) {
-    history.replaceState({ page: initialPage }, '', '#' + initialPage);
-  }
-  window.__currentPage = initialPage;
-
-  if (initialPage !== 'home') {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    const p = document.getElementById('page-' + initialPage);
-    if (p) p.classList.add('active');
-  }
-
+  // ★ اول init عمومی
   initHome();
   initExplore();
   initWatchlist();
@@ -104,6 +91,40 @@ function init() {
   bindFullscreenChange();
   bindDownloadOutsideClick();
   bindWatchlistEvents();
+
+  // ★ کیبورد + موس پلیر
+  bindPlayerKeyboard();
+  bindPlayerMouseMove();
+
+  // ★ بررسی State قبلی
+  const lastPage = getLastPage();
+  if (lastPage && lastPage.page && lastPage.page !== 'home') {
+    // بازیابی صفحه قبلی
+    const restored = restoreStateAfterRefresh();
+    if (!restored) {
+      // اگه بازیابی نشد → home
+      showPage('home', true);
+      window.__currentPage = 'home';
+    } else {
+      window.__currentPage = lastPage.page;
+    }
+  } else {
+    // صفحه پیش‌فرض
+    const startPage = (location.hash ? location.hash.replace('#', '') : 'home');
+    const validPages = ['home', 'explore', 'detail', 'watch', 'seasonal', 'watchlist', 'profile', 'calendar', 'login'];
+    const initialPage = validPages.includes(startPage) ? startPage : 'home';
+
+    if (!history.state) {
+      history.replaceState({ page: initialPage }, '', '#' + initialPage);
+    }
+    window.__currentPage = initialPage;
+
+    if (initialPage !== 'home') {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      const p = document.getElementById('page-' + initialPage);
+      if (p) p.classList.add('active');
+    }
+  }
 
   refreshStoredButtons();
 }
@@ -131,7 +152,4 @@ function refreshStoredButtons() {
   });
 }
 
-/* ============================================
-   START
-============================================ */
 document.addEventListener('DOMContentLoaded', init);

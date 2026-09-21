@@ -27,14 +27,8 @@ const WATCHING_KEY = 'anivora_watching';
 const LAST_EP_KEY = 'anivora_last_ep';
 const PROGRESS_KEY = 'anivora_progress';
 const DROPPED_KEY = 'anivora_dropped';
-
-/* Status values:
-   - 'not_watched'
-   - 'plan_to_watch'
-   - 'watching'
-   - 'completed'
-   - null (not in list)
-*/
+const LAST_PAGE_KEY = 'anivora_last_page';   // ★ برای بازیابی بعد از رفرش
+const LAST_DETAIL_KEY = 'anivora_last_detail'; // ★
 
 export function getStore(key) {
   try { return JSON.parse(localStorage.getItem(key)) || []; }
@@ -42,6 +36,24 @@ export function getStore(key) {
 }
 export function setStore(key, val) {
   try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) {}
+}
+
+/* ---------- LAST PAGE (برای رفرش) ---------- */
+export function getLastPage() {
+  try { return JSON.parse(localStorage.getItem(LAST_PAGE_KEY)) || null; }
+  catch(e) { return null; }
+}
+export function setLastPage(page) {
+  try { localStorage.setItem(LAST_PAGE_KEY, JSON.stringify(page)); } catch(e) {}
+}
+
+/* ---------- LAST DETAIL ---------- */
+export function getLastDetail() {
+  try { return JSON.parse(localStorage.getItem(LAST_DETAIL_KEY)) || null; }
+  catch(e) { return null; }
+}
+export function setLastDetail(animeId) {
+  try { localStorage.setItem(LAST_DETAIL_KEY, JSON.stringify(animeId)); } catch(e) {}
 }
 
 /* ---------- LAST WATCHED EPISODE ---------- */
@@ -212,7 +224,7 @@ export function toggleWatching(animeId) {
 }
 
 /* ============================================
-   LIST STATUS SHEET — 4 options + Drag Slider + Save/Delete
+   LIST STATUS SHEET
 ============================================ */
 export function openListStatusSheet(animeId, triggerBtn) {
   document.querySelectorAll('.list-status-overlay').forEach(el => el.remove());
@@ -225,7 +237,6 @@ export function openListStatusSheet(animeId, triggerBtn) {
   let lastEp = getLastEpisode(animeId) || 0;
   let dropped = isDropped(animeId);
 
-  // ----- تعداد کل قسمت‌ها و قسمت‌های پخش‌شده -----
   let totalEps = 12;
   let airedEps = 12;
   if (window.__animeData && window.__animeData[animeId]) {
@@ -303,7 +314,6 @@ export function openListStatusSheet(animeId, triggerBtn) {
     </div>
   `;
 
-  /* ============ Drag Slider Logic ============ */
   let currentEp = lastEp;
 
   const updateSliderFromEp = (ep) => {
@@ -321,7 +331,6 @@ export function openListStatusSheet(animeId, triggerBtn) {
     }
     if (count) count.textContent = `${currentEp}/${airedEps}`;
 
-    // ★★★ به محض تغییر اسلایدر → برو روی Watching ★★★
     if (selectedStatus !== 'watching') {
       selectedStatus = 'watching';
       sheet.querySelectorAll('.list-status-item').forEach(b => b.classList.remove('selected'));
@@ -389,7 +398,6 @@ export function openListStatusSheet(animeId, triggerBtn) {
     });
   }
 
-  /* ============ Checkbox ============ */
   const dropCheckbox = sheet.querySelector('#dropCheckbox');
   if (dropCheckbox) {
     dropCheckbox.addEventListener('change', (e) => {
@@ -401,7 +409,6 @@ export function openListStatusSheet(animeId, triggerBtn) {
     });
   }
 
-  /* ============ Item Click — فقط انتخاب می‌کنه ============ */
   sheet.querySelectorAll('.list-status-item').forEach(btn => {
     btn.onclick = (ev) => {
       if (ev.target.closest('.list-status-checkbox-row')) return;
@@ -424,7 +431,6 @@ export function openListStatusSheet(animeId, triggerBtn) {
     };
   });
 
-  /* ============ Save Button ============ */
   const saveBtn = sheet.querySelector('#listStatusSaveBtn');
   if (saveBtn) {
     saveBtn.onclick = (e) => {
@@ -436,7 +442,6 @@ export function openListStatusSheet(animeId, triggerBtn) {
         setProgress(animeId, pct);
         setDropped(animeId, dropped);
 
-        // فقط اگه aired == total و کاربر همه رو دید → completed
         if (currentEp >= airedEps && airedEps >= totalEps) {
           setListStatus(animeId, 'completed');
           showToast('Marked as Completed');
@@ -465,7 +470,6 @@ export function openListStatusSheet(animeId, triggerBtn) {
     };
   }
 
-  /* ============ Close Handlers ============ */
   overlay.onclick = () => {
     document.removeEventListener('keydown', escHandler);
     closeListStatusSheet();
@@ -530,17 +534,41 @@ export function formatTime(sec) {
 }
 
 /* ============================================
+   STOP VIDEO
+============================================ */
+export function stopVideo() {
+  const video = window.__realVideo;
+  if (video) {
+    try {
+      video.pause();
+      video.removeAttribute('src');
+      video.load();
+      video.remove();
+    } catch (e) {}
+    window.__realVideo = null;
+  }
+  const playerWrap = document.querySelector('.player-wrap');
+  if (playerWrap) {
+    playerWrap.classList.remove('playing');
+    playerWrap.style.cursor = '';
+  }
+  // پاک کردن تایمر hideControls
+  if (window.__hideControlsTimer) {
+    clearTimeout(window.__hideControlsTimer);
+    window.__hideControlsTimer = null;
+  }
+}
+
+/* ============================================
    ROUTER
 ============================================ */
 export function showPage(id, skipHistory) {
-  if (window.__currentPage === id && !skipHistory) return;
+  const prevPage = window.__currentPage;
 
-  // ★★★ اگه از صفحه Watch خارج می‌شیم، ویدیو رو متوقف کن ★★★
-  if (window.__currentPage === 'watch' && id !== 'watch') {
-    const video = window.__realVideo;
-    if (video) {
-      video.pause();
-    }
+  if (prevPage === id && !skipHistory) return;
+
+  if (prevPage === 'watch' && id !== 'watch') {
+    stopVideo();
   }
 
   triggerPageLoader();

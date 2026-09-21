@@ -12,7 +12,10 @@ import {
   getFavorites, removeFromFavorites,
   getLastEpisode, setLastEpisode,
   getProgress, setProgress,
-  isDropped, setDropped
+  isDropped, setDropped,
+  getLastPage, setLastPage,
+  getLastDetail, setLastDetail,
+  stopVideo
 } from './core.js';
 import {
   renderAnimeCard, populateSection, toggleDownloadMenu,
@@ -41,6 +44,7 @@ export function initHome() {
 function initHero() {
   if (!ANIME_DATA || ANIME_DATA.length === 0) return;
   const heroAnime = ANIME_DATA[Math.floor(Math.random() * ANIME_DATA.length)];
+  window.__heroAnimeId = heroAnime.id;
 
   const heroBg = document.getElementById('heroBg');
   if (heroBg) {
@@ -109,6 +113,13 @@ function initHero() {
         ${addLabel}
       </button>
     `;
+  }
+
+  // ★ حذف هر listener قبلی روی .hero
+  const heroSection = document.querySelector('.hero');
+  if (heroSection) {
+    heroSection.onclick = null;
+    heroSection.style.cursor = 'default';
   }
 }
 
@@ -210,6 +221,11 @@ export function openAnimeDetail(animeId) {
   const anime = ANIME_DATA.find(a => a.id === animeId);
   if (!anime) return;
   window.__currentAnime = anime;
+  window.__currentAnimeId = animeId;
+
+  // ★ ذخیره برای بازیابی بعد از رفرش
+  setLastDetail(animeId);
+  setLastPage({ page: 'detail', animeId });
 
   const posterImg = document.querySelector('#page-detail .detail-poster img');
   if (posterImg) posterImg.src = anime.img;
@@ -394,6 +410,11 @@ export function openEpisode(animeId, epNum) {
 
   window.__currentAnime = anime;
   window.__currentEpisode = ep;
+  window.__currentAnimeId = animeId;
+  window.__currentEpNum = epNum;
+
+  // ★ ذخیره برای بازیابی بعد از رفرش
+  setLastPage({ page: 'watch', animeId, epNum });
 
   const totalEps = anime.eps || anime.episodes.length;
   const airedEps = anime.episodesAired || anime.episodes.length;
@@ -414,6 +435,9 @@ export function openEpisode(animeId, epNum) {
     setListStatus(anime.id, 'watching');
   }
 
+  // پاکسازی پلیر قدیمی
+  cleanupPlayer();
+
   showPage('watch');
 
   setTimeout(() => {
@@ -422,6 +446,23 @@ export function openEpisode(animeId, epNum) {
     renderUpNext(anime, epNum);
     renderWatchActions(anime, ep);
   }, 100);
+}
+
+function cleanupPlayer() {
+  const playerWrap = document.querySelector('.player-wrap');
+  if (!playerWrap) return;
+
+  const oldVideo = playerWrap.querySelector('video');
+  if (oldVideo) {
+    try {
+      oldVideo.pause();
+      oldVideo.removeAttribute('src');
+      oldVideo.load();
+      oldVideo.remove();
+    } catch (e) {}
+  }
+  window.__realVideo = null;
+  playerWrap.classList.remove('playing');
 }
 
 export function watchAnime(animeId) {
@@ -581,6 +622,48 @@ function renderUpNext(anime, currentEpNum) {
 }
 
 /* ============================================
+   RESTORE STATE AFTER REFRESH
+============================================ */
+export function restoreStateAfterRefresh() {
+  const lastPage = getLastPage();
+  if (!lastPage || !lastPage.page) return false;
+
+  // اگه صفحه watch بود → دوباره پخش کن
+  if (lastPage.page === 'watch' && lastPage.animeId && lastPage.epNum) {
+    const anime = ANIME_DATA.find(a => a.id === lastPage.animeId);
+    if (anime) {
+      const ep = anime.episodes.find(e => e.num === lastPage.epNum);
+      if (ep) {
+        window.__currentAnime = anime;
+        window.__currentEpisode = ep;
+        window.__currentAnimeId = lastPage.animeId;
+        window.__currentEpNum = lastPage.epNum;
+
+        showPage('watch', true);
+        setTimeout(() => {
+          loadEpisodeInPlayer(anime, ep);
+          renderWatchSidebar(anime, lastPage.epNum);
+          renderUpNext(anime, lastPage.epNum);
+          renderWatchActions(anime, ep);
+        }, 100);
+        return true;
+      }
+    }
+  }
+
+  // اگه صفحه detail بود → باز کن
+  if (lastPage.page === 'detail' && lastPage.animeId) {
+    const anime = ANIME_DATA.find(a => a.id === lastPage.animeId);
+    if (anime) {
+      openAnimeDetail(lastPage.animeId);
+      return true;
+    }
+  }
+
+  return false;
+}
+
+/* ============================================
    WATCHLIST
 ============================================ */
 export function initWatchlist() {
@@ -629,8 +712,6 @@ export function initWatchlist() {
     const airedEps = a.episodesAired || totalEps;
     const dropped = isDropped(a.id);
 
-    const playEpNum = lastEp || 1;
-
     const showProgress = (status === 'watching' || status === 'completed');
     const isComplete = progressPct >= 100 && airedEps >= totalEps;
 
@@ -658,13 +739,14 @@ export function initWatchlist() {
     const lastEpText = lastEp ? `Ep ${lastEp} / ${airedEps}` : `0 / ${airedEps}`;
     const droppedText = dropped ? '<div class="wl-dropped-text">Dropped — won\'t continue</div>' : '';
 
+    // ★ کارت کلیک → صفحه جزئیات (نه چک‌لیست)
     return `
-    <div class="watchlist-item" onclick="openAnimeDetail(${a.id})">
+    <div class="watchlist-item">
       <div class="wl-top-row">
         <div></div>
         ${topActions}
       </div>
-      <div class="wl-main-row">
+      <div class="wl-main-row" onclick="openAnimeDetail(${a.id})">
         <img src="${a.img}" alt="">
         <div class="watchlist-item-info">
           <div class="watchlist-item-title">${a.title}</div>

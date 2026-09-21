@@ -13,7 +13,6 @@ export function renderAnimeCard(a) {
   const sc = a.status === 'Airing' ? 'status-airing'
            : a.status === 'Upcoming' ? 'status-upcoming'
            : 'status-finished';
-  const added = isInList(a.id);
   return `
     <div class="anime-card" onclick="openAnimeDetail(${a.id})">
       <div class="card-poster">
@@ -24,15 +23,6 @@ export function renderAnimeCard(a) {
         </div>
         <div class="card-type">${a.type}</div>
         ${a.status === 'Airing' ? '<div class="card-airing-dot"></div>' : ''}
-        <div class="card-poster-overlay">
-          <button class="card-watch-btn" onclick="event.stopPropagation();watchAnime(${a.id})">
-            <svg class="icon icon-sm" style="fill:#fff;stroke:none;"><use href="#ico-play"/></svg> Watch
-          </button>
-          <button class="card-list-btn ${added ? 'is-added' : ''}" data-add-btn="${a.id}"
-                  onclick="event.stopPropagation();toggleList(${a.id}, this)">
-            <svg class="icon icon-sm"><use href="#${added ? 'ico-check' : 'ico-plus'}"/></svg> ${added ? 'Added' : 'Add'}
-          </button>
-        </div>
       </div>
       <div class="card-body">
         <div class="card-title">${a.title}</div>
@@ -302,7 +292,7 @@ export function updatePlayerUI() {
         if (video && !video.paused) {
           playerWrap.classList.add('playing');
         }
-      }, 3000);
+      }, 15000);
     }
   } else {
     if (center) center.classList.remove('hidden');
@@ -336,8 +326,7 @@ export function toggleMute(e) {
 }
 
 /* ============================================
-   PLAYER TAP — Single = play/pause, Double = ±10s
-   (با accumulator برای جلوگیری از پرش)
+   PLAYER TAP
 ============================================ */
 let lastTapTime = 0;
 let singleTapTimer = null;
@@ -357,7 +346,6 @@ export function handlePlayerTap(e) {
   const timeSinceLastTap = now - lastTapTime;
   lastTapTime = now;
 
-  // ★ دو ضربه پشت‌هم
   if (timeSinceLastTap < 300) {
     clearTimeout(singleTapTimer);
 
@@ -380,7 +368,6 @@ export function handlePlayerTap(e) {
     }
 
     if (delta !== 0) {
-      // ★ جمع کن و بعد از یه تأخیر کوتاه یه بار seek کن
       seekAccumulator += delta;
       showSeekFeedback(playerWrap, dir, Math.abs(seekAccumulator));
 
@@ -394,7 +381,6 @@ export function handlePlayerTap(e) {
     return;
   }
 
-  // ★ یه ضربه
   clearTimeout(singleTapTimer);
   singleTapTimer = setTimeout(() => {
     if (video.paused) {
@@ -409,7 +395,7 @@ export function handlePlayerTap(e) {
         if (video && !video.paused) {
           playerWrap.classList.add('playing');
         }
-      }, 3000);
+      }, 15000);
     } else {
       playerWrap.classList.add('playing');
       clearTimeout(hideControlsTimer);
@@ -417,11 +403,9 @@ export function handlePlayerTap(e) {
   }, 300);
 }
 
-/* ★ بازخورد بصری (◀◀ 10s / 10s ▶▶) */
 function showSeekFeedback(playerWrap, direction, seconds = 10) {
   const existing = playerWrap.querySelector('.seek-feedback');
 
-  // اگه همون جهت بود، فقط عدد رو آپدیت کن
   if (existing && existing.classList.contains(`seek-${direction}`)) {
     const span = existing.querySelector('span');
     if (span) span.textContent = `${seconds}s`;
@@ -434,7 +418,6 @@ function showSeekFeedback(playerWrap, direction, seconds = 10) {
     return;
   }
 
-  // جهت عوض شده → قبلی رو حذف کن
   playerWrap.querySelectorAll('.seek-feedback').forEach(el => el.remove());
 
   const fb = document.createElement('div');
@@ -620,4 +603,90 @@ export function playNextEpisode(e) {
     return;
   }
   window.openEpisode(anime.id, nextEp.num);
+}
+
+/* ============================================
+   KEYBOARD SHORTCUTS (Desktop)
+============================================ */
+export function bindPlayerKeyboard() {
+  document.addEventListener('keydown', (e) => {
+    if (window.__currentPage !== 'watch') return;
+
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+
+    const video = window.__realVideo;
+    if (!video) return;
+
+    if (e.code === 'ArrowRight') {
+      e.preventDefault();
+      video.currentTime = Math.min(video.duration || 0, video.currentTime + 10);
+      showSeekFeedbackSimple('right', 10);
+    }
+    else if (e.code === 'ArrowLeft') {
+      e.preventDefault();
+      video.currentTime = Math.max(0, video.currentTime - 10);
+      showSeekFeedbackSimple('left', 10);
+    }
+    else if (e.code === 'Space') {
+      e.preventDefault();
+      togglePlay();
+    }
+  });
+}
+
+function showSeekFeedbackSimple(direction, seconds) {
+  const playerWrap = document.querySelector('.player-wrap');
+  if (!playerWrap) return;
+
+  playerWrap.querySelectorAll('.seek-feedback').forEach(el => el.remove());
+
+  const fb = document.createElement('div');
+  fb.className = `seek-feedback seek-${direction}`;
+
+  if (direction === 'left') {
+    fb.innerHTML = `
+      <svg class="icon icon-lg" style="fill:#fff;stroke:none;"><use href="#ico-skip-b"/></svg>
+      <span>${seconds}s</span>
+    `;
+  } else {
+    fb.innerHTML = `
+      <span>${seconds}s</span>
+      <svg class="icon icon-lg" style="fill:#fff;stroke:none;"><use href="#ico-skip-f"/></svg>
+    `;
+  }
+
+  playerWrap.appendChild(fb);
+  requestAnimationFrame(() => fb.classList.add('show'));
+
+  setTimeout(() => {
+    fb.classList.remove('show');
+    setTimeout(() => fb.remove(), 300);
+  }, 600);
+}
+
+/* ============================================
+   MOUSE MOVE → نشون دادن Controls، بعد 15s مخفی
+============================================ */
+export function bindPlayerMouseMove() {
+  document.addEventListener('mousemove', (e) => {
+    if (window.__currentPage !== 'watch') return;
+
+    const playerWrap = document.querySelector('.player-wrap');
+    if (!playerWrap) return;
+
+    if (!e.target.closest('.player-wrap') && !e.target.closest('.watch-page')) return;
+
+    playerWrap.classList.remove('playing');
+
+    if (window.__hideControlsTimer) {
+      clearTimeout(window.__hideControlsTimer);
+    }
+
+    window.__hideControlsTimer = setTimeout(() => {
+      const v = window.__realVideo;
+      if (v && !v.paused) {
+        playerWrap.classList.add('playing');
+      }
+    }, 15000);
+  }, true);
 }
