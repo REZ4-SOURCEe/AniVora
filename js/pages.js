@@ -14,8 +14,9 @@ import {
   getProgress, setProgress,
   isDropped, setDropped,
   getLastPage, setLastPage,
-  getLastDetail, setLastDetail,
-  stopVideo
+  stopVideo,
+  login, signup, logout, isLoggedIn, getCurrentUser, computeProfileStats,
+  getUsers, saveUsers, getSession
 } from './core.js';
 import {
   renderAnimeCard, populateSection, toggleDownloadMenu,
@@ -115,7 +116,6 @@ function initHero() {
     `;
   }
 
-  // ★ حذف هر listener قبلی روی .hero
   const heroSection = document.querySelector('.hero');
   if (heroSection) {
     heroSection.onclick = null;
@@ -223,8 +223,6 @@ export function openAnimeDetail(animeId) {
   window.__currentAnime = anime;
   window.__currentAnimeId = animeId;
 
-  // ★ ذخیره برای بازیابی بعد از رفرش
-  setLastDetail(animeId);
   setLastPage({ page: 'detail', animeId });
 
   const posterImg = document.querySelector('#page-detail .detail-poster img');
@@ -413,7 +411,6 @@ export function openEpisode(animeId, epNum) {
   window.__currentAnimeId = animeId;
   window.__currentEpNum = epNum;
 
-  // ★ ذخیره برای بازیابی بعد از رفرش
   setLastPage({ page: 'watch', animeId, epNum });
 
   const totalEps = anime.eps || anime.episodes.length;
@@ -435,9 +432,7 @@ export function openEpisode(animeId, epNum) {
     setListStatus(anime.id, 'watching');
   }
 
-  // پاکسازی پلیر قدیمی
   cleanupPlayer();
-
   showPage('watch');
 
   setTimeout(() => {
@@ -622,45 +617,625 @@ function renderUpNext(anime, currentEpNum) {
 }
 
 /* ============================================
-   RESTORE STATE AFTER REFRESH
+   AUTH PAGES
 ============================================ */
-export function restoreStateAfterRefresh() {
-  const lastPage = getLastPage();
-  if (!lastPage || !lastPage.page) return false;
+export function renderLoginPage() {
+  const loginPage = document.getElementById('page-login');
+  if (!loginPage) return;
 
-  // اگه صفحه watch بود → دوباره پخش کن
-  if (lastPage.page === 'watch' && lastPage.animeId && lastPage.epNum) {
-    const anime = ANIME_DATA.find(a => a.id === lastPage.animeId);
-    if (anime) {
-      const ep = anime.episodes.find(e => e.num === lastPage.epNum);
-      if (ep) {
-        window.__currentAnime = anime;
-        window.__currentEpisode = ep;
-        window.__currentAnimeId = lastPage.animeId;
-        window.__currentEpNum = lastPage.epNum;
+  const isLogged = isLoggedIn();
 
-        showPage('watch', true);
-        setTimeout(() => {
-          loadEpisodeInPlayer(anime, ep);
-          renderWatchSidebar(anime, lastPage.epNum);
-          renderUpNext(anime, lastPage.epNum);
-          renderWatchActions(anime, ep);
-        }, 100);
-        return true;
+  if (isLogged) {
+    loginPage.innerHTML = `
+      <div class="auth-page">
+        <div class="auth-card">
+          <div class="auth-logo" style="gap:0;">Ani<span>vora</span></div>
+          <div class="auth-title">You're already signed in</div>
+          <div class="auth-subtitle">Go to your profile</div>
+          <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="showPage('profile')">Go to Profile</button>
+          <button class="btn btn-ghost" style="width:100%;justify-content:center;margin-top:10px;" onclick="handleLogout()">Sign Out</button>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  loginPage.innerHTML = `
+    <div class="auth-page">
+      <div class="auth-card">
+        <div class="auth-logo" style="gap:0;">Ani<span>vora</span></div>
+        <div class="auth-title">Welcome Back</div>
+        <div class="auth-subtitle">Sign in to your account</div>
+
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" id="loginEmail" class="form-input" placeholder="you@example.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" id="loginPassword" class="form-input" placeholder="••••••••">
+        </div>
+
+        <div id="loginError" class="auth-error" style="display:none;"></div>
+
+        <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="handleLogin()">Sign In</button>
+
+        <div class="auth-switch">
+          Don't have an account?
+          <a onclick="showPage('signup')">Create one</a>
+        </div>
+      </div>
+    </div>
+  `;
+
+  setTimeout(() => {
+    const emailInput = document.getElementById('loginEmail');
+    const passInput = document.getElementById('loginPassword');
+    if (emailInput) emailInput.focus();
+    [emailInput, passInput].forEach(inp => {
+      if (inp) inp.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') handleLogin();
+      });
+    });
+  }, 50);
+}
+
+export function handleLogin() {
+  const email = document.getElementById('loginEmail')?.value.trim();
+  const password = document.getElementById('loginPassword')?.value;
+  const errorEl = document.getElementById('loginError');
+
+  const result = login(email, password);
+
+  if (!result.success) {
+    if (errorEl) {
+      errorEl.textContent = result.error;
+      errorEl.style.display = 'block';
+    }
+    return;
+  }
+
+  showToast('Welcome back, ' + result.user.username + '!');
+  showPage('profile');
+}
+
+export function handleLogout() {
+  logout();
+  showToast('Signed out');
+  renderLoginPage();
+  showPage('login');
+}
+
+export function renderSignupPage() {
+  const signupPage = document.getElementById('page-signup');
+  if (!signupPage) return;
+
+  signupPage.innerHTML = `
+    <div class="auth-page">
+      <div class="auth-card">
+        <div class="auth-logo" style="gap:0;">Ani<span>vora</span></div>
+        <div class="auth-title">Create Account</div>
+        <div class="auth-subtitle">Join Anivora today</div>
+
+        <div class="form-group">
+          <label class="form-label">Username</label>
+          <input type="text" id="signupUsername" class="form-input" placeholder="YourName">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" id="signupEmail" class="form-input" placeholder="you@example.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" id="signupPassword" class="form-input" placeholder="Min 6 characters">
+        </div>
+
+        <div id="signupError" class="auth-error" style="display:none;"></div>
+
+        <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="handleSignup()">Create Account</button>
+
+        <div class="auth-switch">
+          Already have an account?
+          <a onclick="showPage('login')">Sign in</a>
+        </div>
+      </div>
+    </div>
+  `;
+
+  setTimeout(() => {
+    const uInput = document.getElementById('signupUsername');
+    if (uInput) uInput.focus();
+  }, 50);
+}
+
+export function handleSignup() {
+  const username = document.getElementById('signupUsername')?.value.trim();
+  const email = document.getElementById('signupEmail')?.value.trim();
+  const password = document.getElementById('signupPassword')?.value;
+  const errorEl = document.getElementById('signupError');
+
+  const result = signup(email, password, username);
+
+  if (!result.success) {
+    if (errorEl) {
+      errorEl.textContent = result.error;
+      errorEl.style.display = 'block';
+    }
+    return;
+  }
+
+  showToast('Account created!');
+  showPage('profile');
+}
+
+/* ============================================
+   PROFILE
+============================================ */
+export function initProfile() {
+  if (!isLoggedIn()) return;
+
+  const user = getCurrentUser();
+  if (!user) return;
+
+  const stats = computeProfileStats(ANIME_DATA);
+
+  const avatarContainer = document.getElementById('profileAvatar');
+  if (avatarContainer) {
+    if (user.avatar) {
+      avatarContainer.innerHTML = `<img src="${user.avatar}" alt="">`;
+    } else {
+      avatarContainer.innerHTML = `<svg class="icon icon-xl" style="color:rgba(255,255,255,0.5);margin:auto;display:block;"><use href="#ico-user"/></svg>`;
+    }
+  }
+
+  const nameEl = document.querySelector('.profile-name');
+  if (nameEl) nameEl.textContent = user.username;
+
+  const sinceEl = document.querySelector('.profile-since');
+  if (sinceEl) {
+    const date = new Date(user.createdAt);
+    const monthYear = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    sinceEl.textContent = `Member since ${monthYear}`;
+  }
+
+  const editBtn = document.querySelector('.profile-edit-btn');
+  if (editBtn) {
+    editBtn.onclick = (e) => {
+      e.stopPropagation();
+      openEditProfileModal(user);
+    };
+  }
+
+  const statsStrip = document.querySelector('.profile-stats-strip');
+  if (statsStrip) {
+    statsStrip.innerHTML = `
+      <div class="profile-stat"><span class="profile-stat-val">${stats.totalAnime}</span><span class="profile-stat-label">Anime</span></div>
+      <div class="profile-stat"><span class="profile-stat-val">${stats.totalEpisodes}</span><span class="profile-stat-label">Episodes</span></div>
+      <div class="profile-stat"><span class="profile-stat-val">${stats.watchTimeDisplay}</span><span class="profile-stat-label">Watch Time</span></div>
+      <div class="profile-stat"><span class="profile-stat-val">${stats.completed}</span><span class="profile-stat-label">Completed</span></div>
+      <div class="profile-stat"><span class="profile-stat-val">${stats.favorites}</span><span class="profile-stat-label">Favorites</span></div>
+    `;
+  }
+
+  const overviewStats = document.querySelector('.profile-stats-grid');
+  if (overviewStats) {
+    overviewStats.innerHTML = `
+      <div class="stat-card" style="background:var(--bg-card);border:1px solid var(--border);border-top:3px solid var(--accent);border-radius:var(--radius-md);padding:18px;text-align:center;">
+        <svg class="icon icon-md" style="color:var(--accent);margin:0 auto 10px;display:block;"><use href="#ico-tv"/></svg>
+        <div style="font-size:26px;font-weight:800;color:var(--accent);">${stats.watching}</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">Currently Watching</div>
+      </div>
+      <div class="stat-card" style="background:var(--bg-card);border:1px solid var(--border);border-top:3px solid var(--success);border-radius:var(--radius-md);padding:18px;text-align:center;">
+        <svg class="icon icon-md" style="color:var(--success);margin:0 auto 10px;display:block;"><use href="#ico-check"/></svg>
+        <div style="font-size:26px;font-weight:800;color:var(--success);">${stats.completed}</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">Completed</div>
+      </div>
+      <div class="stat-card" style="background:var(--bg-card);border:1px solid var(--border);border-top:3px solid var(--gold);border-radius:var(--radius-md);padding:18px;text-align:center;">
+        <svg class="icon icon-md" style="color:var(--gold);margin:0 auto 10px;display:block;fill:var(--gold);stroke:none;"><use href="#ico-star"/></svg>
+        <div style="font-size:26px;font-weight:800;color:var(--gold);">${stats.meanScore}</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">Mean Score</div>
+      </div>
+      <div class="stat-card" style="background:var(--bg-card);border:1px solid var(--border);border-top:3px solid #ff78a0;border-radius:var(--radius-md);padding:18px;text-align:center;">
+        <svg class="icon icon-md" style="color:#ff78a0;margin:0 auto 10px;display:block;"><use href="#ico-heart"/></svg>
+        <div style="font-size:26px;font-weight:800;color:#ff78a0;">${stats.favorites}</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">Favorites</div>
+      </div>
+    `;
+  }
+
+  const genreProgress = document.getElementById('genreProgress');
+  if (genreProgress) {
+    if (stats.favoriteGenres.length === 0) {
+      genreProgress.innerHTML = '<p style="color:var(--text-muted);font-size:13px;">No data yet. Start adding anime to your list!</p>';
+    } else {
+      genreProgress.innerHTML = stats.favoriteGenres.map(g => `
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:4px;">
+            <span style="color:var(--text-secondary);">${g.name}</span>
+            <span style="color:var(--text-primary);font-weight:600;">${g.pct}%</span>
+          </div>
+          <div style="height:4px;background:var(--bg-elevated);border-radius:2px;">
+            <div style="height:100%;background:var(--accent);border-radius:2px;width:${g.pct}%;"></div>
+          </div>
+        </div>
+      `).join('');
+    }
+  }
+
+  const recentActivity = document.getElementById('recentActivity');
+  if (recentActivity) {
+    const listStore = getListStore();
+    const lastEpStore = getStore('anivora_last_ep');
+
+    const activities = [];
+    Object.keys(listStore).forEach(animeIdStr => {
+      const animeId = parseInt(animeIdStr);
+      const anime = ANIME_DATA.find(a => a.id === animeId);
+      if (!anime) return;
+      const lastEp = lastEpStore[animeId] || 0;
+      const status = listStore[animeId];
+
+      if (lastEp > 0) {
+        activities.push({
+          title: anime.title,
+          desc: `Watched Episode ${lastEp}`,
+          time: status === 'completed' ? 'Completed' : 'In progress',
+          img: anime.img,
+          ts: animeId
+        });
+      } else if (status) {
+        activities.push({
+          title: anime.title,
+          desc: `Added to list (${status.replace('_', ' ')})`,
+          time: 'Recently',
+          img: anime.img,
+          ts: animeId
+        });
       }
+    });
+
+    activities.sort((a, b) => b.ts - a.ts);
+    const top = activities.slice(0, 5);
+
+    if (top.length === 0) {
+      recentActivity.innerHTML = '<p style="color:var(--text-muted);font-size:13px;padding:12px;">No activity yet.</p>';
+    } else {
+      recentActivity.innerHTML = top.map(a => `
+        <div class="recent-activity-item" onclick="openAnimeDetail(${a.ts})" style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);margin-bottom:8px;cursor:pointer;transition:var(--transition);">
+          <img src="${a.img}" style="width:44px;height:44px;border-radius:8px;object-fit:cover;flex-shrink:0;" alt="">
+          <div style="flex:1;">
+            <div style="font-size:13.5px;font-weight:600;">${a.title}</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">${a.desc} · ${a.time}</div>
+          </div>
+          <svg class="icon icon-sm" style="color:var(--text-muted);"><use href="#ico-chevron-r"/></svg>
+        </div>
+      `).join('');
     }
   }
 
-  // اگه صفحه detail بود → باز کن
-  if (lastPage.page === 'detail' && lastPage.animeId) {
-    const anime = ANIME_DATA.find(a => a.id === lastPage.animeId);
-    if (anime) {
-      openAnimeDetail(lastPage.animeId);
-      return true;
+  const topGenres = document.getElementById('topGenres');
+  if (topGenres) {
+    if (stats.favoriteGenres.length === 0) {
+      topGenres.innerHTML = '<p style="color:var(--text-muted);font-size:13px;">No data.</p>';
+    } else {
+      const maxN = stats.favoriteGenres[0].count;
+      topGenres.innerHTML = stats.favoriteGenres.map(g => `
+        <div style="margin-bottom:10px;">
+          <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:3px;">
+            <span style="color:var(--text-secondary);">${g.name}</span>
+            <span style="color:var(--text-primary);font-weight:600;">${g.count}</span>
+          </div>
+          <div style="height:3px;background:var(--bg-elevated);border-radius:2px;">
+            <div style="height:100%;background:var(--accent);border-radius:2px;width:${(g.count / maxN) * 100}%;"></div>
+          </div>
+        </div>
+      `).join('');
     }
   }
 
-  return false;
+  const scoreDist = document.getElementById('scoreDist');
+  if (scoreDist) {
+    const listStore = getListStore();
+    const scores = {};
+    [10,9,8,7,6,5,4].forEach(s => scores[s] = 0);
+
+    Object.keys(listStore).forEach(idStr => {
+      const anime = ANIME_DATA.find(a => a.id === parseInt(idStr));
+      if (!anime) return;
+      const bucket = Math.min(10, Math.max(4, Math.floor(anime.score)));
+      scores[bucket] = (scores[bucket] || 0) + 1;
+    });
+
+    const maxCount = Math.max(...Object.values(scores), 1);
+    scoreDist.innerHTML = [10,9,8,7,6,5,4].map(s => `
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+        <span style="font-size:11.5px;color:var(--text-muted);width:24px;text-align:right;">${s}</span>
+        <div style="flex:1;height:14px;background:var(--bg-elevated);border-radius:3px;overflow:hidden;">
+          <div style="height:100%;background:var(--accent);border-radius:3px;width:${(scores[s] / maxCount) * 100}%;opacity:0.85;"></div>
+        </div>
+        <span style="font-size:11px;color:var(--text-muted);width:20px;">${scores[s]}</span>
+      </div>
+    `).join('');
+  }
+
+  const watchByYear = document.getElementById('watchByYear');
+  if (watchByYear) {
+    if (stats.watchByYear.length === 0) {
+      watchByYear.innerHTML = '<p style="color:var(--text-muted);font-size:13px;">No data.</p>';
+    } else {
+      watchByYear.innerHTML = stats.watchByYear.map(y => `
+        <div style="margin-bottom:10px;">
+          <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:3px;">
+            <span style="color:var(--text-secondary);">${y.year}</span>
+            <span style="color:var(--text-primary);font-weight:600;">${y.count} anime</span>
+          </div>
+          <div style="height:3px;background:var(--bg-elevated);border-radius:2px;">
+            <div style="height:100%;background:var(--accent);border-radius:2px;width:${y.pct}%;"></div>
+          </div>
+        </div>
+      `).join('');
+    }
+  }
+
+  const favGrid = document.getElementById('favoritesGrid');
+  if (favGrid) {
+    const favIds = getStore('anivora_likes');
+    const favAnimes = ANIME_DATA.filter(a => favIds.includes(a.id));
+    if (favAnimes.length === 0) {
+      favGrid.innerHTML = '<p style="color:var(--text-muted);font-size:13px;padding:12px;">No favorites yet.</p>';
+    } else {
+      favGrid.innerHTML = favAnimes.map(a => renderAnimeCard(a)).join('');
+    }
+  }
+
+  const historyList = document.getElementById('historyList');
+  if (historyList) {
+    const listStore = getListStore();
+    const lastEpStore = getStore('anivora_last_ep');
+    const items = [];
+
+    Object.keys(listStore).forEach(idStr => {
+      const anime = ANIME_DATA.find(a => a.id === parseInt(idStr));
+      if (!anime) return;
+      const lastEp = lastEpStore[anime.id] || 0;
+      if (lastEp > 0) {
+        items.push({ anime, lastEp, status: listStore[anime.id] });
+      }
+    });
+
+    items.sort((a, b) => b.lastEp - a.lastEp);
+
+    if (items.length === 0) {
+      historyList.innerHTML = '<p style="color:var(--text-muted);font-size:13px;padding:12px;">No history yet.</p>';
+    } else {
+      historyList.innerHTML = items.map(item => `
+        <div class="watchlist-item" onclick="openAnimeDetail(${item.anime.id})" style="cursor:pointer;">
+          <div class="wl-main-row">
+            <img src="${item.anime.img}" alt="">
+            <div class="watchlist-item-info">
+              <div class="watchlist-item-title">${item.anime.title}</div>
+              <div class="watchlist-item-meta">Watched up to Episode ${item.lastEp}</div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+  }
+}
+
+export function bindProfileEvents() {
+  window.addEventListener('anivora:profile-refresh', () => {
+    if (isLoggedIn()) initProfile();
+  });
+  window.addEventListener('anivora:list-changed', () => {
+    if (window.__currentPage === 'profile' && isLoggedIn()) initProfile();
+  });
+  window.addEventListener('anivora:likes-changed', () => {
+    if (window.__currentPage === 'profile' && isLoggedIn()) initProfile();
+  });
+}
+
+/* ★ DETAIL REFRESH — وقتی از watch به detail برمی‌گردیم */
+export function bindDetailEvents() {
+  window.addEventListener('anivora:detail-refresh', (e) => {
+    const animeId = e.detail?.animeId || window.__currentAnimeId;
+    if (animeId) {
+      openAnimeDetail(animeId);
+    }
+  });
+}
+
+/* ============================================
+   EDIT PROFILE MODAL
+============================================ */
+export function openEditProfileModal(user) {
+  document.querySelectorAll('.edit-profile-overlay').forEach(el => el.remove());
+  document.querySelectorAll('.edit-profile-modal').forEach(el => el.remove());
+
+  const overlay = document.createElement('div');
+  overlay.className = 'edit-profile-overlay';
+  overlay.onclick = () => closeEditProfileModal();
+
+  const modal = document.createElement('div');
+  modal.className = 'edit-profile-modal';
+
+  const avatarHTML = user.avatar
+    ? `<img src="${user.avatar}" alt="">`
+    : `<svg class="icon icon-xl" style="color:rgba(255,255,255,0.5);"><use href="#ico-user"/></svg>`;
+
+  modal.innerHTML = `
+    <div class="edit-profile-header">
+      <h3>Edit Profile</h3>
+      <button class="edit-profile-close" onclick="closeEditProfileModal()" type="button">
+        <svg class="icon icon-md"><use href="#ico-x"/></svg>
+      </button>
+    </div>
+
+    <div class="edit-profile-body">
+      <div class="edit-avatar-section">
+        <div class="edit-avatar-preview" id="editAvatarPreview">
+          ${avatarHTML}
+        </div>
+        <div class="edit-avatar-actions">
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('avatarInput').click()" type="button">
+            <svg class="icon icon-sm"><use href="#ico-upload"/></svg>
+            Change Avatar
+          </button>
+          <button class="btn btn-ghost btn-sm" onclick="removeAvatar()" type="button">
+            <svg class="icon icon-sm"><use href="#ico-trash"/></svg>
+            Remove
+          </button>
+        </div>
+        <input type="file" id="avatarInput" accept="image/*" style="display:none;" onchange="handleAvatarUpload(event)">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Username</label>
+        <input type="text" id="editUsername" class="form-input" value="${user.username}" maxlength="30" placeholder="Your username">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input type="email" class="form-input" value="${user.email}" disabled style="opacity:0.6;cursor:not-allowed;">
+      </div>
+
+      <div id="editProfileError" class="auth-error" style="display:none;"></div>
+    </div>
+
+    <div class="edit-profile-footer">
+      <button class="btn btn-ghost" onclick="closeEditProfileModal()" type="button">Cancel</button>
+      <button class="btn btn-primary" onclick="saveProfileChanges()" type="button">
+        <svg class="icon icon-sm" style="fill:#fff;stroke:none;"><use href="#ico-check"/></svg>
+        Save Changes
+      </button>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+  document.body.appendChild(modal);
+
+  window.__pendingAvatar = user.avatar || null;
+
+  requestAnimationFrame(() => {
+    overlay.classList.add('show');
+    modal.classList.add('show');
+  });
+  document.body.style.overflow = 'hidden';
+
+  const escHandler = (e) => {
+    if (e.key === 'Escape') {
+      document.removeEventListener('keydown', escHandler);
+      closeEditProfileModal();
+    }
+  };
+  document.addEventListener('keydown', escHandler);
+  window.__editProfileEscHandler = escHandler;
+}
+
+export function closeEditProfileModal() {
+  const overlay = document.querySelector('.edit-profile-overlay');
+  const modal = document.querySelector('.edit-profile-modal');
+  if (overlay) { overlay.classList.remove('show'); setTimeout(() => overlay.remove(), 250); }
+  if (modal) { modal.classList.remove('show'); setTimeout(() => modal.remove(), 300); }
+  document.body.style.overflow = '';
+  window.__pendingAvatar = null;
+
+  if (window.__editProfileEscHandler) {
+    document.removeEventListener('keydown', window.__editProfileEscHandler);
+    window.__editProfileEscHandler = null;
+  }
+}
+
+export function handleAvatarUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  if (!file.type.startsWith('image/')) {
+    const errEl = document.getElementById('editProfileError');
+    if (errEl) {
+      errEl.textContent = 'Please select an image file.';
+      errEl.style.display = 'block';
+    }
+    event.target.value = '';
+    return;
+  }
+
+  if (file.size > 2 * 1024 * 1024) {
+    const errEl = document.getElementById('editProfileError');
+    if (errEl) {
+      errEl.textContent = 'Image must be smaller than 2MB.';
+      errEl.style.display = 'block';
+    }
+    event.target.value = '';
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const dataUrl = e.target.result;
+    window.__pendingAvatar = dataUrl;
+
+    const preview = document.getElementById('editAvatarPreview');
+    if (preview) {
+      preview.innerHTML = `<img src="${dataUrl}" alt="">`;
+    }
+
+    const errEl = document.getElementById('editProfileError');
+    if (errEl) errEl.style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+export function removeAvatar() {
+  window.__pendingAvatar = null;
+  const preview = document.getElementById('editAvatarPreview');
+  if (preview) {
+    preview.innerHTML = `<svg class="icon icon-xl" style="color:rgba(255,255,255,0.5);"><use href="#ico-user"/></svg>`;
+  }
+}
+
+export function saveProfileChanges() {
+  const newUsername = document.getElementById('editUsername')?.value.trim();
+  const errorEl = document.getElementById('editProfileError');
+
+  if (!newUsername || newUsername.length < 2) {
+    if (errorEl) {
+      errorEl.textContent = 'Username must be at least 2 characters.';
+      errorEl.style.display = 'block';
+    }
+    return;
+  }
+
+  if (newUsername.length > 30) {
+    if (errorEl) {
+      errorEl.textContent = 'Username must be less than 30 characters.';
+      errorEl.style.display = 'block';
+    }
+    return;
+  }
+
+  const session = getSession();
+  if (!session) {
+    showToast('Session expired. Please sign in again.');
+    return;
+  }
+
+  const users = getUsers();
+  const userIndex = users.findIndex(u => u.id === session.userId);
+  if (userIndex === -1) {
+    showToast('User not found.');
+    return;
+  }
+
+  users[userIndex].username = newUsername;
+  users[userIndex].avatar = window.__pendingAvatar;
+
+  saveUsers(users);
+
+  showToast('Profile updated!');
+  closeEditProfileModal();
+
+  initProfile();
 }
 
 /* ============================================
@@ -718,12 +1293,12 @@ export function initWatchlist() {
     let topActions = '';
     if (watchlistFilter === 'favorites') {
       topActions = `
-        <button class="wl-action-btn" onclick="event.stopPropagation();removeFromFavoritesUI(${a.id}, this)" title="Remove from favorites">
+        <button class="wl-action-btn" onclick="event.stopPropagation();removeFromFavoritesUI(${a.id}, this)" title="Remove from favorites" type="button">
           <svg class="icon icon-sm"><use href="#ico-x"/></svg>
         </button>`;
     } else {
       topActions = `
-        <button class="wl-action-btn" onclick="event.stopPropagation();openListStatusSheet(${a.id}, this)" title="Change status">
+        <button class="wl-action-btn" onclick="event.stopPropagation();openListStatusSheet(${a.id}, this)" title="Change status" type="button">
           <svg class="icon icon-sm"><use href="#ico-edit"/></svg>
           <span>Change Status</span>
         </button>`;
@@ -739,7 +1314,6 @@ export function initWatchlist() {
     const lastEpText = lastEp ? `Ep ${lastEp} / ${airedEps}` : `0 / ${airedEps}`;
     const droppedText = dropped ? '<div class="wl-dropped-text">Dropped — won\'t continue</div>' : '';
 
-    // ★ کارت کلیک → صفحه جزئیات (نه چک‌لیست)
     return `
     <div class="watchlist-item">
       <div class="wl-top-row">
@@ -802,107 +1376,86 @@ export function bindWatchlistEvents() {
 }
 
 /* ============================================
-   PROFILE
+   RESTORE STATE AFTER REFRESH
 ============================================ */
-export function initProfile() {
-  const activity = document.getElementById('recentActivity');
-  if (activity) {
-    const acts = [
-      { title: "Jujutsu Kaisen", desc: "Watched Episode 12", time: "2 hours ago", img: "https://picsum.photos/44/44?random=501" },
-      { title: "Jujutsu Kaisen", desc: "Watched Episode 11", time: "Yesterday", img: "https://picsum.photos/44/44?random=502" },
-      { title: "Jujutsu Kaisen", desc: "Rated 9/10", time: "2 days ago", img: "https://picsum.photos/44/44?random=503" },
-    ];
-    activity.innerHTML = acts.map(a => `
-      <div style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);margin-bottom:8px;">
-        <img src="${a.img}" style="width:44px;height:44px;border-radius:8px;object-fit:cover;flex-shrink:0;" alt="">
-        <div style="flex:1;">
-          <div style="font-size:13.5px;font-weight:600;">${a.title}</div>
-          <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">${a.desc} · ${a.time}</div>
-        </div>
-        <svg class="icon icon-sm" style="color:var(--text-muted);"><use href="#ico-chevron-r"/></svg>
-      </div>`).join('');
+export function restoreStateAfterRefresh() {
+  const hashPage = location.hash ? location.hash.replace('#','') : null;
+  const lastPage = getLastPage();
+
+  let targetPage = hashPage;
+
+  const validRestorePages = ['detail', 'watch'];
+  if (!validRestorePages.includes(targetPage)) {
+    if (lastPage && validRestorePages.includes(lastPage.page)) {
+      targetPage = lastPage.page;
+    } else {
+      return false;
+    }
   }
 
-  const genres = [
-    { name: "Action", pct: 78 },
-    { name: "Supernatural", pct: 65 },
-    { name: "Drama", pct: 52 },
-    { name: "Sci-Fi", pct: 40 },
-    { name: "Romance", pct: 28 }
-  ];
-  const gp = document.getElementById('genreProgress');
-  if (gp) {
-    gp.innerHTML = genres.map(g => `
-      <div>
-        <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:4px;">
-          <span style="color:var(--text-secondary);">${g.name}</span>
-          <span style="color:var(--text-primary);font-weight:600;">${g.pct}%</span>
-        </div>
-        <div style="height:4px;background:var(--bg-elevated);border-radius:2px;">
-          <div style="height:100%;background:var(--accent);border-radius:2px;width:${g.pct}%;"></div>
-        </div>
-      </div>`).join('');
+  if (targetPage === 'watch') {
+    let animeId = lastPage?.animeId;
+    let epNum = lastPage?.epNum;
+
+    if (!animeId || !epNum) {
+      const lastEpStore = getStore('anivora_last_ep');
+      const ids = Object.keys(lastEpStore).map(id => parseInt(id));
+      if (ids.length > 0) {
+        animeId = ids[ids.length - 1];
+        epNum = lastEpStore[animeId];
+      }
+    }
+
+    if (animeId && epNum) {
+      const anime = ANIME_DATA.find(a => a.id === animeId);
+      if (anime) {
+        const ep = anime.episodes.find(e => e.num === epNum);
+        if (ep) {
+          window.__currentAnime = anime;
+          window.__currentEpisode = ep;
+          window.__currentAnimeId = animeId;
+          window.__currentEpNum = epNum;
+
+          document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+          const page = document.getElementById('page-watch');
+          if (page) page.classList.add('active');
+          window.__currentPage = 'watch';
+
+          setTimeout(() => {
+            loadEpisodeInPlayer(anime, ep);
+            renderWatchSidebar(anime, epNum);
+            renderUpNext(anime, epNum);
+            renderWatchActions(anime, ep);
+          }, 100);
+
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
-  populateSection('favoritesGrid', shuffle(ANIME_DATA).slice(0, 8));
+  if (targetPage === 'detail') {
+    let animeId = lastPage?.animeId;
 
-  const hist = document.getElementById('historyList');
-  if (hist) hist.innerHTML = '<p style="color:var(--text-muted);font-size:13px;padding:12px;">No history yet.</p>';
+    if (!animeId) {
+      const lastEpStore = getStore('anivora_last_ep');
+      const ids = Object.keys(lastEpStore).map(id => parseInt(id));
+      if (ids.length > 0) animeId = ids[ids.length - 1];
+    }
 
-  const tg = document.getElementById('topGenres');
-  if (tg) {
-    const gs = [
-      { name: "Action", n: 56 }, { name: "Supernatural", n: 42 },
-      { name: "Drama", n: 35 }, { name: "Sci-Fi", n: 28 }, { name: "Romance", n: 18 }
-    ];
-    const max = gs[0].n;
-    tg.innerHTML = gs.map(g => `
-      <div style="margin-bottom:10px;">
-        <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:3px;">
-          <span style="color:var(--text-secondary);">${g.name}</span>
-          <span style="color:var(--text-primary);font-weight:600;">${g.n}</span>
-        </div>
-        <div style="height:3px;background:var(--bg-elevated);border-radius:2px;">
-          <div style="height:100%;background:var(--accent);border-radius:2px;width:${(g.n / max) * 100}%;"></div>
-        </div>
-      </div>`).join('');
+    if (animeId) {
+      const anime = ANIME_DATA.find(a => a.id === animeId);
+      if (anime) {
+        openAnimeDetail(animeId);
+        history.replaceState({ page: 'detail', animeId }, '', '#detail');
+        return true;
+      }
+    }
+    return false;
   }
 
-  const sd = document.getElementById('scoreDist');
-  if (sd) {
-    const scores = [
-      { s: "10", n: 8 }, { s: "9", n: 18 }, { s: "8", n: 25 },
-      { s: "7", n: 14 }, { s: "6", n: 7 }, { s: "5", n: 3 }, { s: "≤4", n: 1 }
-    ];
-    const max = 25;
-    sd.innerHTML = scores.map(s => `
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-        <span style="font-size:11.5px;color:var(--text-muted);width:24px;text-align:right;">${s.s}</span>
-        <div style="flex:1;height:14px;background:var(--bg-elevated);border-radius:3px;overflow:hidden;">
-          <div style="height:100%;background:var(--accent);border-radius:3px;width:${(s.n / max) * 100}%;opacity:0.85;"></div>
-        </div>
-        <span style="font-size:11px;color:var(--text-muted);width:20px;">${s.n}</span>
-      </div>`).join('');
-  }
-
-  const wby = document.getElementById('watchByYear');
-  if (wby) {
-    const years = [
-      { y: "2024", n: 24 }, { y: "2023", n: 38 }, { y: "2022", n: 42 },
-      { y: "2021", n: 30 }, { y: "2020", n: 28 }
-    ];
-    const max = 42;
-    wby.innerHTML = years.map(y => `
-      <div style="margin-bottom:10px;">
-        <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:3px;">
-          <span style="color:var(--text-secondary);">${y.y}</span>
-          <span style="color:var(--text-primary);font-weight:600;">${y.n} anime</span>
-        </div>
-        <div style="height:3px;background:var(--bg-elevated);border-radius:2px;">
-          <div style="height:100%;background:var(--accent);border-radius:2px;width:${(y.n / max) * 100}%;"></div>
-        </div>
-      </div>`).join('');
-  }
+  return false;
 }
 
 /* ============================================

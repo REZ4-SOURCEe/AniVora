@@ -88,6 +88,7 @@
   flex-shrink: 0;
   align-self: flex-start;
   margin-top: -15px;
+  cursor: pointer;
 }
 
 .profile-stats-strip {
@@ -169,6 +170,12 @@
   margin-bottom: 28px;
 }
 
+/* Recent Activity item */
+.recent-activity-item:hover {
+  border-color: var(--border-hover) !important;
+  background: var(--bg-elevated) !important;
+}
+
 /* ============================================
    WATCHLIST PAGE
 ============================================ */
@@ -183,7 +190,6 @@
   margin-bottom: 24px;
 }
 
-/* ITEM */
 .watchlist-item {
   background: var(--bg-card);
   border: 1px solid var(--border);
@@ -197,7 +203,6 @@
   border-color: var(--border-hover);
 }
 
-/* TOP ROW — Buttons */
 .wl-top-row {
   display: flex;
   align-items: center;
@@ -235,6 +240,7 @@
   font-size: 12px;
   font-weight: 500;
   transition: var(--transition);
+  cursor: pointer;
 }
 .wl-action-btn:hover {
   background: var(--bg-hover);
@@ -242,12 +248,12 @@
   border-color: var(--border-hover);
 }
 
-/* MAIN ROW */
 .wl-main-row {
   display: flex;
   align-items: flex-start;
   gap: 12px;
   padding: 12px;
+  cursor: pointer;
 }
 .watchlist-item img {
   width: 60px;
@@ -273,7 +279,6 @@
   color: var(--text-muted);
 }
 
-/* BADGES */
 .wl-badges {
   display: flex;
   gap: 6px;
@@ -317,7 +322,6 @@
   border: 1px solid rgba(255,120,160,0.28);
 }
 
-/* PROGRESS BAR */
 .wl-progress-wrap {
   margin-top: 10px;
 }
@@ -373,7 +377,6 @@
   font-style: italic;
 }
 
-/* Empty state */
 .watchlist-empty {
   text-align: center;
   padding: 40px 16px;
@@ -503,6 +506,131 @@
 }
 
 /* ============================================
+   AUTH ERROR MESSAGE
+============================================ */
+.auth-error {
+  color: var(--danger);
+  font-size: 12.5px;
+  padding: 8px 12px;
+  background: rgba(224,85,85,0.1);
+  border-radius: var(--radius-sm);
+  margin-bottom: 12px;
+  border: 1px solid rgba(224,85,85,0.28);
+}
+
+/* ============================================
+   EDIT PROFILE MODAL
+============================================ */
+.edit-profile-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 5000;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.edit-profile-overlay.show { opacity: 1; }
+
+.edit-profile-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.95);
+  width: calc(100% - 32px);
+  max-width: 440px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: var(--bg-card);
+  border: 1px solid var(--border-hover);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-modal);
+  z-index: 5001;
+  opacity: 0;
+  transition: opacity 0.25s ease, transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+}
+.edit-profile-modal.show {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.edit-profile-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 22px;
+  border-bottom: 1px solid var(--border);
+}
+.edit-profile-header h3 {
+  font-size: 17px;
+  font-weight: 700;
+  margin: 0;
+}
+.edit-profile-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+  cursor: pointer;
+  border: none;
+}
+.edit-profile-close:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.edit-profile-body {
+  padding: 22px;
+}
+
+/* Avatar Section */
+.edit-avatar-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.edit-avatar-preview {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  border: 3px solid var(--accent);
+  overflow: hidden;
+  background: var(--bg-elevated);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 0 5px rgba(108,99,255,0.12);
+}
+.edit-avatar-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.edit-avatar-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.edit-profile-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 16px 22px;
+  border-top: 1px solid var(--border);
+}
+
+/* ============================================
    RESPONSIVE — Watchlist Item
 ============================================ */
 @media (max-width: 480px) {
@@ -518,5 +646,28 @@
     font-size: 11px;
     padding: 0 8px;
     height: 28px;
+  }
+
+  /* Edit Profile Modal — Bottom Sheet در موبایل */
+  .edit-profile-modal {
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    transform: translateY(100%);
+    width: 100%;
+    max-width: 100%;
+    max-height: 85vh;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    border-top-left-radius: 22px;
+    border-top-right-radius: 22px;
+  }
+  .edit-profile-modal.show {
+    transform: translateY(0);
+  }
+  .edit-avatar-preview {
+    width: 76px;
+    height: 76px;
   }
 }

@@ -1,6 +1,6 @@
 /* ============================================
    ANIVORA — CORE
-   store, router, toast, helpers, custom-select
+   store, router, toast, helpers, auth
 ============================================ */
 
 /* ============================================
@@ -27,8 +27,7 @@ const WATCHING_KEY = 'anivora_watching';
 const LAST_EP_KEY = 'anivora_last_ep';
 const PROGRESS_KEY = 'anivora_progress';
 const DROPPED_KEY = 'anivora_dropped';
-const LAST_PAGE_KEY = 'anivora_last_page';   // ★ برای بازیابی بعد از رفرش
-const LAST_DETAIL_KEY = 'anivora_last_detail'; // ★
+const LAST_PAGE_KEY = 'anivora_last_page';
 
 export function getStore(key) {
   try { return JSON.parse(localStorage.getItem(key)) || []; }
@@ -38,7 +37,7 @@ export function setStore(key, val) {
   try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) {}
 }
 
-/* ---------- LAST PAGE (برای رفرش) ---------- */
+/* ---------- LAST PAGE ---------- */
 export function getLastPage() {
   try { return JSON.parse(localStorage.getItem(LAST_PAGE_KEY)) || null; }
   catch(e) { return null; }
@@ -47,16 +46,7 @@ export function setLastPage(page) {
   try { localStorage.setItem(LAST_PAGE_KEY, JSON.stringify(page)); } catch(e) {}
 }
 
-/* ---------- LAST DETAIL ---------- */
-export function getLastDetail() {
-  try { return JSON.parse(localStorage.getItem(LAST_DETAIL_KEY)) || null; }
-  catch(e) { return null; }
-}
-export function setLastDetail(animeId) {
-  try { localStorage.setItem(LAST_DETAIL_KEY, JSON.stringify(animeId)); } catch(e) {}
-}
-
-/* ---------- LAST WATCHED EPISODE ---------- */
+/* ---------- LAST EPISODE ---------- */
 export function getLastEpisode(animeId) {
   const store = getStore(LAST_EP_KEY);
   return store[animeId] || null;
@@ -67,7 +57,7 @@ export function setLastEpisode(animeId, epNum) {
   setStore(LAST_EP_KEY, store);
 }
 
-/* ---------- PROGRESS (%) ---------- */
+/* ---------- PROGRESS ---------- */
 export function getProgress(animeId) {
   const store = getStore(PROGRESS_KEY);
   return store[animeId] || 0;
@@ -224,6 +214,209 @@ export function toggleWatching(animeId) {
 }
 
 /* ============================================
+   AUTH SYSTEM
+============================================ */
+const USERS_KEY = 'anivora_users';
+const SESSION_KEY = 'anivora_session';
+
+export function getUsers() {
+  try { return JSON.parse(localStorage.getItem(USERS_KEY)) || []; }
+  catch(e) { return []; }
+}
+export function saveUsers(users) {
+  try { localStorage.setItem(USERS_KEY, JSON.stringify(users)); } catch(e) {}
+}
+
+export function getSession() {
+  try { return JSON.parse(localStorage.getItem(SESSION_KEY)) || null; }
+  catch(e) { return null; }
+}
+export function setSession(session) {
+  try { localStorage.setItem(SESSION_KEY, JSON.stringify(session)); } catch(e) {}
+}
+export function clearSession() {
+  try { localStorage.removeItem(SESSION_KEY); } catch(e) {}
+}
+
+export function getCurrentUser() {
+  const session = getSession();
+  if (!session) return null;
+  const users = getUsers();
+  return users.find(u => u.id === session.userId) || null;
+}
+
+export function isLoggedIn() {
+  return !!getCurrentUser();
+}
+
+export function signup(email, password, username) {
+  const users = getUsers();
+
+  if (users.find(u => u.email.toLowerCase() === email.toLowerCase())) {
+    return { success: false, error: 'This email is already registered.' };
+  }
+
+  if (!email || !email.includes('@')) {
+    return { success: false, error: 'Please enter a valid email.' };
+  }
+  if (!password || password.length < 6) {
+    return { success: false, error: 'Password must be at least 6 characters.' };
+  }
+
+  const newUser = {
+    id: 'u_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+    email: email.toLowerCase(),
+    password: password,
+    username: username || email.split('@')[0],
+    createdAt: new Date().toISOString()
+  };
+
+  users.push(newUser);
+  saveUsers(users);
+  setSession({ userId: newUser.id, loggedInAt: new Date().toISOString() });
+
+  return { success: true, user: newUser };
+}
+
+export function login(email, password) {
+  const users = getUsers();
+  const user = users.find(u =>
+    u.email.toLowerCase() === email.toLowerCase() && u.password === password
+  );
+
+  if (!user) {
+    return { success: false, error: 'Invalid email or password.' };
+  }
+
+  setSession({ userId: user.id, loggedInAt: new Date().toISOString() });
+  return { success: true, user };
+}
+
+export function logout() {
+  clearSession();
+}
+
+/* ============================================
+   PROFILE STATS
+============================================ */
+export function computeProfileStats(ANIME_DATA) {
+  const listStore = getListStore();
+  const likes = getStore(LIKES_KEY);
+  const lastEpStore = getStore(LAST_EP_KEY);
+
+  let totalAnime = 0;
+  let totalEpisodes = 0;
+  let totalMinutes = 0;
+  let completed = 0;
+  let watching = 0;
+  let planToWatch = 0;
+  let dropped = 0;
+
+  const genreCount = {};
+  const yearCount = {};
+
+  Object.keys(listStore).forEach(animeIdStr => {
+    const animeId = parseInt(animeIdStr);
+    const anime = ANIME_DATA.find(a => a.id === animeId);
+    if (!anime) return;
+
+    totalAnime++;
+    const status = listStore[animeId];
+    const watchedEps = lastEpStore[animeId] || 0;
+
+    totalEpisodes += watchedEps;
+    totalMinutes += watchedEps * 24;
+
+    if (status === 'completed') completed++;
+    if (status === 'watching')  watching++;
+    if (status === 'plan_to_watch') planToWatch++;
+    if (isDropped(animeId)) dropped++;
+
+    anime.genres.forEach(g => { genreCount[g] = (genreCount[g] || 0) + 1; });
+    yearCount[anime.year] = (yearCount[anime.year] || 0) + 1;
+  });
+
+  let meanScore = 0;
+  const listAnimeIds = Object.keys(listStore).map(id => parseInt(id));
+  const listAnimes = ANIME_DATA.filter(a => listAnimeIds.includes(a.id));
+  if (listAnimes.length > 0) {
+    meanScore = listAnimes.reduce((sum, a) => sum + a.score, 0) / listAnimes.length;
+  }
+
+  const sortedGenres = Object.entries(genreCount)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5);
+
+  const maxGenreCount = sortedGenres[0]?.[1] || 1;
+  const favoriteGenres = sortedGenres.map(([name, count]) => ({
+    name, count,
+    pct: Math.round((count / maxGenreCount) * 100)
+  }));
+
+  const sortedYears = Object.entries(yearCount)
+    .sort((a, b) => parseInt(b[0]) - parseInt(a[0]))
+    .slice(0, 5);
+
+  const maxYearCount = Math.max(...sortedYears.map(y => y[1]), 1);
+  const watchByYear = sortedYears.map(([year, count]) => ({
+    year, count,
+    pct: Math.round((count / maxYearCount) * 100)
+  }));
+
+  const totalHours = Math.floor(totalMinutes / 60);
+  const watchTimeDisplay = totalHours > 24
+    ? `${Math.floor(totalHours / 24)}d ${totalHours % 24}h`
+    : `${totalHours}h`;
+
+  return {
+    totalAnime,
+    totalEpisodes,
+    totalMinutes,
+    watchTimeDisplay,
+    completed,
+    watching,
+    planToWatch,
+    dropped,
+    favorites: likes.length,
+    meanScore: meanScore.toFixed(1),
+    favoriteGenres,
+    watchByYear
+  };
+}
+
+/* ============================================
+   TOAST
+============================================ */
+export function showToast(msg) {
+  let t = document.getElementById('anivoraToast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'anivoraToast';
+    t.className = 'anivora-toast';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t.__timer);
+  t.__timer = setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+/* ============================================
+   HELPERS
+============================================ */
+export function shuffle(arr) {
+  return [...arr].sort(() => Math.random() - 0.5);
+}
+export function formatTime(sec) {
+  if (!sec || isNaN(sec)) return '00:00';
+  const h = Math.floor(sec / 3600);
+  const m = Math.floor((sec % 3600) / 60);
+  const s = Math.floor(sec % 60);
+  if (h > 0) return `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+/* ============================================
    LIST STATUS SHEET
 ============================================ */
 export function openListStatusSheet(animeId, triggerBtn) {
@@ -246,10 +439,7 @@ export function openListStatusSheet(animeId, triggerBtn) {
   }
 
   if (lastEp > airedEps) lastEp = airedEps;
-
-  if (!lastEp && progressPct > 0) {
-    lastEp = Math.round((progressPct / 100) * airedEps);
-  }
+  if (!lastEp && progressPct > 0) lastEp = Math.round((progressPct / 100) * airedEps);
   if (!lastEp) lastEp = 1;
 
   let selectedStatus = currentStatus || 'watching';
@@ -319,18 +509,12 @@ export function openListStatusSheet(animeId, triggerBtn) {
   const updateSliderFromEp = (ep) => {
     currentEp = Math.max(1, Math.min(airedEps, ep));
     const pct = (currentEp / airedEps) * 100;
-
     const fill = sheet.querySelector('#sliderFill');
     const thumb = sheet.querySelector('#sliderThumb');
     const count = sheet.querySelector('#progressCount');
-
     if (fill)  fill.style.width = pct + '%';
-    if (thumb) {
-      thumb.style.left = pct + '%';
-      thumb.textContent = currentEp;
-    }
+    if (thumb) { thumb.style.left = pct + '%'; thumb.textContent = currentEp; }
     if (count) count.textContent = `${currentEp}/${airedEps}`;
-
     if (selectedStatus !== 'watching') {
       selectedStatus = 'watching';
       sheet.querySelectorAll('.list-status-item').forEach(b => b.classList.remove('selected'));
@@ -356,7 +540,6 @@ export function openListStatusSheet(animeId, triggerBtn) {
   };
 
   let isDragging = false;
-
   const onStart = (e) => {
     if (e.cancelable) e.preventDefault();
     e.stopPropagation();
@@ -369,14 +552,12 @@ export function openListStatusSheet(animeId, triggerBtn) {
     document.addEventListener('touchmove', onMove, { passive: false });
     document.addEventListener('touchend', onEnd);
   };
-
   const onMove = (e) => {
     if (!isDragging) return;
     if (e.cancelable) e.preventDefault();
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
     handleMove(clientX);
   };
-
   const onEnd = () => {
     isDragging = false;
     sliderThumb?.classList.remove('dragging');
@@ -400,13 +581,8 @@ export function openListStatusSheet(animeId, triggerBtn) {
 
   const dropCheckbox = sheet.querySelector('#dropCheckbox');
   if (dropCheckbox) {
-    dropCheckbox.addEventListener('change', (e) => {
-      e.stopPropagation();
-      dropped = dropCheckbox.checked;
-    });
-    dropCheckbox.parentElement.addEventListener('click', (e) => {
-      e.stopPropagation();
-    });
+    dropCheckbox.addEventListener('change', (e) => { e.stopPropagation(); dropped = dropCheckbox.checked; });
+    dropCheckbox.parentElement.addEventListener('click', (e) => { e.stopPropagation(); });
   }
 
   sheet.querySelectorAll('.list-status-item').forEach(btn => {
@@ -416,7 +592,6 @@ export function openListStatusSheet(animeId, triggerBtn) {
       if (ev.target.closest('.list-status-slider-thumb')) return;
 
       const status = btn.dataset.status;
-
       if (status === 'remove') {
         setListStatus(animeId, null);
         showToast('Removed from list');
@@ -424,7 +599,6 @@ export function openListStatusSheet(animeId, triggerBtn) {
         closeListStatusSheet();
         return;
       }
-
       sheet.querySelectorAll('.list-status-item').forEach(b => b.classList.remove('selected'));
       btn.classList.add('selected');
       selectedStatus = status;
@@ -435,13 +609,11 @@ export function openListStatusSheet(animeId, triggerBtn) {
   if (saveBtn) {
     saveBtn.onclick = (e) => {
       e.stopPropagation();
-
       if (selectedStatus === 'watching') {
         setLastEpisode(animeId, currentEp);
         const pct = Math.round((currentEp / airedEps) * 100);
         setProgress(animeId, pct);
         setDropped(animeId, dropped);
-
         if (currentEp >= airedEps && airedEps >= totalEps) {
           setListStatus(animeId, 'completed');
           showToast('Marked as Completed');
@@ -464,22 +636,14 @@ export function openListStatusSheet(animeId, triggerBtn) {
         setDropped(animeId, false);
         showToast('Marked as Not Watched');
       }
-
       document.removeEventListener('keydown', escHandler);
       closeListStatusSheet();
     };
   }
 
-  overlay.onclick = () => {
-    document.removeEventListener('keydown', escHandler);
-    closeListStatusSheet();
-  };
-
+  overlay.onclick = () => { document.removeEventListener('keydown', escHandler); closeListStatusSheet(); };
   const escHandler = (e) => {
-    if (e.key === 'Escape') {
-      document.removeEventListener('keydown', escHandler);
-      closeListStatusSheet();
-    }
+    if (e.key === 'Escape') { document.removeEventListener('keydown', escHandler); closeListStatusSheet(); }
   };
   document.addEventListener('keydown', escHandler);
 
@@ -502,38 +666,6 @@ export function closeListStatusSheet() {
 }
 
 /* ============================================
-   TOAST
-============================================ */
-export function showToast(msg) {
-  let t = document.getElementById('anivoraToast');
-  if (!t) {
-    t = document.createElement('div');
-    t.id = 'anivoraToast';
-    t.className = 'anivora-toast';
-    document.body.appendChild(t);
-  }
-  t.textContent = msg;
-  t.classList.add('show');
-  clearTimeout(t.__timer);
-  t.__timer = setTimeout(() => t.classList.remove('show'), 1800);
-}
-
-/* ============================================
-   HELPERS
-============================================ */
-export function shuffle(arr) {
-  return [...arr].sort(() => Math.random() - 0.5);
-}
-export function formatTime(sec) {
-  if (!sec || isNaN(sec)) return '00:00';
-  const h = Math.floor(sec / 3600);
-  const m = Math.floor((sec % 3600) / 60);
-  const s = Math.floor(sec % 60);
-  if (h > 0) return `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-  return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-}
-
-/* ============================================
    STOP VIDEO
 ============================================ */
 export function stopVideo() {
@@ -552,7 +684,6 @@ export function stopVideo() {
     playerWrap.classList.remove('playing');
     playerWrap.style.cursor = '';
   }
-  // پاک کردن تایمر hideControls
   if (window.__hideControlsTimer) {
     clearTimeout(window.__hideControlsTimer);
     window.__hideControlsTimer = null;
@@ -571,6 +702,10 @@ export function showPage(id, skipHistory) {
     stopVideo();
   }
 
+  if (id === 'profile' && !isLoggedIn()) {
+    id = 'login';
+  }
+
   triggerPageLoader();
 
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -585,11 +720,30 @@ export function showPage(id, skipHistory) {
 
   updateBottomNav(id);
 
-  if (!skipHistory) history.pushState({ page: id }, '', '#' + id);
+  if (!skipHistory) {
+    const currentHash = location.hash.replace('#', '') || 'home';
+    if (currentHash !== id) {
+      history.pushState({ page: id }, '', '#' + id);
+    }
+  }
+
   window.__currentPage = id;
 
   if (id === 'watchlist') {
     window.dispatchEvent(new CustomEvent('anivora:watchlist-refresh'));
+  }
+  if (id === 'profile') {
+    window.dispatchEvent(new CustomEvent('anivora:profile-refresh'));
+  }
+
+  // ★ اگه به detail برگشتیم، دوباره رندر کن
+  if (id === 'detail' && skipHistory) {
+    const animeId = window.__currentAnimeId || getLastPage()?.animeId;
+    if (animeId) {
+      window.dispatchEvent(new CustomEvent('anivora:detail-refresh', {
+        detail: { animeId }
+      }));
+    }
   }
 }
 
@@ -637,7 +791,6 @@ function handleCustomSelect(e) {
   if (e.currentTarget.matches('select[title="Quality"]')) return;
   if (e.currentTarget.matches('select[title="Playback speed"]')) return;
   if (e.currentTarget.classList.contains('player-ctrl-select')) return;
-
   if (e.cancelable) e.preventDefault();
   const sel = e.currentTarget;
   const existing = document.querySelector('.custom-select-sheet');
@@ -648,18 +801,14 @@ function handleCustomSelect(e) {
 function openCustomSheet(sel) {
   const options = Array.from(sel.options);
   const currentIndex = sel.selectedIndex;
-
   const overlay = document.createElement('div');
   overlay.className = 'custom-select-overlay';
   overlay.onclick = () => closeCustomSheet();
-
   const sheet = document.createElement('div');
   sheet.className = 'custom-select-sheet';
   sheet.innerHTML = '<div class="custom-select-handle"></div>';
-
   const list = document.createElement('div');
   list.className = 'custom-select-list';
-
   options.forEach((opt, i) => {
     const item = document.createElement('button');
     item.type = 'button';
@@ -673,15 +822,10 @@ function openCustomSheet(sel) {
     };
     list.appendChild(item);
   });
-
   sheet.appendChild(list);
   document.body.appendChild(overlay);
   document.body.appendChild(sheet);
-
-  requestAnimationFrame(() => {
-    overlay.classList.add('show');
-    sheet.classList.add('show');
-  });
+  requestAnimationFrame(() => { overlay.classList.add('show'); sheet.classList.add('show'); });
   document.body.style.overflow = 'hidden';
 }
 export function closeCustomSheet() {
@@ -701,21 +845,17 @@ export function bindGlobalEvents() {
       document.getElementById('notifPanel')?.classList.remove('open');
     }
   });
-
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') {
-      closeCustomSheet();
-    }
-  });
-
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeCustomSheet(); });
   document.addEventListener('error', e => {
     if (e.target.tagName === 'IMG') {
       e.target.src = `https://picsum.photos/200/300?random=${Math.floor(Math.random()*999)+1}`;
     }
   }, true);
-
   window.addEventListener('popstate', function(e) {
-    if (e.state && e.state.page) showPage(e.state.page, true);
-    else showPage('home', true);
+    if (e.state && e.state.page) {
+      showPage(e.state.page, true);
+    } else {
+      showPage('home', true);
+    }
   });
 }

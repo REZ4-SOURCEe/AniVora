@@ -92,7 +92,7 @@
     <a href="javascript:void(0)" onclick="goFromDrawer('watchlist')"><svg class="icon icon-md"><use href="#ico-bookmark"/></svg> Watchlist</a>
     <a href="javascript:void(0)" onclick="goFromDrawer('profile')"><svg class="icon icon-md"><use href="#ico-user"/></svg> Profile</a>
     <div class="drawer-divider"></div>
-    <a href="javascript:void(0)" onclick="goFromDrawer('login')"><svg class="icon icon-md"><use href="#ico-lock"/></svg> Sign Out</a>
+    <a href="javascript:void(0)" onclick="handleLogout()"><svg class="icon icon-md"><use href="#ico-lock"/></svg> Sign Out</a>
   </nav>
 </div>
 
@@ -123,7 +123,7 @@
       <button class="icon-btn" onclick="showPage('watchlist')" aria-label="Watchlist">
         <svg class="icon icon-md"><use href="#ico-bookmark"/></svg>
       </button>
-      <div class="avatar" onclick="showPage('profile')">
+      <div class="avatar" onclick="goToProfile()">
         <svg class="icon icon-sm" style="color:#fff;"><use href="#ico-user"/></svg>
       </div>
     </div>
@@ -419,7 +419,7 @@
     <div class="profile-hero">
       <div class="profile-hero-inner">
         <div class="profile-top-row">
-          <div class="profile-avatar-lg">
+          <div class="profile-avatar-lg" id="profileAvatar">
             <svg class="icon icon-xl" style="color:rgba(255,255,255,0.5);margin:auto;display:block;"><use href="#ico-user"/></svg>
           </div>
           <div class="profile-name-block">
@@ -432,11 +432,11 @@
           </button>
         </div>
         <div class="profile-stats-strip">
-          <div class="profile-stat"><span class="profile-stat-val">148</span><span class="profile-stat-label">Anime</span></div>
-          <div class="profile-stat"><span class="profile-stat-val">2,847</span><span class="profile-stat-label">Episodes</span></div>
-          <div class="profile-stat"><span class="profile-stat-val">46d</span><span class="profile-stat-label">Watch Time</span></div>
-          <div class="profile-stat"><span class="profile-stat-val">38</span><span class="profile-stat-label">Completed</span></div>
-          <div class="profile-stat"><span class="profile-stat-val">12</span><span class="profile-stat-label">Reviews</span></div>
+          <div class="profile-stat"><span class="profile-stat-val">0</span><span class="profile-stat-label">Anime</span></div>
+          <div class="profile-stat"><span class="profile-stat-val">0</span><span class="profile-stat-label">Episodes</span></div>
+          <div class="profile-stat"><span class="profile-stat-val">0h</span><span class="profile-stat-label">Watch Time</span></div>
+          <div class="profile-stat"><span class="profile-stat-val">0</span><span class="profile-stat-label">Completed</span></div>
+          <div class="profile-stat"><span class="profile-stat-val">0</span><span class="profile-stat-label">Favorites</span></div>
         </div>
       </div>
     </div>
@@ -454,22 +454,22 @@
         <div class="profile-stats-grid">
           <div class="stat-card" style="background:var(--bg-card);border:1px solid var(--border);border-top:3px solid var(--accent);border-radius:var(--radius-md);padding:18px;text-align:center;">
             <svg class="icon icon-md" style="color:var(--accent);margin:0 auto 10px;display:block;"><use href="#ico-tv"/></svg>
-            <div style="font-size:26px;font-weight:800;color:var(--accent);">5</div>
+            <div style="font-size:26px;font-weight:800;color:var(--accent);">0</div>
             <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">Currently Watching</div>
           </div>
           <div class="stat-card" style="background:var(--bg-card);border:1px solid var(--border);border-top:3px solid var(--success);border-radius:var(--radius-md);padding:18px;text-align:center;">
             <svg class="icon icon-md" style="color:var(--success);margin:0 auto 10px;display:block;"><use href="#ico-check"/></svg>
-            <div style="font-size:26px;font-weight:800;color:var(--success);">38</div>
+            <div style="font-size:26px;font-weight:800;color:var(--success);">0</div>
             <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">Completed</div>
           </div>
           <div class="stat-card" style="background:var(--bg-card);border:1px solid var(--border);border-top:3px solid var(--gold);border-radius:var(--radius-md);padding:18px;text-align:center;">
             <svg class="icon icon-md" style="color:var(--gold);margin:0 auto 10px;display:block;fill:var(--gold);stroke:none;"><use href="#ico-star"/></svg>
-            <div style="font-size:26px;font-weight:800;color:var(--gold);">8.4</div>
+            <div style="font-size:26px;font-weight:800;color:var(--gold);">0.0</div>
             <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">Mean Score</div>
           </div>
           <div class="stat-card" style="background:var(--bg-card);border:1px solid var(--border);border-top:3px solid #ff78a0;border-radius:var(--radius-md);padding:18px;text-align:center;">
             <svg class="icon icon-md" style="color:#ff78a0;margin:0 auto 10px;display:block;"><use href="#ico-heart"/></svg>
-            <div style="font-size:26px;font-weight:800;color:#ff78a0;">24</div>
+            <div style="font-size:26px;font-weight:800;color:#ff78a0;">0</div>
             <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">Favorites</div>
           </div>
         </div>
@@ -509,18 +509,15 @@
   </div>
 </div>
 
-<div class="page" id="page-login">
-  <div class="auth-page">
-    <div class="auth-card">
-      <div class="auth-logo" style="gap:0;">Ani<span>vora</span></div>
-      <div class="auth-title">Welcome Back</div>
-      <div class="auth-subtitle">Sign in to your account</div>
-      <div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input" placeholder="you@example.com"></div>
-      <div class="form-group"><label class="form-label">Password</label><input type="password" class="form-input" placeholder="••••••••"></div>
-      <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="showPage('home')">Sign In</button>
-    </div>
-  </div>
-</div>
+<!-- ============================================
+     LOGIN PAGE (پر میشه توسط JS)
+============================================ -->
+<div class="page" id="page-login"></div>
+
+<!-- ============================================
+     SIGNUP PAGE (پر میشه توسط JS)
+============================================ -->
+<div class="page" id="page-signup"></div>
 
 <!-- BOTTOM NAV -->
 <nav class="bottom-nav">
@@ -529,7 +526,7 @@
     <div class="bottom-nav-item" onclick="showPage('explore')"><svg class="icon icon-lg"><use href="#ico-search"/></svg>Search</div>
     <div class="bottom-nav-item" onclick="showPage('seasonal')"><svg class="icon icon-lg"><use href="#ico-sun"/></svg>Seasonal</div>
     <div class="bottom-nav-item" onclick="showPage('watchlist')"><svg class="icon icon-lg"><use href="#ico-bookmark"/></svg>My List</div>
-    <div class="bottom-nav-item" onclick="showPage('profile')"><svg class="icon icon-lg"><use href="#ico-user"/></svg>Profile</div>
+    <div class="bottom-nav-item" onclick="goToProfile()"><svg class="icon icon-lg"><use href="#ico-user"/></svg>Profile</div>
   </div>
 </nav>
 
