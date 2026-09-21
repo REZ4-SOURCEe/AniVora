@@ -152,29 +152,17 @@
      HOME PAGE
 ============================================ -->
 <div class="page active" id="page-home">
+
   <section class="hero">
-    <div class="hero-bg"></div>
+    <div class="hero-bg" id="heroBg"></div>
     <div class="hero-overlay"></div>
     <div class="hero-content fade-up">
-      <div class="hero-badges">
-        <span class="badge badge-airing"><span class="airing-dot"></span>Airing</span>
-        <span class="badge badge-genre">Action</span>
-        <span class="badge badge-genre">Supernatural</span>
-      </div>
-      <h1 class="hero-title">Jujutsu Kaisen</h1>
-      <div class="hero-subtitle">呪術廻戦</div>
-      <div class="hero-meta">
-        <div class="hero-rating"><svg class="icon icon-sm" style="fill:var(--gold);stroke:none;"><use href="#ico-star"/></svg>8.6</div>
-        <span style="color:var(--text-muted);font-size:12px;">·</span>
-        <div class="hero-meta-item"><svg class="icon icon-sm"><use href="#ico-calendar"/></svg> 2020</div>
-        <div class="hero-meta-item"><svg class="icon icon-sm"><use href="#ico-tv"/></svg> 24 Episodes</div>
-        <div class="hero-meta-item"><svg class="icon icon-sm"><use href="#ico-clock"/></svg> 24 min/ep</div>
-      </div>
-      <p class="hero-desc">A student joins a secret organization of Jujutsu Sorcerers to fight Curses.</p>
-      <div class="hero-actions">
-        <button class="btn btn-primary" onclick="openAnimeDetail(1)"><svg class="icon icon-sm" style="fill:#fff;stroke:none;"><use href="#ico-play"/></svg>Watch Now</button>
-        <button class="btn btn-ghost" data-add-btn="1" onclick="toggleList(1, this)"><svg class="icon icon-sm"><use href="#ico-plus"/></svg> Add to List</button>
-      </div>
+      <div class="hero-badges" id="heroBadges"></div>
+      <h1 class="hero-title" id="heroTitle"></h1>
+      <div class="hero-subtitle" id="heroSubtitle"></div>
+      <div class="hero-meta" id="heroMeta"></div>
+      <p class="hero-desc" id="heroDesc"></p>
+      <div class="hero-actions" id="heroActions"></div>
     </div>
   </section>
 
@@ -209,6 +197,7 @@
     </div>
     <div class="scroll-row" id="ratedRow"></div>
   </section>
+
 </div>
 
 <!-- ============================================
@@ -347,11 +336,11 @@
               <svg class="icon icon-md" style="fill:rgba(255,255,255,0.85);stroke:none;"><use href="#ico-pause"/></svg>
             </button>
             <button class="player-btn" id="nextBtn" title="Next episode" onclick="playNextEpisode(event)">
-  <svg class="icon icon-md"><use href="#ico-skip-f"/></svg>
-</button>
-<button class="player-btn" id="volumeBtn" title="Mute" onclick="toggleMute(event)">
-  <svg class="icon icon-md"><use href="#ico-volume"/></svg>
-</button>
+              <svg class="icon icon-md"><use href="#ico-skip-f"/></svg>
+            </button>
+            <button class="player-btn" id="volumeBtn" title="Mute" onclick="toggleMute(event)">
+              <svg class="icon icon-md"><use href="#ico-volume"/></svg>
+            </button>
             <span class="player-time">00:00 / 00:00</span>
           </div>
           <div class="player-right">
@@ -413,9 +402,10 @@
   <div style="padding: 32px 16px 48px; max-width:1000px;margin:0 auto;">
     <h1 style="font-size:24px;font-weight:800;margin-bottom:24px;">My List</h1>
     <div class="list-category-tabs">
-      <button class="list-cat-btn active">All</button>
-      <button class="list-cat-btn">Watching</button>
-      <button class="list-cat-btn">Completed</button>
+      <button class="list-cat-btn active" data-filter="all">All</button>
+      <button class="list-cat-btn" data-filter="watching">Watching</button>
+      <button class="list-cat-btn" data-filter="completed">Completed</button>
+      <button class="list-cat-btn" data-filter="favorites">Favorites</button>
     </div>
     <div id="watchlistContent"></div>
   </div>

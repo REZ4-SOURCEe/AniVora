@@ -1,13 +1,18 @@
 /* ============================================
    ANIVORA — PAGES
-   منطق و init همه صفحات
 ============================================ */
 
 import { ANIME_DATA, CONTINUE_WATCHING, CHARACTERS, STAFF_DATA, CALENDAR_DATA, REVIEWS } from './data.js';
 import {
   showPage, updateBottomNav, triggerPageLoader,
   isInList, isLiked, toggleList, toggleLike, showToast, shuffle,
-  getStore, formatTime
+  getStore, formatTime,
+  getListStore, getListStatus, setListStatus,
+  isWatching, addToWatching, removeFromWatching, toggleWatching,
+  getFavorites, removeFromFavorites,
+  getLastEpisode, setLastEpisode,
+  getProgress, setProgress,
+  isDropped, setDropped
 } from './core.js';
 import {
   renderAnimeCard, populateSection, toggleDownloadMenu,
@@ -25,11 +30,86 @@ let watchlistFilter = 'all';
    HOME PAGE
 ============================================ */
 export function initHome() {
+  initHero();
   initContinueWatching();
   populateSection('trendingRow', shuffle(ANIME_DATA).slice(0, 10));
   populateSection('newEpsRow', shuffle(ANIME_DATA).slice(0, 8));
   populateSection('ratedRow', [...ANIME_DATA].sort((a,b) => b.score - a.score).slice(0, 8));
   populateSection('seasonalGrid', shuffle(ANIME_DATA).slice(0, 16));
+}
+
+function initHero() {
+  if (!ANIME_DATA || ANIME_DATA.length === 0) return;
+  const heroAnime = ANIME_DATA[Math.floor(Math.random() * ANIME_DATA.length)];
+
+  const heroBg = document.getElementById('heroBg');
+  if (heroBg) {
+    heroBg.style.backgroundImage = `url('${heroAnime.backdrop || heroAnime.img}')`;
+    heroBg.style.backgroundSize = 'cover';
+    heroBg.style.backgroundPosition = 'center top';
+  }
+
+  const badges = document.getElementById('heroBadges');
+  if (badges) {
+    const statusBadge = heroAnime.status === 'Airing'
+      ? `<span class="badge badge-airing"><span class="airing-dot"></span>Airing</span>`
+      : `<span class="badge badge-genre">${heroAnime.status}</span>`;
+    const genreBadges = heroAnime.genres.slice(0, 3).map(g =>
+      `<span class="badge badge-genre">${g}</span>`
+    ).join('');
+    badges.innerHTML = statusBadge + genreBadges;
+  }
+
+  const title = document.getElementById('heroTitle');
+  if (title) title.textContent = heroAnime.title;
+
+  const subtitle = document.getElementById('heroSubtitle');
+  if (subtitle) subtitle.textContent = heroAnime.jp || '';
+
+  const meta = document.getElementById('heroMeta');
+  if (meta) {
+    meta.innerHTML = `
+      <div class="hero-rating">
+        <svg class="icon icon-sm" style="fill:var(--gold);stroke:none;"><use href="#ico-star"/></svg>
+        ${heroAnime.score}
+      </div>
+      <span style="color:var(--text-muted);font-size:12px;">·</span>
+      <div class="hero-meta-item">
+        <svg class="icon icon-sm"><use href="#ico-calendar"/></svg> ${heroAnime.year}
+      </div>
+      <div class="hero-meta-item">
+        <svg class="icon icon-sm"><use href="#ico-tv"/></svg> ${heroAnime.eps} Episodes
+      </div>
+      <div class="hero-meta-item">
+        <svg class="icon icon-sm"><use href="#ico-clock"/></svg> ${heroAnime.duration || '24 min'}
+      </div>
+    `;
+  }
+
+  const desc = document.getElementById('heroDesc');
+  if (desc) desc.textContent = heroAnime.description || '';
+
+  const actions = document.getElementById('heroActions');
+  if (actions) {
+    const status = getListStatus(heroAnime.id);
+    const added = !!status;
+    let addLabel = 'Add to List';
+    if (status === 'watching')      addLabel = 'Watching';
+    if (status === 'completed')     addLabel = 'Completed';
+    if (status === 'plan_to_watch') addLabel = 'Plan to Watch';
+    if (status === 'not_watched')   addLabel = 'Not Watched';
+
+    actions.innerHTML = `
+      <button class="btn btn-primary" onclick="openAnimeDetail(${heroAnime.id})">
+        <svg class="icon icon-sm" style="fill:#fff;stroke:none;"><use href="#ico-play"/></svg>
+        Watch Now
+      </button>
+      <button class="btn btn-ghost ${added ? 'is-added' : ''}" data-add-btn="${heroAnime.id}" onclick="toggleList(${heroAnime.id}, this)">
+        <svg class="icon icon-sm"><use href="#${added ? 'ico-check' : 'ico-plus'}"/></svg>
+        ${addLabel}
+      </button>
+    `;
+  }
 }
 
 function initContinueWatching() {
@@ -180,15 +260,22 @@ export function openAnimeDetail(animeId) {
 function renderDetailActions(anime) {
   const row = document.querySelector('.detail-actions-row');
   if (!row) return;
-  const added = isInList(anime.id);
+  const status = getListStatus(anime.id);
+  const added = !!status;
   const liked = isLiked(anime.id);
+
+  let addLabel = 'Add to List';
+  if (status === 'watching')      addLabel = 'Watching';
+  if (status === 'completed')     addLabel = 'Completed';
+  if (status === 'plan_to_watch') addLabel = 'Plan to Watch';
+  if (status === 'not_watched')   addLabel = 'Not Watched';
 
   row.innerHTML = `
     <button class="btn btn-primary" onclick="watchAnime(${anime.id})">
       <svg class="icon icon-sm" style="fill:#fff;stroke:none;"><use href="#ico-play"/></svg>Watch Now
     </button>
     <button class="btn btn-ghost ${added ? 'is-added' : ''}" data-add-btn="${anime.id}" onclick="toggleList(${anime.id}, this)">
-      <svg class="icon icon-sm"><use href="#${added ? 'ico-check' : 'ico-plus'}"/></svg> ${added ? 'Added' : 'Add to List'}
+      <svg class="icon icon-sm"><use href="#${added ? 'ico-check' : 'ico-plus'}"/></svg> ${addLabel}
     </button>
     <button class="btn btn-ghost btn-icon ${liked ? 'is-liked' : ''}" data-like-btn="${anime.id}" onclick="toggleLike(${anime.id}, this)" title="Like">
       <svg class="icon icon-md"><use href="#${liked ? 'ico-heart-fill' : 'ico-heart'}"/></svg>
@@ -206,8 +293,11 @@ function renderDetailActions(anime) {
 export function renderDetailEpisodes(anime) {
   const grid = document.getElementById('episodesGrid');
   if (!grid) return;
+  const lastEp = getLastEpisode(anime.id);
   document.querySelector('.season-count-badge').textContent = `${anime.episodes.length} Episodes`;
-  grid.innerHTML = anime.episodes.map(ep => `
+  grid.innerHTML = anime.episodes.map(ep => {
+    const isWatched = lastEp && ep.num <= lastEp;
+    return `
     <div class="episode-row" onclick="openEpisode(${anime.id}, ${ep.num})">
       <div class="ep-thumb">
         <img src="${ep.img || ''}" alt="" loading="lazy" onerror="this.style.display='none'">
@@ -216,12 +306,15 @@ export function renderDetailEpisodes(anime) {
         </div>
       </div>
       <div class="ep-info">
-        <div class="ep-number">Episode ${ep.num}</div>
+        <div class="ep-number">
+          Episode ${ep.num}
+          ${isWatched ? '<span class="ep-watched" title="Watched">✓</span>' : ''}
+        </div>
         <div class="ep-title">${ep.title}</div>
         <div class="ep-duration">${ep.duration}</div>
       </div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 }
 
 export function renderCharsAndStaff() {
@@ -302,6 +395,25 @@ export function openEpisode(animeId, epNum) {
   window.__currentAnime = anime;
   window.__currentEpisode = ep;
 
+  const totalEps = anime.eps || anime.episodes.length;
+  const airedEps = anime.episodesAired || anime.episodes.length;
+
+  const currentStatus = getListStatus(anime.id);
+  if (!currentStatus || currentStatus === 'not_watched' || currentStatus === 'plan_to_watch') {
+    setListStatus(anime.id, 'watching');
+  }
+  addToWatching(anime.id);
+  setLastEpisode(anime.id, epNum);
+
+  const progressPct = Math.min(100, Math.round((epNum / airedEps) * 100));
+  setProgress(anime.id, progressPct);
+
+  if (epNum >= airedEps && airedEps >= totalEps) {
+    setListStatus(anime.id, 'completed');
+  } else if (currentStatus !== 'completed') {
+    setListStatus(anime.id, 'watching');
+  }
+
   showPage('watch');
 
   setTimeout(() => {
@@ -341,7 +453,6 @@ function loadEpisodeInPlayer(anime, ep) {
     oldVideo.remove();
   }
 
-  // پایین‌ترین کیفیت به عنوان پیش‌فرض
   const defaultQuality = ep.qualities && ep.qualities.length > 0
     ? ep.qualities[ep.qualities.length - 1]
     : { url: ep.videoUrl, label: 'Auto' };
@@ -388,15 +499,21 @@ function loadEpisodeInPlayer(anime, ep) {
   initQualitySelector(ep, defaultQuality);
   initSpeedSelector();
 
-  // پخش خودکار غیرفعال
   window.__playerIsPlaying = false;
 }
 
 function renderWatchActions(anime, ep) {
   const wrap = document.getElementById('watchActionsRow');
   if (!wrap) return;
-  const added = isInList(anime.id);
+  const status = getListStatus(anime.id);
+  const added = !!status;
   const liked = isLiked(anime.id);
+
+  let addLabel = 'Add to List';
+  if (status === 'watching')      addLabel = 'Watching';
+  if (status === 'completed')     addLabel = 'Completed';
+  if (status === 'plan_to_watch') addLabel = 'Plan to Watch';
+  if (status === 'not_watched')   addLabel = 'Not Watched';
 
   wrap.innerHTML = `
     <button class="btn btn-ghost btn-sm ${liked ? 'is-liked' : ''}" data-like-btn="${anime.id}" onclick="toggleLike(${anime.id}, this)">
@@ -405,7 +522,7 @@ function renderWatchActions(anime, ep) {
     </button>
     <button class="btn btn-ghost btn-sm ${added ? 'is-added' : ''}" data-add-btn="${anime.id}" onclick="toggleList(${anime.id}, this)">
       <svg class="icon icon-sm"><use href="#${added ? 'ico-check' : 'ico-plus'}"/></svg>
-      <span class="add-label">${added ? 'Added' : 'Add to List'}</span>
+      <span class="add-label">${addLabel}</span>
     </button>
     <button class="btn btn-ghost btn-sm" onclick="shareAnime(${anime.id})">
       <svg class="icon icon-sm"><use href="#ico-share"/></svg> Share
@@ -420,18 +537,23 @@ function renderWatchActions(anime, ep) {
 function renderWatchSidebar(anime, currentEpNum) {
   const list = document.getElementById('sidebarEpList');
   if (!list) return;
-  list.innerHTML = anime.episodes.map(ep => `
+  const lastEp = getLastEpisode(anime.id);
+  list.innerHTML = anime.episodes.map(ep => {
+    const isWatched = lastEp && ep.num <= lastEp;
+    return `
     <div class="sidebar-ep-item ${ep.num === currentEpNum ? 'active' : ''}" onclick="openEpisode(${anime.id}, ${ep.num})">
       <div class="sidebar-ep-thumb">
         <svg class="icon icon-sm"><use href="#ico-play"/></svg>
       </div>
       <div class="sidebar-ep-info">
-        <div class="sidebar-ep-num">Ep ${ep.num}</div>
+        <div class="sidebar-ep-num">
+          Ep ${ep.num} ${isWatched ? '✓' : ''}
+        </div>
         <div class="sidebar-ep-name">${ep.title}</div>
         <div class="sidebar-ep-dur">${ep.duration}</div>
       </div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 }
 
 function renderUpNext(anime, currentEpNum) {
@@ -465,38 +587,118 @@ export function initWatchlist() {
   const el = document.getElementById('watchlistContent');
   if (!el) return;
 
-  const listIds = getStore('anivora_list');
-  let items = ANIME_DATA.filter(a => listIds.includes(a.id));
+  const listStore = getListStore();
+  const favoriteIds = getStore('anivora_likes');
 
-  if (watchlistFilter === 'watching') items = items.filter(a => a.status === 'Airing');
-  if (watchlistFilter === 'completed') items = items.filter(a => a.status === 'Finished');
+  let items = [];
+
+  if (watchlistFilter === 'all') {
+    items = ANIME_DATA.filter(a => listStore[a.id]);
+  }
+  else if (watchlistFilter === 'watching') {
+    items = ANIME_DATA.filter(a => listStore[a.id] === 'watching');
+  }
+  else if (watchlistFilter === 'completed') {
+    items = ANIME_DATA.filter(a => listStore[a.id] === 'completed');
+  }
+  else if (watchlistFilter === 'favorites') {
+    items = ANIME_DATA.filter(a => favoriteIds.includes(a.id));
+  }
 
   if (items.length === 0) {
+    const emptyMsg = {
+      'all': 'Your list is empty. Start adding anime!',
+      'watching': "You're not watching any anime yet.",
+      'completed': 'No completed anime yet.',
+      'favorites': "You haven't liked any anime yet!"
+    }[watchlistFilter] || 'No anime in this list yet.';
+
     el.innerHTML = `
       <div class="watchlist-empty">
         <svg class="icon icon-xl" style="width:48px;height:48px;"><use href="#ico-bookmark"/></svg>
-        No anime in this list yet. Add some from the cards!
+        ${emptyMsg}
       </div>`;
     return;
   }
 
   el.innerHTML = items.map(a => {
-    const added = isInList(a.id);
+    const status = listStore[a.id];
+    const progressPct = getProgress(a.id);
+    const lastEp = getLastEpisode(a.id);
+    const totalEps = a.episodes.length;
+    const airedEps = a.episodesAired || totalEps;
+    const dropped = isDropped(a.id);
+
+    const playEpNum = lastEp || 1;
+
+    const showProgress = (status === 'watching' || status === 'completed');
+    const isComplete = progressPct >= 100 && airedEps >= totalEps;
+
+    let topActions = '';
+    if (watchlistFilter === 'favorites') {
+      topActions = `
+        <button class="wl-action-btn" onclick="event.stopPropagation();removeFromFavoritesUI(${a.id}, this)" title="Remove from favorites">
+          <svg class="icon icon-sm"><use href="#ico-x"/></svg>
+        </button>`;
+    } else {
+      topActions = `
+        <button class="wl-action-btn" onclick="event.stopPropagation();openListStatusSheet(${a.id}, this)" title="Change status">
+          <svg class="icon icon-sm"><use href="#ico-edit"/></svg>
+          <span>Change Status</span>
+        </button>`;
+    }
+
+    let statusBadge = '';
+    if (status === 'watching')      statusBadge = '<span class="wl-badge wl-badge-watching">Watching</span>';
+    if (status === 'completed')     statusBadge = '<span class="wl-badge wl-badge-completed">Completed</span>';
+    if (status === 'plan_to_watch') statusBadge = '<span class="wl-badge wl-badge-plan">Plan to Watch</span>';
+    if (status === 'not_watched')   statusBadge = '<span class="wl-badge wl-badge-not">Not Watched</span>';
+    if (watchlistFilter === 'favorites') statusBadge = '<span class="wl-badge wl-badge-fav">❤ Favorite</span>';
+
+    const lastEpText = lastEp ? `Ep ${lastEp} / ${airedEps}` : `0 / ${airedEps}`;
+    const droppedText = dropped ? '<div class="wl-dropped-text">Dropped — won\'t continue</div>' : '';
+
     return `
     <div class="watchlist-item" onclick="openAnimeDetail(${a.id})">
-      <img src="${a.img}" alt="">
-      <div class="watchlist-item-info">
-        <div class="watchlist-item-title">${a.title}</div>
-        <div class="watchlist-item-meta">${a.type} · ${a.year} · ${a.eps} eps</div>
+      <div class="wl-top-row">
+        <div></div>
+        ${topActions}
       </div>
-      <button class="btn btn-primary btn-sm" onclick="event.stopPropagation();watchAnime(${a.id})" title="Play">
-        <svg class="icon icon-sm" style="fill:#fff;stroke:none;"><use href="#ico-play"/></svg>
-      </button>
-      <button class="btn btn-ghost btn-sm" data-add-btn="${a.id}" onclick="event.stopPropagation();toggleList(${a.id}, this)" title="Remove">
-        <svg class="icon icon-sm"><use href="#${added ? 'ico-check' : 'ico-plus'}"/></svg>
-      </button>
+      <div class="wl-main-row">
+        <img src="${a.img}" alt="">
+        <div class="watchlist-item-info">
+          <div class="watchlist-item-title">${a.title}</div>
+          <div class="watchlist-item-meta">${a.type} · ${a.year} · ${a.eps} eps</div>
+          <div class="wl-badges">${statusBadge}</div>
+          ${showProgress ? `
+            <div class="wl-progress-wrap">
+              <div class="wl-progress-info">
+                <span class="wl-progress-ep">${lastEpText}</span>
+                <span class="wl-progress-pct">${Math.round(progressPct)}%</span>
+              </div>
+              <div class="wl-progress-bar">
+                <div class="wl-progress-fill ${isComplete ? 'is-complete' : ''}"
+                     style="width:${progressPct}%;"></div>
+              </div>
+              ${droppedText}
+            </div>
+          ` : ''}
+        </div>
+      </div>
     </div>`;
   }).join('');
+}
+
+export function removeFromWatchingUI(animeId, btn) {
+  setListStatus(animeId, null);
+  showToast('Removed from list');
+  initWatchlist();
+}
+
+export function removeFromFavoritesUI(animeId, btn) {
+  removeFromFavorites(animeId);
+  showToast('Removed from favorites');
+  initWatchlist();
 }
 
 export function initWatchlistTabs() {
@@ -505,11 +707,16 @@ export function initWatchlistTabs() {
     btn.addEventListener('click', () => {
       btns.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      const label = btn.textContent.trim().toLowerCase();
-      watchlistFilter = label === 'watching' ? 'watching' : label === 'completed' ? 'completed' : 'all';
+      watchlistFilter = btn.dataset.filter || 'all';
       initWatchlist();
     });
   });
+}
+
+export function bindWatchlistEvents() {
+  window.addEventListener('anivora:list-changed', () => initWatchlist());
+  window.addEventListener('anivora:likes-changed', () => initWatchlist());
+  window.addEventListener('anivora:watchlist-refresh', () => initWatchlist());
 }
 
 /* ============================================

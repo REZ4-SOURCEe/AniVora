@@ -1,8 +1,5 @@
 /* ============================================
    ANIVORA — COMPONENTS
-   دکمه‌ها، کارت‌ها، بج‌ها، تب‌ها، فرم‌ها،
-   toast، custom-select، download-menu، genre tags،
-   status-badge، list-tabs، tag
 ============================================ */
 
 /* ============================================
@@ -751,5 +748,645 @@
 }
 .auth-switch a {
   color: var(--accent);
+  font-weight: 500;
+}
+
+/* ============================================
+   WATCHLIST BADGES
+============================================ */
+.wl-badges {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+.wl-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+.wl-badge-watching {
+  background: rgba(76,175,128,0.14);
+  color: var(--success);
+  border: 1px solid rgba(76,175,128,0.28);
+}
+.wl-badge-fav {
+  background: rgba(255,120,160,0.14);
+  color: #ff78a0;
+  border: 1px solid rgba(255,120,160,0.28);
+}
+.wl-badge-list {
+  background: var(--accent-dim);
+  color: var(--accent);
+  border: 1px solid rgba(108,99,255,0.28);
+}
+
+/* در موبایل، دکمه‌های Remove کوچیک‌تر */
+@media (max-width: 480px) {
+  .watchlist-item .btn-sm {
+    padding: 5px 10px;
+    font-size: 11px;
+  }
+}
+
+
+/* ============================================
+   LIST STATUS SHEET — 4 Options (Modern)
+============================================ */
+.list-status-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 4500;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.list-status-overlay.show { opacity: 1; }
+
+.list-status-sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #0d0d14;
+  border-top-left-radius: 22px;
+  border-top-right-radius: 22px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  z-index: 4501;
+  padding: 8px 14px 26px;
+  transform: translateY(100%);
+  transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+  max-width: 520px;
+  margin: 0 auto;
+  box-shadow: 0 -20px 60px rgba(0,0,0,0.7);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+.list-status-sheet.show { transform: translateY(0); }
+
+.list-status-handle {
+  width: 44px;
+  height: 4px;
+  background: rgba(255,255,255,0.18);
+  border-radius: 2px;
+  margin: 6px auto 18px;
+}
+
+.list-status-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-align: center;
+  letter-spacing: 1.5px;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+}
+
+/* ---------- ITEM ---------- */
+.list-status-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 15px 16px;
+  background: #17171f;
+  border: 1px solid rgba(255,255,255,0.05);
+  color: var(--text-primary);
+  text-align: left;
+  cursor: pointer;
+  border-radius: 14px;
+  transition: background 0.18s ease, border-color 0.18s ease, transform 0.15s ease;
+  margin-bottom: 10px;
+  position: relative;
+}
+.list-status-item:hover {
+  background: #1d1d28;
+  border-color: rgba(255,255,255,0.1);
+}
+.list-status-item:active {
+  transform: scale(0.985);
+}
+
+/* نوار رنگی سمت چپ */
+.list-status-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 12px;
+  bottom: 12px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: transparent;
+  transition: background 0.2s ease;
+}
+.list-status-item[data-status="not_watched"]::before    { background: rgba(136,136,160,0.6); }
+.list-status-item[data-status="plan_to_watch"]::before  { background: rgba(64,196,255,0.8); }
+.list-status-item[data-status="completed"]::before      { background: rgba(76,175,128,0.8); }
+.list-status-item[data-status="watching"]::before       { background: rgba(108,99,255,0.9); }
+
+.list-status-item.selected {
+  background: #1f1f2d;
+  border-color: rgba(108,99,255,0.35);
+}
+
+/* ---------- RADIO ---------- */
+.list-status-radio {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.22);
+  flex-shrink: 0;
+  position: relative;
+  transition: border-color 0.18s ease, background 0.18s ease;
+}
+.list-status-item.selected .list-status-radio {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+.list-status-item.selected .list-status-radio::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #fff;
+}
+
+.list-status-name {
+  font-size: 15px;
+  font-weight: 600;
+  flex-shrink: 0;
+  letter-spacing: 0.2px;
+}
+
+/* ---------- WATCHING EXPANDED (همیشه بازه) ---------- */
+.list-status-watching {
+  flex-wrap: wrap;
+  padding-bottom: 16px;
+}
+.list-status-watching-body {
+  flex-basis: 100%;
+  margin-top: 16px;
+  padding-left: 34px;
+  padding-right: 4px;
+}
+.list-status-progress-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+.list-status-progress-count {
+  font-size: 12px;
+  color: #a9a4ff;
+  font-weight: 700;
+  min-width: 48px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  direction: ltr;
+  background: rgba(108,99,255,0.12);
+  border: 1px solid rgba(108,99,255,0.28);
+  border-radius: 8px;
+  padding: 4px 6px;
+}
+.list-status-slider-wrap {
+  flex: 1;
+  position: relative;
+  padding: 10px 0;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+}
+.list-status-slider-track {
+  width: 100%;
+  height: 6px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 3px;
+  overflow: visible;
+  position: relative;
+}
+.list-status-slider-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #6c63ff, #8b85ff);
+  border-radius: 3px;
+  transition: width 0.05s linear;
+  box-shadow: 0 0 8px rgba(108,99,255,0.4);
+}
+.list-status-slider-thumb {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  box-shadow: 0 2px 10px rgba(108,99,255,0.6);
+  cursor: grab;
+  font-variant-numeric: tabular-nums;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  border: 2px solid #0d0d14;
+  z-index: 2;
+}
+.list-status-slider-thumb:hover {
+  transform: translate(-50%, -50%) scale(1.1);
+  box-shadow: 0 3px 14px rgba(108,99,255,0.8);
+}
+.list-status-slider-thumb:active,
+.list-status-slider-thumb.dragging {
+  cursor: grabbing;
+  transform: translate(-50%, -50%) scale(1.15);
+  box-shadow: 0 4px 16px rgba(108,99,255,0.95);
+}
+
+/* ---------- CHECKBOX ---------- */
+.list-status-checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 4px 0;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.list-status-checkbox-row input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255,255,255,0.22);
+  border-radius: 7px;
+  background: transparent;
+  cursor: pointer;
+  flex-shrink: 0;
+  position: relative;
+  transition: all 0.18s ease;
+  margin: 0;
+}
+.list-status-checkbox-row input[type="checkbox"]:hover {
+  border-color: var(--accent);
+  background: rgba(108,99,255,0.08);
+}
+.list-status-checkbox-row input[type="checkbox"]:checked {
+  background: var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(108,99,255,0.15);
+}
+.list-status-checkbox-row input[type="checkbox"]:checked::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 6px;
+  width: 5px;
+  height: 10px;
+  border: solid #fff;
+  border-width: 0 2.2px 2.2px 0;
+  transform: rotate(45deg);
+  border-radius: 1px;
+}
+.list-status-checkbox-row:hover {
+  color: var(--text-primary);
+}
+
+/* ============================================
+   LIST STATUS — ACTIONS ROW (Delete + Save)
+============================================ */
+.list-status-actions-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+  margin-bottom: 0;
+}
+
+.list-status-actions-row .list-status-item {
+  flex: 1;
+  justify-content: center !important;
+  padding: 13px 16px !important;
+  margin-bottom: 0 !important;
+  border-radius: 12px !important;
+  gap: 8px !important;
+}
+.list-status-actions-row .list-status-item::before {
+  display: none !important;
+}
+.list-status-actions-row .list-status-item .list-status-radio {
+  display: none !important;
+}
+.list-status-actions-row .list-status-item .list-status-name {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+/* ---------- Delete (قرمز) ---------- */
+.list-status-item-danger {
+  background: rgba(224,85,85,0.1) !important;
+  border: 1px solid rgba(224,85,85,0.28) !important;
+}
+.list-status-item-danger .list-status-name {
+  color: var(--danger);
+}
+.list-status-item-danger:hover {
+  background: rgba(224,85,85,0.18) !important;
+  border-color: rgba(224,85,85,0.5) !important;
+}
+
+/* ---------- Save (بنفش) ---------- */
+.list-status-item-save {
+  background: rgba(108,99,255,0.12) !important;
+  border: 1px solid rgba(108,99,255,0.32) !important;
+}
+.list-status-item-save .list-status-name {
+  color: var(--accent);
+}
+.list-status-item-save:hover {
+  background: rgba(108,99,255,0.22) !important;
+  border-color: rgba(108,99,255,0.55) !important;
+}
+.list-status-item-save:active {
+  transform: scale(0.98);
+}
+
+
+/* ============================================
+   DOWNLOAD SHEET (Episodes → Qualities)
+============================================ */
+.download-sheet-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 4800;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.download-sheet-overlay.show { opacity: 1; }
+
+.download-sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #0d0d14;
+  border-top-left-radius: 22px;
+  border-top-right-radius: 22px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  z-index: 4801;
+  padding: 8px 0 20px;
+  transform: translateY(100%);
+  transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+  max-width: 520px;
+  margin: 0 auto;
+  box-shadow: 0 -20px 60px rgba(0,0,0,0.7);
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+}
+.download-sheet.show { transform: translateY(0); }
+
+.download-sheet-handle {
+  width: 44px;
+  height: 4px;
+  background: rgba(255,255,255,0.18);
+  border-radius: 2px;
+  margin: 6px auto 12px;
+}
+
+/* HEADER — سه‌بخشی برای وسط‌چین کردن عنوان */
+.download-sheet-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.download-sheet-header-left,
+.download-sheet-header-right {
+  width: 34px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+.download-sheet-header-right { justify-content: flex-end; }
+
+.download-sheet-back,
+.download-sheet-close {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: var(--transition);
+  cursor: pointer;
+  border: none;
+}
+.download-sheet-back:hover,
+.download-sheet-close:hover {
+  background: var(--bg-hover);
+}
+.download-sheet-back { display: none; }
+
+.download-sheet-title {
+  flex: 1;
+  font-size: 15px;
+  font-weight: 700;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+/* BODY */
+.download-sheet-body {
+  padding: 16px 12px 4px;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+.download-sheet-subtitle {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 0 6px 12px;
+}
+
+/* EPISODE LIST */
+.download-ep-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.download-ep-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 14px;
+  background: #17171f;
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 12px;
+  color: var(--text-primary);
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.download-ep-item:hover {
+  background: #1d1d28;
+  border-color: rgba(108,99,255,0.4);
+}
+.download-ep-item:active {
+  transform: scale(0.99);
+}
+
+.download-ep-num {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--accent);
+  background: rgba(108,99,255,0.12);
+  border: 1px solid rgba(108,99,255,0.28);
+  border-radius: 8px;
+  padding: 5px 9px;
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.5px;
+}
+
+.download-ep-info {
+  flex: 1;
+  min-width: 0;
+}
+.download-ep-name {
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.download-ep-dur {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.download-ep-arrow {
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+/* QUALITY LIST */
+.download-quality-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.download-quality-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 14px;
+  background: #17171f;
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 12px;
+  color: var(--text-primary);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.download-quality-item:hover {
+  background: #1d1d28;
+  border-color: rgba(108,99,255,0.4);
+}
+.download-quality-item:active {
+  transform: scale(0.99);
+}
+
+.download-quality-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: rgba(108,99,255,0.12);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.download-quality-info {
+  flex: 1;
+  min-width: 0;
+}
+.download-quality-label {
+  font-size: 15px;
+  font-weight: 700;
+}
+.download-quality-desc {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.download-quality-arrow {
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+/* ============================================
+   DOWNLOAD LOADING
+============================================ */
+.dl-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 60px 20px;
+}
+
+.dl-loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(108,99,255,0.18);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: dlSpin 0.75s linear infinite;
+}
+
+@keyframes dlSpin {
+  to { transform: rotate(360deg); }
+}
+
+.dl-loading-text {
+  font-size: 13px;
+  color: var(--text-muted);
   font-weight: 500;
 }

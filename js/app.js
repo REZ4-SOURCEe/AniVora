@@ -1,14 +1,14 @@
 /* ============================================
    ANIVORA — APP
-   نقطه ورود: import همه ماژول‌ها،
-   اتصال توابع به window برای onclickها،
-   init اولیه
+   Entry point
 ============================================ */
 
 import {
   showPage, openDrawer, closeDrawer, goFromDrawer, toggleNotif,
   triggerPageLoader, toggleList, toggleLike, showToast,
-  initCustomSelects, bindGlobalEvents, isInList, isLiked
+  initCustomSelects, bindGlobalEvents, isInList, isLiked,
+  getListStatus, setListStatus, openListStatusSheet, closeListStatusSheet,
+  updateAddBtnUI
 } from './core.js';
 
 import {
@@ -23,11 +23,21 @@ import {
   initCalendar, openAnimeDetail, openEpisode, watchAnime,
   toggleDesc, switchTab, switchProfileTab,
   toggleClearBtn, clearSearch, addFilter, removeFilter, filterResults,
-  renderCharsAndStaff, renderReviews, renderDetailEpisodes
+  renderCharsAndStaff, renderReviews, renderDetailEpisodes,
+  removeFromWatchingUI, removeFromFavoritesUI,
+  bindWatchlistEvents
 } from './pages.js';
 
+import { ANIME_DATA } from './data.js';
+
 /* ============================================
-   EXPOSE TO WINDOW (برای onclickهای HTML)
+   EXPOSE ANIME_DATA TO WINDOW (برای sheet)
+============================================ */
+window.__animeData = {};
+ANIME_DATA.forEach(a => { window.__animeData[a.id] = a; });
+
+/* ============================================
+   EXPOSE TO WINDOW
 ============================================ */
 window.showPage = showPage;
 window.openDrawer = openDrawer;
@@ -55,12 +65,19 @@ window.clearSearch = clearSearch;
 window.addFilter = addFilter;
 window.removeFilter = removeFilter;
 window.filterResults = filterResults;
+window.removeFromWatchingUI = removeFromWatchingUI;
+window.removeFromFavoritesUI = removeFromFavoritesUI;
+
+/* List status sheet */
+window.openListStatusSheet = openListStatusSheet;
+window.closeListStatusSheet = closeListStatusSheet;
+window.getListStatus = getListStatus;
+window.setListStatus = setListStatus;
 
 /* ============================================
    INIT
 ============================================ */
 function init() {
-  /* ---------- صفحه اولیه بر اساس hash ---------- */
   const startPage = (location.hash ? location.hash.replace('#', '') : 'home');
   const validPages = ['home', 'explore', 'detail', 'watch', 'seasonal', 'watchlist', 'profile', 'calendar', 'login'];
   const initialPage = validPages.includes(startPage) ? startPage : 'home';
@@ -76,7 +93,6 @@ function init() {
     if (p) p.classList.add('active');
   }
 
-  /* ---------- Init هر بخش ---------- */
   initHome();
   initExplore();
   initWatchlist();
@@ -87,8 +103,8 @@ function init() {
   bindGlobalEvents();
   bindFullscreenChange();
   bindDownloadOutsideClick();
+  bindWatchlistEvents();
 
-  /* ---------- به‌روزرسانی دکمه‌های Add/Like بعد از بارگذاری ---------- */
   refreshStoredButtons();
 }
 
@@ -99,11 +115,7 @@ function refreshStoredButtons() {
   document.querySelectorAll('[data-add-btn]').forEach(btn => {
     const id = parseInt(btn.getAttribute('data-add-btn'));
     if (!isNaN(id) && isInList(id)) {
-      btn.classList.add('is-added');
-      const svg = btn.querySelector('svg use');
-      if (svg) svg.setAttribute('href', '#ico-check');
-      const label = btn.querySelector('.add-label');
-      if (label) label.textContent = 'Added';
+      updateAddBtnUI(btn, id);
     }
   });
 

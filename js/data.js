@@ -2,13 +2,13 @@
    ANIVORA DATA — Multi-Anime
 ============================================ */
 
-/* Thumbnails برای قسمت‌های هر انیمه */
 const EP_THUMB_SPARKS = "https://intocdn.top/wp-content/uploads/2026/07/eImcA39cNfJzCqczMEQT5FjSlPy.jpg";
 const EP_THUMB_BLACKTORCH = "https://intocdn.top/wp-content/uploads/2026/07/ceirDIa8QgeeiFKFnLcQpfAH5V7.jpg";
+const EP_THUMB_KAIJU = "https://intocdn.top/wp-content/uploads/2026/07/vvbIW2xspYigrgTHTmTSzVDgfKl.jpg";
 
 export const ANIME_DATA = [
   /* ============================================
-     ANIME 1 — Sparks of Tomorrow
+     ANIME 1 — Sparks of Tomorrow (12/12 — Finished)
   ============================================ */
   {
     id: 1,
@@ -19,6 +19,7 @@ export const ANIME_DATA = [
     type: "TV",
     status: "Finished",
     eps: 12,
+    episodesAired: 12,
     genres: ["Action", "Adventure", "Sci-Fi"],
     img: "https://intocdn.top/wp-content/uploads/2026/07/9H6s2KJSDGZ9PohHZFFUoh1cUUr-360x480.jpg",
     backdrop: "https://intocdn.top/wp-content/uploads/2026/07/eImcA39cNfJzCqczMEQT5FjSlPy.jpg",
@@ -126,7 +127,7 @@ export const ANIME_DATA = [
   },
 
   /* ============================================
-     ANIME 2 — Black Torch
+     ANIME 2 — Black Torch (12/12 — Finished)
   ============================================ */
   {
     id: 2,
@@ -137,6 +138,7 @@ export const ANIME_DATA = [
     type: "TV",
     status: "Finished",
     eps: 12,
+    episodesAired: 12,
     genres: ["Action", "Supernatural", "Fantasy"],
     img: "https://intocdn.top/wp-content/uploads/2026/07/blacktorch2-360x480.png",
     backdrop: "https://intocdn.top/wp-content/uploads/2026/07/ceirDIa8QgeeiFKFnLcQpfAH5V7.jpg",
@@ -241,6 +243,94 @@ export const ANIME_DATA = [
         ]
       }
     ]
+  },
+
+  /* ============================================
+     ANIME 3 — Kaiju Girl Caramelise (8/12 — Airing)
+     ★ ۸ قسمت توی دیتابیس، ولی aired=8 و eps=12
+  ============================================ */
+  {
+    id: 3,
+    title: "Kaiju Girl Caramelise",
+    jp: "オトメ カイジュウ キャラメリゼ",
+    score: 8.0,
+    year: 2026,
+    type: "TV",
+    status: "Airing",
+    eps: 12,
+    episodesAired: 8,
+    genres: ["Romance", "Comedy", "Supernatural"],
+    img: "https://intocdn.top/wp-content/uploads/2026/07/zO0vipu5gWi4qV0ARhFkCJWLZDJ-360x480.jpg",
+    backdrop: "https://intocdn.top/wp-content/uploads/2026/07/vvbIW2xspYigrgTHTmTSzVDgfKl.jpg",
+    description: "A shy high school girl discovers she transforms into a giant kaiju whenever she gets excited, especially around her crush. A romantic comedy about love, monsters, and growing up.",
+    studio: "Bones",
+    duration: "24 min",
+    episodes: [
+      { num: 1, title: "Episode 1", duration: "24:00", img: EP_THUMB_KAIJU,
+        videoUrl: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Otome.Kaijuu.Carameliser/Otome.Kaijuu.Carameliser.S01E01.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv",
+        qualities: [
+          { label: "1080p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Otome.Kaijuu.Carameliser/Otome.Kaijuu.Carameliser.S01E01.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+          { label: "720p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Otome.Kaijuu.Carameliser/Otome.Kaijuu.Carameliser.S01E01.WEB-DL.720p.Farsi.Sub.Film2Media.mkv" },
+          { label: "480p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Otome.Kaijuu.Carameliser/Otome.Kaijuu.Carameliser.S01E01.mkv" }
+        ]
+      },
+      { num: 2, title: "Episode 2", duration: "24:00", img: EP_THUMB_KAIJU,
+        videoUrl: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Otome.Kaijuu.Carameliser/Otome.Kaijuu.Carameliser.S01E02.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv",
+        qualities: [
+          { label: "1080p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Otome.Kaijuu.Carameliser/Otome.Kaijuu.Carameliser.S01E02.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+          { label: "720p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Otome.Kaijuu.Carameliser/Otome.Kaijuu.Carameliser.S01E02.WEB-DL.720p.Farsi.Sub.Film2Media.mkv" },
+          { label: "480p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Otome.Kaijuu.Carameliser/Otome.Kaijuu.Carameliser.S01E02.mkv" }
+        ]
+      },
+      { num: 3, title: "Episode 3", duration: "24:00", img: EP_THUMB_KAIJU,
+        videoUrl: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Otome.Kaijuu.Carameliser/Otome.Kaijuu.Carameliser.S01E03.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv",
+        qualities: [
+          { label: "1080p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Otome.Kaijuu.Carameliser/Otome.Kaijuu.Carameliser.S01E03.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+          { label: "720p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Otome.Kaijuu.Carameliser/Otome.Kaijuu.Carameliser.S01E03.720p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+          { label: "480p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Otome.Kaijuu.Carameliser/Otome.Kaijuu.Carameliser.S01E03.mkv" }
+        ]
+      },
+      { num: 4, title: "Episode 4", duration: "24:00", img: EP_THUMB_KAIJU,
+        videoUrl: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Otome.Kaijuu.Carameliser/Otome.Kaijuu.Carameliser.S01E04.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv",
+        qualities: [
+          { label: "1080p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Otome.Kaijuu.Carameliser/Otome.Kaijuu.Carameliser.S01E04.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+          { label: "720p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Otome.Kaijuu.Carameliser/Otome.Kaijuu.Carameliser.S01E04.720p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+          { label: "480p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Otome.Kaijuu.Carameliser/Otome.Kaijuu.Carameliser.S01E04.mkv" }
+        ]
+      },
+      { num: 5, title: "Episode 5", duration: "24:00", img: EP_THUMB_KAIJU,
+        videoUrl: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Otome.Kaijuu.Carameliser/Otome.Kaijuu.Carameliser.S01E05.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv",
+        qualities: [
+          { label: "1080p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Otome.Kaijuu.Carameliser/Otome.Kaijuu.Carameliser.S01E05.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+          { label: "720p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Otome.Kaijuu.Carameliser/Otome.Kaijuu.Carameliser.S01E05.720p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+          { label: "480p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Otome.Kaijuu.Carameliser/Otome.Kaijuu.Carameliser.S01E05.mkv" }
+        ]
+      },
+      { num: 6, title: "Episode 6", duration: "24:00", img: EP_THUMB_KAIJU,
+        videoUrl: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Otome.Kaijuu.Carameliser/Otome.Kaijuu.Carameliser.S01E06.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv",
+        qualities: [
+          { label: "1080p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Otome.Kaijuu.Carameliser/Otome.Kaijuu.Carameliser.S01E06.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+          { label: "720p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Otome.Kaijuu.Carameliser/Otome.Kaijuu.Carameliser.S01E06.720p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+          { label: "480p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Otome.Kaijuu.Carameliser/Otome.Kaijuu.Carameliser.S01E06.mkv" }
+        ]
+      },
+      { num: 7, title: "Episode 7", duration: "24:00", img: EP_THUMB_KAIJU,
+        videoUrl: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Otome.Kaijuu.Carameliser/Otome.Kaijuu.Carameliser.S01E07.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv",
+        qualities: [
+          { label: "1080p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Otome.Kaijuu.Carameliser/Otome.Kaijuu.Carameliser.S01E07.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+          { label: "720p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Otome.Kaijuu.Carameliser/Otome.Kaijuu.Carameliser.S01E07.720p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+          { label: "480p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Otome.Kaijuu.Carameliser/Otome.Kaijuu.Carameliser.S01E07.mkv" }
+        ]
+      },
+      { num: 8, title: "Episode 8", duration: "24:00", img: EP_THUMB_KAIJU,
+        videoUrl: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Otome.Kaijuu.Carameliser/Otome.Kaijuu.Carameliser.S01E08.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv",
+        qualities: [
+          { label: "1080p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Otome.Kaijuu.Carameliser/Otome.Kaijuu.Carameliser.S01E08.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+          { label: "720p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Otome.Kaijuu.Carameliser/Otome.Kaijuu.Carameliser.S01E08.720p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+          { label: "480p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Otome.Kaijuu.Carameliser/Otome.Kaijuu.Carameliser.S01E08.mkv" }
+        ]
+      }
+    ]
   }
 ];
 
@@ -265,6 +355,15 @@ export const CONTINUE_WATCHING = [
     progress: 0,
     timeLeft: "24 min",
     img: EP_THUMB_BLACKTORCH
+  },
+  {
+    animeId: 3,
+    epNum: 1,
+    title: "Kaiju Girl Caramelise",
+    ep: "S1 E01",
+    progress: 0,
+    timeLeft: "24 min",
+    img: EP_THUMB_KAIJU
   }
 ];
 
@@ -293,10 +392,10 @@ export const STAFF_DATA = [
 export const CALENDAR_DATA = {
   "Monday":    [{title:"Sparks of Tomorrow", ep:"Ep 1"}],
   "Tuesday":   [{title:"Black Torch", ep:"Ep 1"}],
-  "Wednesday": [{title:"Sparks of Tomorrow", ep:"Ep 3"}],
+  "Wednesday": [{title:"Kaiju Girl Caramelise", ep:"Ep 1"}],
   "Thursday":  [{title:"Black Torch", ep:"Ep 4"}],
   "Friday":    [{title:"Sparks of Tomorrow", ep:"Ep 5"}],
-  "Saturday":  [{title:"Black Torch", ep:"Ep 6"}],
+  "Saturday":  [{title:"Kaiju Girl Caramelise", ep:"Ep 6"}],
   "Sunday":    [{title:"Sparks of Tomorrow", ep:"Ep 7"}]
 };
 

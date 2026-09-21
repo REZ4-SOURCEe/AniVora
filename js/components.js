@@ -1,6 +1,6 @@
 /* ============================================
    ANIVORA — COMPONENTS
-   card, player, download menu
+   card, player, download sheet
 ============================================ */
 
 import { isInList, toggleList, formatTime, showToast } from './core.js';
@@ -52,55 +52,175 @@ export function populateSection(id, data) {
 }
 
 /* ============================================
-   DOWNLOAD MENU
+   DOWNLOAD SHEET (Episodes → Qualities)
 ============================================ */
 export function toggleDownloadMenu(e, animeId, epNum) {
   if (e) e.stopPropagation();
   const anime = ANIME_DATA.find(a => a.id === animeId);
   if (!anime) return;
 
-  const ep = anime.episodes.find(x => x.num === epNum) || anime.episodes[0];
-  if (!ep) return;
-
-  const qualities = (ep.qualities && ep.qualities.length)
-    ? ep.qualities
-    : [{ label: '1080p', url: ep.videoUrl }];
-
-  document.querySelectorAll('.download-menu.open').forEach(m => m.classList.remove('open'));
-
-  const btn = e ? e.currentTarget : null;
-  let menu;
-  if (btn && btn.parentElement) {
-    menu = btn.parentElement.querySelector('.download-menu');
-    if (!menu) {
-      menu = document.createElement('div');
-      menu.className = 'download-menu';
-      btn.parentElement.appendChild(menu);
-    }
-  } else {
-    menu = document.getElementById('dlMenuDetail');
+  // اگه قبلاً بازه، ببند
+  const existing = document.querySelector('.download-sheet-overlay');
+  if (existing) {
+    closeDownloadSheet();
+    return;
   }
-  if (!menu) return;
 
-  menu.innerHTML = `
-    <div class="download-menu-header">Download · Ep ${ep.num}</div>
-    ${qualities.map(q => `
-      <a class="download-menu-item" href="${q.url}" download target="_blank" rel="noopener" onclick="event.stopPropagation()">
-        <svg class="icon icon-sm"><use href="#ico-download"/></svg>
-        <span>${q.label}</span>
-        <span class="download-menu-size">MKV</span>
-      </a>
-    `).join('')}
-  `;
-  menu.classList.add('open');
-
-  setTimeout(() => {
-    document.addEventListener('click', closeDownloadMenusOnce, { once: true });
-  }, 0);
+  openDownloadSheet(anime);
 }
 
-function closeDownloadMenusOnce() {
-  document.querySelectorAll('.download-menu.open').forEach(m => m.classList.remove('open'));
+function openDownloadSheet(anime) {
+  document.querySelectorAll('.download-sheet-overlay').forEach(el => el.remove());
+  document.querySelectorAll('.download-sheet').forEach(el => el.remove());
+
+  const overlay = document.createElement('div');
+  overlay.className = 'download-sheet-overlay';
+  overlay.onclick = () => closeDownloadSheet();
+
+  const sheet = document.createElement('div');
+  sheet.className = 'download-sheet';
+
+  sheet.innerHTML = `
+    <div class="download-sheet-handle"></div>
+    <div class="download-sheet-header">
+      <div class="download-sheet-header-left">
+        <button class="download-sheet-back" id="dlSheetBack" style="display:none;">
+          <svg class="icon icon-md"><use href="#ico-chevron-l"/></svg>
+        </button>
+      </div>
+      <div class="download-sheet-title" id="dlSheetTitle">${anime.title}</div>
+      <div class="download-sheet-header-right">
+        <button class="download-sheet-close" id="dlSheetClose">
+          <svg class="icon icon-md"><use href="#ico-x"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="download-sheet-body" id="dlSheetBody"></div>
+  `;
+
+  document.body.appendChild(overlay);
+  document.body.appendChild(sheet);
+
+  const body = sheet.querySelector('#dlSheetBody');
+  const titleEl = sheet.querySelector('#dlSheetTitle');
+  const backBtn = sheet.querySelector('#dlSheetBack');
+
+  /* ---------- Step 1: Episodes (with optional loading) ---------- */
+  function renderEpisodes(withLoading = true) {
+    backBtn.style.display = 'none';
+    titleEl.textContent = anime.title;
+
+    const episodesHTML = `
+      <div class="download-sheet-subtitle">Select Episode</div>
+      <div class="download-ep-list">
+        ${anime.episodes.map(ep => `
+          <button class="download-ep-item" data-ep="${ep.num}">
+            <div class="download-ep-num">EP ${String(ep.num).padStart(2,'0')}</div>
+            <div class="download-ep-info">
+              <div class="download-ep-name">${ep.title}</div>
+              <div class="download-ep-dur">${ep.duration || '24:00'}</div>
+            </div>
+            <svg class="icon icon-md download-ep-arrow"><use href="#ico-chevron-r"/></svg>
+          </button>
+        `).join('')}
+      </div>
+    `;
+
+    const bindEpisodes = () => {
+      body.querySelectorAll('.download-ep-item').forEach(item => {
+        item.onclick = (e) => {
+          e.stopPropagation();
+          const num = parseInt(item.dataset.ep);
+          const ep = anime.episodes.find(x => x.num === num);
+          if (ep) renderQualities(ep);
+        };
+      });
+    };
+
+    if (!withLoading) {
+      body.innerHTML = episodesHTML;
+      bindEpisodes();
+      return;
+    }
+
+    body.innerHTML = `
+      <div class="dl-loading">
+        <div class="dl-loading-spinner"></div>
+        <div class="dl-loading-text">Loading episodes...</div>
+      </div>
+    `;
+
+    setTimeout(() => {
+      body.innerHTML = episodesHTML;
+      bindEpisodes();
+    }, 400);
+  }
+
+  /* ---------- Step 2: Qualities (with loading) ---------- */
+  function renderQualities(ep) {
+    backBtn.style.display = 'flex';
+    titleEl.textContent = `Episode ${ep.num}`;
+
+    body.innerHTML = `
+      <div class="dl-loading">
+        <div class="dl-loading-spinner"></div>
+        <div class="dl-loading-text">Loading qualities...</div>
+      </div>
+    `;
+
+    const qualities = (ep.qualities && ep.qualities.length)
+      ? ep.qualities
+      : [{ label: '1080p', url: ep.videoUrl }];
+
+    setTimeout(() => {
+      body.innerHTML = `
+        <div class="download-sheet-subtitle">Select Quality</div>
+        <div class="download-quality-list">
+          ${qualities.map(q => `
+            <a class="download-quality-item" href="${q.url}" download target="_blank" rel="noopener" onclick="event.stopPropagation()">
+              <div class="download-quality-icon">
+                <svg class="icon icon-md"><use href="#ico-download"/></svg>
+              </div>
+              <div class="download-quality-info">
+                <div class="download-quality-label">${q.label}</div>
+                <div class="download-quality-desc">MKV · Video File</div>
+              </div>
+              <svg class="icon icon-md download-quality-arrow"><use href="#ico-chevron-r"/></svg>
+            </a>
+          `).join('')}
+        </div>
+      `;
+    }, 400);
+  }
+
+  /* ---------- Back Button (بدون لودینگ) ---------- */
+  backBtn.onclick = (e) => {
+    e.stopPropagation();
+    renderEpisodes(false);
+  };
+
+  /* ---------- Close Button ---------- */
+  sheet.querySelector('#dlSheetClose').onclick = (e) => {
+    e.stopPropagation();
+    closeDownloadSheet();
+  };
+
+  /* ---------- Start with Episodes (با لودینگ) ---------- */
+  renderEpisodes(true);
+
+  requestAnimationFrame(() => {
+    overlay.classList.add('show');
+    sheet.classList.add('show');
+  });
+  document.body.style.overflow = 'hidden';
+}
+
+export function closeDownloadSheet() {
+  const overlay = document.querySelector('.download-sheet-overlay');
+  const sheet = document.querySelector('.download-sheet');
+  if (overlay) { overlay.classList.remove('show'); setTimeout(() => overlay.remove(), 250); }
+  if (sheet) { sheet.classList.remove('show'); setTimeout(() => sheet.remove(), 300); }
+  document.body.style.overflow = '';
 }
 
 export function bindDownloadOutsideClick() {
@@ -330,7 +450,7 @@ export function initSpeedSelector() {
 }
 
 /* ============================================
-   FULLSCREEN (با چرخش افقی)
+   FULLSCREEN
 ============================================ */
 export function toggleFullscreen(e) {
   if (e) e.stopPropagation();
