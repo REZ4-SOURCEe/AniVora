@@ -59,7 +59,6 @@ export function toggleDownloadMenu(e, animeId, epNum) {
   const anime = ANIME_DATA.find(a => a.id === animeId);
   if (!anime) return;
 
-  // اگه قبلاً بازه، ببند
   const existing = document.querySelector('.download-sheet-overlay');
   if (existing) {
     closeDownloadSheet();
@@ -105,7 +104,7 @@ function openDownloadSheet(anime) {
   const titleEl = sheet.querySelector('#dlSheetTitle');
   const backBtn = sheet.querySelector('#dlSheetBack');
 
-  /* ---------- Step 1: Episodes (with optional loading) ---------- */
+  /* ---------- Step 1: Episodes ---------- */
   function renderEpisodes(withLoading = true) {
     backBtn.style.display = 'none';
     titleEl.textContent = anime.title;
@@ -156,7 +155,7 @@ function openDownloadSheet(anime) {
     }, 400);
   }
 
-  /* ---------- Step 2: Qualities (with loading) ---------- */
+  /* ---------- Step 2: Qualities ---------- */
   function renderQualities(ep) {
     backBtn.style.display = 'flex';
     titleEl.textContent = `Episode ${ep.num}`;
@@ -193,7 +192,7 @@ function openDownloadSheet(anime) {
     }, 400);
   }
 
-  /* ---------- Back Button (بدون لودینگ) ---------- */
+  /* ---------- Back Button ---------- */
   backBtn.onclick = (e) => {
     e.stopPropagation();
     renderEpisodes(false);
@@ -205,7 +204,7 @@ function openDownloadSheet(anime) {
     closeDownloadSheet();
   };
 
-  /* ---------- Start with Episodes (با لودینگ) ---------- */
+  /* ---------- Start with Episodes ---------- */
   renderEpisodes(true);
 
   requestAnimationFrame(() => {
@@ -336,31 +335,134 @@ export function toggleMute(e) {
   updateVolumeIcon();
 }
 
+/* ============================================
+   PLAYER TAP — Single = play/pause, Double = ±10s
+   (با accumulator برای جلوگیری از پرش)
+============================================ */
+let lastTapTime = 0;
+let singleTapTimer = null;
+let seekAccumulator = 0;
+let seekTimer = null;
+
 export function handlePlayerTap(e) {
   if (e.target.closest('button') || e.target.closest('select') || e.target.closest('.player-progress')) return;
+
   const playerWrap = document.querySelector('.player-wrap');
   if (!playerWrap) return;
 
   const video = window.__realVideo;
   if (!video) return;
 
-  if (video.paused) {
-    togglePlay();
+  const now = Date.now();
+  const timeSinceLastTap = now - lastTapTime;
+  lastTapTime = now;
+
+  // ★ دو ضربه پشت‌هم
+  if (timeSinceLastTap < 300) {
+    clearTimeout(singleTapTimer);
+
+    const rect = playerWrap.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const width = rect.width;
+
+    const leftZone = width * 0.35;
+    const rightZone = width * 0.65;
+
+    let delta = 0;
+    let dir = null;
+
+    if (clickX < leftZone) {
+      delta = -10;
+      dir = 'left';
+    } else if (clickX > rightZone) {
+      delta = 10;
+      dir = 'right';
+    }
+
+    if (delta !== 0) {
+      // ★ جمع کن و بعد از یه تأخیر کوتاه یه بار seek کن
+      seekAccumulator += delta;
+      showSeekFeedback(playerWrap, dir, Math.abs(seekAccumulator));
+
+      clearTimeout(seekTimer);
+      seekTimer = setTimeout(() => {
+        const newTime = video.currentTime + seekAccumulator;
+        video.currentTime = Math.max(0, Math.min(video.duration || Infinity, newTime));
+        seekAccumulator = 0;
+      }, 220);
+    }
     return;
   }
 
-  if (playerWrap.classList.contains('playing')) {
-    playerWrap.classList.remove('playing');
-    clearTimeout(hideControlsTimer);
-    hideControlsTimer = setTimeout(() => {
-      if (video && !video.paused) {
-        playerWrap.classList.add('playing');
-      }
-    }, 3000);
-  } else {
-    playerWrap.classList.add('playing');
-    clearTimeout(hideControlsTimer);
+  // ★ یه ضربه
+  clearTimeout(singleTapTimer);
+  singleTapTimer = setTimeout(() => {
+    if (video.paused) {
+      togglePlay();
+      return;
+    }
+
+    if (playerWrap.classList.contains('playing')) {
+      playerWrap.classList.remove('playing');
+      clearTimeout(hideControlsTimer);
+      hideControlsTimer = setTimeout(() => {
+        if (video && !video.paused) {
+          playerWrap.classList.add('playing');
+        }
+      }, 3000);
+    } else {
+      playerWrap.classList.add('playing');
+      clearTimeout(hideControlsTimer);
+    }
+  }, 300);
+}
+
+/* ★ بازخورد بصری (◀◀ 10s / 10s ▶▶) */
+function showSeekFeedback(playerWrap, direction, seconds = 10) {
+  const existing = playerWrap.querySelector('.seek-feedback');
+
+  // اگه همون جهت بود، فقط عدد رو آپدیت کن
+  if (existing && existing.classList.contains(`seek-${direction}`)) {
+    const span = existing.querySelector('span');
+    if (span) span.textContent = `${seconds}s`;
+
+    clearTimeout(existing.__removeTimer);
+    existing.__removeTimer = setTimeout(() => {
+      existing.classList.remove('show');
+      setTimeout(() => existing.remove(), 300);
+    }, 600);
+    return;
   }
+
+  // جهت عوض شده → قبلی رو حذف کن
+  playerWrap.querySelectorAll('.seek-feedback').forEach(el => el.remove());
+
+  const fb = document.createElement('div');
+  fb.className = `seek-feedback seek-${direction}`;
+
+  if (direction === 'left') {
+    fb.innerHTML = `
+      <svg class="icon icon-lg" style="fill:#fff;stroke:none;">
+        <use href="#ico-skip-b"/>
+      </svg>
+      <span>${seconds}s</span>
+    `;
+  } else {
+    fb.innerHTML = `
+      <span>${seconds}s</span>
+      <svg class="icon icon-lg" style="fill:#fff;stroke:none;">
+        <use href="#ico-skip-f"/>
+      </svg>
+    `;
+  }
+
+  playerWrap.appendChild(fb);
+  requestAnimationFrame(() => fb.classList.add('show'));
+
+  fb.__removeTimer = setTimeout(() => {
+    fb.classList.remove('show');
+    setTimeout(() => fb.remove(), 300);
+  }, 600);
 }
 
 export function seekPlayer(e) {
