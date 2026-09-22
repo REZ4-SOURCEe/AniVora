@@ -15,6 +15,7 @@ import {
   getProgress, setProgress,
   isDropped, setDropped,
   getLastPage, setLastPage,
+  getDetailState, setDetailState, clearDetailState,
   stopVideo,
   login, signup, logout, isLoggedIn, getCurrentUser, computeProfileStats,
   getUsers, saveUsers, getSession
@@ -201,9 +202,29 @@ export function filterResults() {
 /* ============================================
    DETAIL PAGE
 ============================================ */
-export function openAnimeDetail(animeId) {
+export function openAnimeDetail(animeId, keepState = false) {
   const anime = ANIME_DATA.find(a => a.id === animeId);
   if (!anime) return;
+
+  // ★ ذخیره state قبلی (اگه انیمه جدید باز می‌شه)
+  const currentActiveTab = document.querySelector('.detail-tabs .tab-btn.active');
+  const prevAnimeId = window.__currentAnimeId;
+
+  if (!keepState && prevAnimeId && currentActiveTab && prevAnimeId !== animeId) {
+    const tabText = currentActiveTab.textContent.trim();
+    let tabKey = 'episodes';
+    if (tabText === 'About') tabKey = 'about';
+    if (tabText === 'Recommended') tabKey = 'recommended';
+
+    if (tabKey !== 'episodes') {
+      setDetailState({
+        animeId: prevAnimeId,
+        tab: tabKey,
+        scrollY: window.scrollY
+      });
+    }
+  }
+
   window.__currentAnime = anime;
   window.__currentAnimeId = animeId;
 
@@ -237,19 +258,72 @@ export function openAnimeDetail(animeId) {
     <div class="detail-stat"><span class="detail-stat-label">Studio</span><span class="detail-stat-value">${anime.studio || '-'}</span></div>
   `;
 
-  const desc = document.getElementById('detailDesc');
-  desc.textContent = anime.description || 'No description available.';
-  desc.classList.add('collapsed');
-  document.getElementById('readMoreBtn').textContent = 'Read More';
-
   const backdrop = document.querySelector('.detail-backdrop img');
   if (backdrop && anime.backdrop) backdrop.src = anime.backdrop;
 
   renderDetailActions(anime);
   renderDetailEpisodes(anime, 1);
-  renderCharsAndStaff();
-  renderReviews();
-  showPage('detail');
+
+  // ★★★ showPage با skipHistory=true (خودمون pushState می‌زنیم)
+  showPage('detail', true);
+
+  // ★★★ pushState جدید با animeId (فقط اگه انیمه جدید باز می‌شه)
+  if (!keepState) {
+    const prevStateAnimeId = history.state?.animeId;
+    // فقط اگه animeId با state قبلی فرق داشت، pushState بزن
+    if (prevStateAnimeId !== animeId) {
+      history.pushState({ page: 'detail', animeId: animeId }, '', '#detail');
+    }
+  }
+
+  // ★ مدیریت تب فعال
+  if (keepState) {
+    const savedState = getDetailState();
+    if (savedState && savedState.animeId === animeId) {
+      setTimeout(() => {
+        if (savedState.tab === 'about') {
+          const aboutBtn = document.querySelectorAll('.detail-tabs .tab-btn')[1];
+          if (aboutBtn) aboutBtn.click();
+        } else if (savedState.tab === 'recommended') {
+          const recBtn = document.querySelectorAll('.detail-tabs .tab-btn')[2];
+          if (recBtn) recBtn.click();
+        } else {
+          const epBtn = document.querySelectorAll('.detail-tabs .tab-btn')[0];
+          if (epBtn) epBtn.click();
+        }
+
+        if (savedState.scrollY) {
+          setTimeout(() => window.scrollTo(0, savedState.scrollY), 50);
+        }
+
+        clearDetailState();
+      }, 30);
+      return;
+    }
+  }
+
+  clearDetailState();
+
+  const tabs = document.querySelectorAll('.detail-tabs .tab-btn');
+  tabs.forEach((t, i) => {
+    if (i === 0) t.classList.add('active');
+    else t.classList.remove('active');
+  });
+
+  const panels = document.querySelectorAll('.detail-main .tab-panel');
+  panels.forEach(p => p.classList.remove('active'));
+  const epPanel = document.getElementById('tab-episodes');
+  if (epPanel) epPanel.classList.add('active');
+
+  if (window.__scrollToEpisodes) {
+    window.__scrollToEpisodes = false;
+    setTimeout(() => {
+      const epTab = document.getElementById('tab-episodes');
+      if (epTab) {
+        epTab.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 200);
+  }
 }
 
 function renderDetailActions(anime) {
@@ -308,7 +382,7 @@ function renderDetailActions(anime) {
   window.addEventListener('anivora:list-changed', window.__detailListListener);
 }
 
-/* ★★★ رندر اپیزودها با dropdown فصل ★★★ */
+/* ★★★ رندر اپیزودها با dropdown فصل + About + Recommended ★★★ */
 export function renderDetailEpisodes(anime, seasonNumber) {
   window.__currentSeason = seasonNumber || 1;
 
@@ -346,6 +420,37 @@ export function renderDetailEpisodes(anime, seasonNumber) {
   if (countEl) {
     countEl.textContent = currentEpisodes.length;
     countEl.title = `${currentEpisodes.length} Episodes`;
+  }
+
+  // ★ پر کردن تب About
+  const aboutDescEl = document.getElementById('tabAboutDesc');
+  if (aboutDescEl) {
+    aboutDescEl.textContent = anime.description || 'No description available.';
+  }
+
+  // ★ پر کردن تب Recommended بر اساس ژانرهای مشابه
+  const recommendedGrid = document.getElementById('tabRecommendedGrid');
+  if (recommendedGrid) {
+    const currentGenres = anime.genres || [];
+
+    const scored = ANIME_DATA
+      .filter(a => a.id !== anime.id)
+      .map(a => {
+        const commonGenres = (a.genres || []).filter(g => currentGenres.includes(g));
+        return { anime: a, score: commonGenres.length };
+      })
+      .filter(item => item.score > 0)
+      .sort((a, b) => {
+        if (b.score !== a.score) return b.score - a.score;
+        return b.anime.score - a.anime.score;
+      })
+      .slice(0, 12);
+
+    if (scored.length === 0) {
+      recommendedGrid.innerHTML = '<p style="color:var(--text-muted);font-size:13px;">No recommendations available.</p>';
+    } else {
+      recommendedGrid.innerHTML = scored.map(item => renderAnimeCard(item.anime)).join('');
+    }
   }
 
   // ★ رندر اپیزودها
@@ -451,11 +556,7 @@ export function renderReviews() {
 }
 
 export function toggleDesc() {
-  const desc = document.getElementById('detailDesc');
-  const btn = document.getElementById('readMoreBtn');
-  if (!desc || !btn) return;
-  desc.classList.toggle('collapsed');
-  btn.textContent = desc.classList.contains('collapsed') ? 'Read More' : 'Show Less';
+  return;
 }
 
 export function switchTab(btn, panelId) {
@@ -540,7 +641,6 @@ function loadEpisodeInPlayer(anime, ep, seasonNumber) {
   const seasonLabel = seasonNumber > 1 ? ` · Season ${seasonNumber}` : ' · Season 1';
   document.querySelector('.watch-ep-title').textContent = `Episode ${ep.num}: "${ep.title}"`;
   document.querySelector('.watch-ep-label').textContent = `${anime.title}${seasonLabel}`;
-  document.querySelector('.watch-ep-desc').textContent = anime.description || '';
 
   const progressFill = document.getElementById('playerProgress');
   if (progressFill) progressFill.style.width = '0%';
@@ -673,7 +773,7 @@ function renderWatchActions(anime, ep, seasonNumber) {
   const liked = isLiked(anime.id);
 
   wrap.innerHTML = `
-    <button class="btn btn-ghost btn-sm btn-action-wide" onclick="openAnimeDetail(${anime.id})">
+    <button class="btn btn-ghost btn-sm btn-action-wide" onclick="window.__scrollToEpisodes = true; openAnimeDetail(${anime.id})">
       <svg class="icon icon-sm"><use href="#ico-info"/></svg>
       <span>Details</span>
     </button>
@@ -721,6 +821,7 @@ function renderWatchSidebar(anime, seasonNumber, currentEpNum) {
   }).join('');
 }
 
+/* ★★★ Up Next — اپیزودهای بعدی ★★★ */
 function renderUpNext(anime, seasonNumber, currentEpNum) {
   const row = document.getElementById('upNextRow');
   if (!row) return;
@@ -822,7 +923,7 @@ export function handleLogin() {
   }
   showToast('Welcome back, ' + result.user.username + '!');
   if (window.updateDrawerAuth) window.updateDrawerAuth();
-  if (window.updateHeaderAvatar) window.updateHeaderAvatar();   // ★
+  if (window.updateHeaderAvatar) window.updateHeaderAvatar();
   showPage('profile');
 }
 
@@ -831,7 +932,7 @@ export function handleLogout() {
   showToast('Signed out');
   renderLoginPage();
   if (window.updateDrawerAuth) window.updateDrawerAuth();
-  if (window.updateHeaderAvatar) window.updateHeaderAvatar();   // ★
+  if (window.updateHeaderAvatar) window.updateHeaderAvatar();
   showPage('home');
 }
 
@@ -891,7 +992,7 @@ export function handleSignup() {
   }
 
   if (window.updateDrawerAuth) window.updateDrawerAuth();
-  if (window.updateHeaderAvatar) window.updateHeaderAvatar();   // ★
+  if (window.updateHeaderAvatar) window.updateHeaderAvatar();
   showToast('Account created!');
   showPage('profile');
 }
@@ -1329,7 +1430,7 @@ export function saveProfileChanges() {
   showToast('Profile updated!');
   closeEditProfileModal();
   initProfile();
-  if (window.updateHeaderAvatar) window.updateHeaderAvatar();   // ★
+  if (window.updateHeaderAvatar) window.updateHeaderAvatar();
 }
 
 /* ============================================

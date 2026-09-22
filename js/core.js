@@ -27,6 +27,7 @@ const LAST_EP_KEY = 'anivora_last_ep';
 const PROGRESS_KEY = 'anivora_progress';
 const DROPPED_KEY = 'anivora_dropped';
 const LAST_PAGE_KEY = 'anivora_last_page';
+const DETAIL_STATE_KEY = 'anivora_detail_state';
 
 export function getStore(key) {
   try { return JSON.parse(localStorage.getItem(key)) || []; }
@@ -43,6 +44,18 @@ export function getLastPage() {
 }
 export function setLastPage(page) {
   try { localStorage.setItem(LAST_PAGE_KEY, JSON.stringify(page)); } catch(e) {}
+}
+
+/* ---------- DETAIL STATE (برای برگشت به تب Recommended) ---------- */
+export function getDetailState() {
+  try { return JSON.parse(sessionStorage.getItem(DETAIL_STATE_KEY)) || null; }
+  catch(e) { return null; }
+}
+export function setDetailState(state) {
+  try { sessionStorage.setItem(DETAIL_STATE_KEY, JSON.stringify(state)); } catch(e) {}
+}
+export function clearDetailState() {
+  try { sessionStorage.removeItem(DETAIL_STATE_KEY); } catch(e) {}
 }
 
 /* ---------- LAST EPISODE ---------- */
@@ -713,7 +726,14 @@ export function showPage(id, skipHistory) {
 
   if (!skipHistory) {
     const currentHash = location.hash.replace('#', '') || 'home';
-    if (currentHash !== id) history.pushState({ page: id }, '', '#' + id);
+    if (currentHash !== id) {
+      // ★ اگه صفحه detail هست، animeId هم ذخیره کن
+      const state = { page: id };
+      if (id === 'detail' && window.__currentAnimeId) {
+        state.animeId = window.__currentAnimeId;
+      }
+      history.pushState(state, '', '#' + id);
+    }
   }
 
   window.__currentPage = id;
@@ -721,14 +741,7 @@ export function showPage(id, skipHistory) {
   if (id === 'watchlist') window.dispatchEvent(new CustomEvent('anivora:watchlist-refresh'));
   if (id === 'profile') window.dispatchEvent(new CustomEvent('anivora:profile-refresh'));
 
-  if (id === 'detail' && skipHistory) {
-    const animeId = window.__currentAnimeId || getLastPage()?.animeId;
-    if (animeId) {
-      window.dispatchEvent(new CustomEvent('anivora:detail-refresh', {
-        detail: { animeId }
-      }));
-    }
-  }
+  // ★ حذف بلوک detail-refresh — این باعث حلقه بی‌نهایت می‌شد
 }
 
 export function updateBottomNav(id) {
@@ -796,11 +809,9 @@ export function updateDrawerAuth() {
     }
   }
 
-  // ★ آپدیت آواتار هدر
   updateHeaderAvatar();
 }
 
-/* ★★★ آپدیت آواتار هدر با عکس کاربر ★★★ */
 export function updateHeaderAvatar() {
   const headerAvatar = document.querySelector('.header-actions .avatar');
   if (!headerAvatar) return;
@@ -808,11 +819,9 @@ export function updateHeaderAvatar() {
   const user = getCurrentUser();
 
   if (user && user.avatar) {
-    // کاربر لاگین کرده و آواتار داره → عکس رو نشون بده
     headerAvatar.innerHTML = `<img src="${user.avatar}" alt="${user.username}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;">`;
     headerAvatar.style.background = 'transparent';
   } else {
-    // پیش‌فرض → آیکون user
     headerAvatar.innerHTML = `<svg class="icon icon-sm" style="color:#fff;"><use href="#ico-user"/></svg>`;
     headerAvatar.style.background = 'var(--accent)';
   }
@@ -896,7 +905,18 @@ export function bindGlobalEvents() {
     }
   }, true);
   window.addEventListener('popstate', function(e) {
-    if (e.state && e.state.page) showPage(e.state.page, true);
-    else showPage('home', true);
+    // ★ اگه state صفحه detail بود، با keepState=true به openAnimeDetail برگردون
+    if (e.state && e.state.page === 'detail' && e.state.animeId) {
+      if (window.openAnimeDetail) {
+        window.openAnimeDetail(e.state.animeId, true);
+        return;
+      }
+    }
+
+    if (e.state && e.state.page) {
+      showPage(e.state.page, true);
+    } else {
+      showPage('home', true);
+    }
   });
 }

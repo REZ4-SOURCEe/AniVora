@@ -296,14 +296,13 @@
 </div>
 <div class="detail-extra-row" id="detailExtraRow"></div>
 <div class="detail-actions-row" id="detailActionsRow"></div>
-      <p class="detail-desc collapsed" id="detailDesc"></p>
-      <button class="read-more-btn" id="readMoreBtn" onclick="toggleDesc()">Read More</button>
       <div class="detail-tabs">
         <button class="tab-btn active" onclick="switchTab(this,'tab-episodes')">Episodes</button>
-        <button class="tab-btn" onclick="switchTab(this,'tab-chars')">Characters</button>
-        <button class="tab-btn" onclick="switchTab(this,'tab-staff')">Staff / VA</button>
-        <button class="tab-btn" onclick="switchTab(this,'tab-reviews')">Reviews</button>
+        <button class="tab-btn" onclick="switchTab(this,'tab-about')">About</button>
+        <button class="tab-btn" onclick="switchTab(this,'tab-recommended')">Recommended</button>
       </div>
+
+      <!-- ★ Episodes Tab -->
       <div class="tab-panel active" id="tab-episodes">
         <div class="season-block">
           <div class="season-header-row">
@@ -319,9 +318,29 @@
           <div class="episodes-grid" id="episodesGrid"></div>
         </div>
       </div>
-      <div class="tab-panel" id="tab-chars"><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;" id="charGrid"></div></div>
-      <div class="tab-panel" id="tab-staff"><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;" id="staffGrid"></div></div>
-      <div class="tab-panel" id="tab-reviews"><div id="reviewsList"></div></div>
+
+      <!-- ★ About Tab -->
+      <div class="tab-panel" id="tab-about">
+        <div class="detail-about-wrap">
+          <div class="detail-about-title">
+            <span class="detail-about-title-bar"></span>
+            About this anime
+          </div>
+          <p class="detail-about-text" id="tabAboutDesc"></p>
+        </div>
+      </div>
+
+      <!-- ★ Recommended Tab -->
+      <div class="tab-panel" id="tab-recommended">
+        <div class="detail-recommended-wrap">
+          <div class="detail-recommended-title">
+            <span class="detail-about-title-bar"></span>
+            You may also like
+          </div>
+          <div class="detail-recommended-grid" id="tabRecommendedGrid"></div>
+        </div>
+      </div>
+
       <div style="height:48px;"></div>
     </div>
   </div>
@@ -379,15 +398,10 @@
         <div class="watch-info">
           <div class="watch-ep-label"></div>
           <div class="watch-ep-title"></div>
-          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-            <span class="badge badge-airing"><span class="airing-dot"></span>Airing</span>
-            <span style="font-size:13px;color:var(--text-muted);display:flex;align-items:center;gap:4px;">
-              <svg class="icon icon-sm"><use href="#ico-clock"/></svg> 24 min
-            </span>
-            <div style="display:flex;gap:8px;margin-left:auto;flex-wrap:wrap;position:relative;align-items:center;" id="watchActionsRow"></div>
-          </div>
-          <p class="watch-ep-desc"></p>
+          <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;position:relative;align-items:center;" id="watchActionsRow"></div>
         </div>
+
+        <!-- ★ Up Next (اپیزودهای بعدی) -->
         <div style="margin-top:20px;">
           <h3 style="font-size:15px;font-weight:700;margin-bottom:14px;">Up Next</h3>
           <div style="display:flex;gap:12px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none;" id="upNextRow"></div>
