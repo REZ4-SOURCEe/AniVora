@@ -43,8 +43,7 @@ export function populateSection(id, data) {
 }
 
 /* ============================================
-   DOWNLOAD SHEET (Episodes → Qualities)
-   ★ پشتیبانی از فصل‌ها
+   DOWNLOAD SHEET (Seasons → Episodes → Qualities)
 ============================================ */
 export function toggleDownloadMenu(e, animeId, epNum) {
   if (e) e.stopPropagation();
@@ -96,43 +95,83 @@ function openDownloadSheet(anime) {
   const titleEl = sheet.querySelector('#dlSheetTitle');
   const backBtn = sheet.querySelector('#dlSheetBack');
 
-  // ★ جمع‌آوری اپیزودها از ساختار جدید (seasons) یا قدیمی (episodes)
-  const seasons = anime.seasons || [];
-  const allEpisodes = getAllEpisodes(anime);
+  const seasons = anime.seasons || [{
+    seasonNumber: 1,
+    title: 'Season 1',
+    episodes: anime.episodes || []
+  }];
+  const hasMultipleSeasons = seasons.length > 1;
 
-  /* ---------- Step 1: Episodes ---------- */
-  function renderEpisodes(withLoading = true) {
+  let currentSeason = null;
+
+  /* ---------- STEP 1: Seasons (اگه چند فصل داره) ---------- */
+  function renderSeasons() {
     backBtn.style.display = 'none';
     titleEl.textContent = anime.title;
 
-    let episodesHTML = '';
+    body.innerHTML = `
+      <div class="dl-loading">
+        <div class="dl-loading-spinner"></div>
+        <div class="dl-loading-text">Loading seasons...</div>
+      </div>
+    `;
 
-    if (seasons.length > 1) {
-      // ★ اگه چند فصل: برای هر فصل یه بخش جدا
-      episodesHTML = seasons.map(season => `
-        <div class="download-sheet-subtitle" style="margin-top:14px;">
-          ${season.title || `Season ${season.seasonNumber}`}
-        </div>
+    setTimeout(() => {
+      body.innerHTML = `
+        <div class="download-sheet-subtitle">Select Season</div>
         <div class="download-ep-list">
-          ${season.episodes.map(ep => `
-            <button class="download-ep-item" data-season="${season.seasonNumber}" data-ep="${ep.num}">
-              <div class="download-ep-num">S${season.seasonNumber}·E${String(ep.num).padStart(2,'0')}</div>
+          ${seasons.map(s => `
+            <button class="download-ep-item" data-season="${s.seasonNumber}">
+              <div class="download-ep-num">S${s.seasonNumber}</div>
               <div class="download-ep-info">
-                <div class="download-ep-name">${ep.title}</div>
-                <div class="download-ep-dur">${ep.duration || '24:00'}</div>
+                <div class="download-ep-name">${s.title || `Season ${s.seasonNumber}`}</div>
+                <div class="download-ep-dur">${s.episodes.length} Episodes</div>
               </div>
               <svg class="icon icon-md download-ep-arrow"><use href="#ico-chevron-r"/></svg>
             </button>
           `).join('')}
         </div>
-      `).join('');
-    } else {
-      // ★ یه فصل
-      episodesHTML = `
+      `;
+
+      body.querySelectorAll('.download-ep-item').forEach(item => {
+        item.onclick = (e) => {
+          e.stopPropagation();
+          const seasonNum = parseInt(item.dataset.season);
+          currentSeason = seasons.find(s => s.seasonNumber === seasonNum);
+          renderEpisodes();
+        };
+      });
+    }, 350);
+  }
+
+  /* ---------- STEP 2: Episodes ---------- */
+  function renderEpisodes() {
+    if (!currentSeason) return;
+
+    // دکمه back: اگه چند فصل داره، برگرده به لیست فصل‌ها
+    backBtn.style.display = hasMultipleSeasons ? 'flex' : 'none';
+    backBtn.onclick = (e) => {
+      e.stopPropagation();
+      if (hasMultipleSeasons) renderSeasons();
+    };
+
+    titleEl.textContent = hasMultipleSeasons
+      ? (currentSeason.title || `Season ${currentSeason.seasonNumber}`)
+      : anime.title;
+
+    body.innerHTML = `
+      <div class="dl-loading">
+        <div class="dl-loading-spinner"></div>
+        <div class="dl-loading-text">Loading episodes...</div>
+      </div>
+    `;
+
+    setTimeout(() => {
+      body.innerHTML = `
         <div class="download-sheet-subtitle">Select Episode</div>
         <div class="download-ep-list">
-          ${allEpisodes.map(ep => `
-            <button class="download-ep-item" data-season="${ep.seasonNumber || 1}" data-ep="${ep.num}">
+          ${currentSeason.episodes.map(ep => `
+            <button class="download-ep-item" data-ep="${ep.num}">
               <div class="download-ep-num">EP ${String(ep.num).padStart(2,'0')}</div>
               <div class="download-ep-info">
                 <div class="download-ep-name">${ep.title}</div>
@@ -143,52 +182,28 @@ function openDownloadSheet(anime) {
           `).join('')}
         </div>
       `;
-    }
 
-    const bindEpisodes = () => {
       body.querySelectorAll('.download-ep-item').forEach(item => {
         item.onclick = (e) => {
           e.stopPropagation();
           const num = parseInt(item.dataset.ep);
-          const seasonNum = parseInt(item.dataset.season) || 1;
-
-          let ep = null;
-          if (seasons.length > 0) {
-            const s = seasons.find(x => x.seasonNumber === seasonNum);
-            if (s) ep = s.episodes.find(x => x.num === num);
-          } else {
-            ep = allEpisodes.find(x => x.num === num);
-          }
-
-          if (ep) renderQualities(ep, seasonNum);
+          const ep = currentSeason.episodes.find(x => x.num === num);
+          if (ep) renderQualities(ep);
         };
       });
-    };
-
-    if (!withLoading) {
-      body.innerHTML = episodesHTML;
-      bindEpisodes();
-      return;
-    }
-
-    body.innerHTML = `
-      <div class="dl-loading">
-        <div class="dl-loading-spinner"></div>
-        <div class="dl-loading-text">Loading episodes...</div>
-      </div>
-    `;
-
-    setTimeout(() => {
-      body.innerHTML = episodesHTML;
-      bindEpisodes();
-    }, 400);
+    }, 350);
   }
 
-  /* ---------- Step 2: Qualities ---------- */
-  function renderQualities(ep, seasonNum) {
+  /* ---------- STEP 3: Qualities ---------- */
+  function renderQualities(ep) {
     backBtn.style.display = 'flex';
-    const titleText = seasonNum && seasons.length > 1
-      ? `S${seasonNum} · Episode ${ep.num}`
+    backBtn.onclick = (e) => {
+      e.stopPropagation();
+      renderEpisodes();
+    };
+
+    const titleText = hasMultipleSeasons
+      ? `S${currentSeason.seasonNumber} · Episode ${ep.num}`
       : `Episode ${ep.num}`;
     titleEl.textContent = titleText;
 
@@ -221,14 +236,8 @@ function openDownloadSheet(anime) {
           `).join('')}
         </div>
       `;
-    }, 400);
+    }, 350);
   }
-
-  /* ---------- Back Button ---------- */
-  backBtn.onclick = (e) => {
-    e.stopPropagation();
-    renderEpisodes(false);
-  };
 
   /* ---------- Close Button ---------- */
   sheet.querySelector('#dlSheetClose').onclick = (e) => {
@@ -236,8 +245,13 @@ function openDownloadSheet(anime) {
     closeDownloadSheet();
   };
 
-  /* ---------- Start with Episodes ---------- */
-  renderEpisodes(true);
+  /* ---------- Start ---------- */
+  if (hasMultipleSeasons) {
+    renderSeasons();
+  } else {
+    currentSeason = seasons[0];
+    renderEpisodes();
+  }
 
   requestAnimationFrame(() => {
     overlay.classList.add('show');

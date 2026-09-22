@@ -6,6 +6,8 @@ const EP_THUMB_SPARKS = "https://intocdn.top/wp-content/uploads/2026/07/eImcA39c
 const EP_THUMB_BLACKTORCH = "https://intocdn.top/wp-content/uploads/2026/07/ceirDIa8QgeeiFKFnLcQpfAH5V7.jpg";
 const EP_THUMB_KAIJU = "https://intocdn.top/wp-content/uploads/2026/07/vvbIW2xspYigrgTHTmTSzVDgfKl.jpg";
 const EP_THUMB_DANDADAN = "https://intocdn.top/wp-content/uploads/2024/11/jlbUx0aHJupDVDlCo0R7UxSaUUd.jpg";
+const EP_THUMB_LOVE_UNSEEN = "https://intocdn.top/wp-content/uploads/2026/07/9MkO2Mx43V2znUzRNHjPRkLBZgk.jpg";
+const EP_THUMB_TOMB_RAIDER = "https://intocdn.top/wp-content/uploads/2026/07/xDW6cor12UD0b2IqboQWnrIn0UO-360x480.jpg";
 
 export const ANIME_DATA = [
   /* ============================================
@@ -551,6 +553,236 @@ export const ANIME_DATA = [
         ]
       }
     ]
+  },
+
+  /* ============================================
+     ANIME 5 — Love Unseen Beneath the Clear Night Sky
+  ============================================ */
+  {
+    id: 5,
+    title: "Love Unseen Beneath the Clear Night Sky",
+    jp: "透明な夜に駆ける君",
+    score: 8.3, year: 2026, type: "TV", status: "Finished",
+    eps: 12, episodesAired: 12,
+    genres: ["Romance", "Drama", "Supernatural"],
+    img: "https://intocdn.top/wp-content/uploads/2026/07/Love-Unseen-Beneath-the-Clear-Night-Sky-visual-360x480.jpg",
+    backdrop: "https://intocdn.top/wp-content/uploads/2026/07/9MkO2Mx43V2znUzRNHjPRkLBZgk.jpg",
+    description: "A touching romance about a girl who can see things others cannot, and a boy who is invisible to the world. Beneath the clear night sky, their two lonely worlds collide.",
+    studio: "Bones", duration: "24 min",
+    seasons: [
+      {
+        seasonNumber: 1, title: "Season 1", episodesAired: 12,
+        episodes: [
+          { num: 1, title: "Episode 1", duration: "24:00", img: EP_THUMB_LOVE_UNSEEN,
+            videoUrl: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Toumei.na.Yoru.ni.Kakeru.Kimi/Toumei.na.Yoru.ni.Kakeru.Kimi.S01E01.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv",
+            qualities: [
+              { label: "1080p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Toumei.na.Yoru.ni.Kakeru.Kimi/Toumei.na.Yoru.ni.Kakeru.Kimi.S01E01.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+              { label: "720p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Toumei.na.Yoru.ni.Kakeru.Kimi/Toumei.na.Yoru.ni.Kakeru.Kimi.S01E01.720p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+              { label: "480p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Toumei.na.Yoru.ni.Kakeru.Kimi/Toumei.na.Yoru.ni.Kakeru.Kimi.S01E01.mkv" }
+            ]
+          },
+          { num: 2, title: "Episode 2", duration: "24:00", img: EP_THUMB_LOVE_UNSEEN,
+            videoUrl: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Toumei.na.Yoru.ni.Kakeru.Kimi/Toumei.na.Yoru.ni.Kakeru.Kimi.S01E02.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv",
+            qualities: [
+              { label: "1080p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Toumei.na.Yoru.ni.Kakeru.Kimi/Toumei.na.Yoru.ni.Kakeru.Kimi.S01E02.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+              { label: "720p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Toumei.na.Yoru.ni.Kakeru.Kimi/Toumei.na.Yoru.ni.Kakeru.Kimi.S01E02.720p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+              { label: "480p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Toumei.na.Yoru.ni.Kakeru.Kimi/Toumei.na.Yoru.ni.Kakeru.Kimi.S01E02.mkv" }
+            ]
+          },
+          { num: 3, title: "Episode 3", duration: "24:00", img: EP_THUMB_LOVE_UNSEEN,
+            videoUrl: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Toumei.na.Yoru.ni.Kakeru.Kimi/Toumei.na.Yoru.ni.Kakeru.Kimi.S01E03.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv",
+            qualities: [
+              { label: "1080p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Toumei.na.Yoru.ni.Kakeru.Kimi/Toumei.na.Yoru.ni.Kakeru.Kimi.S01E03.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+              { label: "720p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Toumei.na.Yoru.ni.Kakeru.Kimi/Toumei.na.Yoru.ni.Kakeru.Kimi.S01E03.720p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+              { label: "480p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Toumei.na.Yoru.ni.Kakeru.Kimi/Toumei.na.Yoru.ni.Kakeru.Kimi.S01E03.mkv" }
+            ]
+          },
+          { num: 4, title: "Episode 4", duration: "24:00", img: EP_THUMB_LOVE_UNSEEN,
+            videoUrl: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Toumei.na.Yoru.ni.Kakeru.Kimi/Toumei.na.Yoru.ni.Kakeru.Kimi.S01E04.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv",
+            qualities: [
+              { label: "1080p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Toumei.na.Yoru.ni.Kakeru.Kimi/Toumei.na.Yoru.ni.Kakeru.Kimi.S01E04.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+              { label: "720p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Toumei.na.Yoru.ni.Kakeru.Kimi/Toumei.na.Yoru.ni.Kakeru.Kimi.S01E04.720p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+              { label: "480p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Toumei.na.Yoru.ni.Kakeru.Kimi/Toumei.na.Yoru.ni.Kakeru.Kimi.S01E04.mkv" }
+            ]
+          },
+          { num: 5, title: "Episode 5", duration: "24:00", img: EP_THUMB_LOVE_UNSEEN,
+            videoUrl: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Toumei.na.Yoru.ni.Kakeru.Kimi/Toumei.na.Yoru.ni.Kakeru.Kimi.S01E05.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv",
+            qualities: [
+              { label: "1080p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Toumei.na.Yoru.ni.Kakeru.Kimi/Toumei.na.Yoru.ni.Kakeru.Kimi.S01E05.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+              { label: "720p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Toumei.na.Yoru.ni.Kakeru.Kimi/Toumei.na.Yoru.ni.Kakeru.Kimi.S01E05.720p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+              { label: "480p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Toumei.na.Yoru.ni.Kakeru.Kimi/Toumei.na.Yoru.ni.Kakeru.Kimi.S01E05.mkv" }
+            ]
+          },
+          { num: 6, title: "Episode 6", duration: "24:00", img: EP_THUMB_LOVE_UNSEEN,
+            videoUrl: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Toumei.na.Yoru.ni.Kakeru.Kimi/Toumei.na.Yoru.ni.Kakeru.Kimi.S01E06.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv",
+            qualities: [
+              { label: "1080p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Toumei.na.Yoru.ni.Kakeru.Kimi/Toumei.na.Yoru.ni.Kakeru.Kimi.S01E06.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+              { label: "720p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Toumei.na.Yoru.ni.Kakeru.Kimi/Toumei.na.Yoru.ni.Kakeru.Kimi.S01E06.720p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+              { label: "480p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Toumei.na.Yoru.ni.Kakeru.Kimi/Toumei.na.Yoru.ni.Kakeru.Kimi.S01E06.mkv" }
+            ]
+          },
+          { num: 7, title: "Episode 7", duration: "24:00", img: EP_THUMB_LOVE_UNSEEN,
+            videoUrl: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Toumei.na.Yoru.ni.Kakeru.Kimi/Toumei.na.Yoru.ni.Kakeru.Kimi.S01E07.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv",
+            qualities: [
+              { label: "1080p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Toumei.na.Yoru.ni.Kakeru.Kimi/Toumei.na.Yoru.ni.Kakeru.Kimi.S01E07.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+              { label: "720p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Toumei.na.Yoru.ni.Kakeru.Kimi/Toumei.na.Yoru.ni.Kakeru.Kimi.S01E07.720p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+              { label: "480p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Toumei.na.Yoru.ni.Kakeru.Kimi/Toumei.na.Yoru.ni.Kakeru.Kimi.S01E07.mkv" }
+            ]
+          },
+          { num: 8, title: "Episode 8", duration: "24:00", img: EP_THUMB_LOVE_UNSEEN,
+            videoUrl: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Toumei.na.Yoru.ni.Kakeru.Kimi/Toumei.na.Yoru.ni.Kakeru.Kimi.S01E08.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv",
+            qualities: [
+              { label: "1080p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Toumei.na.Yoru.ni.Kakeru.Kimi/Toumei.na.Yoru.ni.Kakeru.Kimi.S01E08.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+              { label: "720p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Toumei.na.Yoru.ni.Kakeru.Kimi/Toumei.na.Yoru.ni.Kakeru.Kimi.S01E08.720p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+              { label: "480p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Toumei.na.Yoru.ni.Kakeru.Kimi/Toumei.na.Yoru.ni.Kakeru.Kimi.S01E08.mkv" }
+            ]
+          },
+          { num: 9, title: "Episode 9", duration: "24:00", img: EP_THUMB_LOVE_UNSEEN,
+            videoUrl: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Toumei.na.Yoru.ni.Kakeru.Kimi/Toumei.na.Yoru.ni.Kakeru.Kimi.S01E09.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv",
+            qualities: [
+              { label: "1080p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Toumei.na.Yoru.ni.Kakeru.Kimi/Toumei.na.Yoru.ni.Kakeru.Kimi.S01E09.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+              { label: "720p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Toumei.na.Yoru.ni.Kakeru.Kimi/Toumei.na.Yoru.ni.Kakeru.Kimi.S01E09.720p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+              { label: "480p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Toumei.na.Yoru.ni.Kakeru.Kimi/Toumei.na.Yoru.ni.Kakeru.Kimi.S01E09.mkv" }
+            ]
+          },
+          { num: 10, title: "Episode 10", duration: "24:00", img: EP_THUMB_LOVE_UNSEEN,
+            videoUrl: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Toumei.na.Yoru.ni.Kakeru.Kimi/Toumei.na.Yoru.ni.Kakeru.Kimi.S01E10.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv",
+            qualities: [
+              { label: "1080p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Toumei.na.Yoru.ni.Kakeru.Kimi/Toumei.na.Yoru.ni.Kakeru.Kimi.S01E10.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+              { label: "720p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Toumei.na.Yoru.ni.Kakeru.Kimi/Toumei.na.Yoru.ni.Kakeru.Kimi.S01E10.720p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+              { label: "480p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Toumei.na.Yoru.ni.Kakeru.Kimi/Toumei.na.Yoru.ni.Kakeru.Kimi.S01E10.mkv" }
+            ]
+          },
+          { num: 11, title: "Episode 11", duration: "24:00", img: EP_THUMB_LOVE_UNSEEN,
+            videoUrl: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Toumei.na.Yoru.ni.Kakeru.Kimi/Toumei.na.Yoru.ni.Kakeru.Kimi.S01E11.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv",
+            qualities: [
+              { label: "1080p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Toumei.na.Yoru.ni.Kakeru.Kimi/Toumei.na.Yoru.ni.Kakeru.Kimi.S01E11.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+              { label: "720p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Toumei.na.Yoru.ni.Kakeru.Kimi/Toumei.na.Yoru.ni.Kakeru.Kimi.S01E11.720p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+              { label: "480p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Toumei.na.Yoru.ni.Kakeru.Kimi/Toumei.na.Yoru.ni.Kakeru.Kimi.S01E11.mkv" }
+            ]
+          },
+          { num: 12, title: "Episode 12", duration: "24:00", img: EP_THUMB_LOVE_UNSEEN,
+            videoUrl: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Toumei.na.Yoru.ni.Kakeru.Kimi/Toumei.na.Yoru.ni.Kakeru.Kimi.S01E12.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv",
+            qualities: [
+              { label: "1080p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Toumei.na.Yoru.ni.Kakeru.Kimi/Toumei.na.Yoru.ni.Kakeru.Kimi.S01E12.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+              { label: "720p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Toumei.na.Yoru.ni.Kakeru.Kimi/Toumei.na.Yoru.ni.Kakeru.Kimi.S01E12.720p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+              { label: "480p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Toumei.na.Yoru.ni.Kakeru.Kimi/Toumei.na.Yoru.ni.Kakeru.Kimi.S01E12.mkv" }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+
+  /* ============================================
+     ANIME 6 — Tomb Raider King
+  ============================================ */
+  {
+    id: 6,
+    title: "Tomb Raider King",
+    jp: "도굴왕",
+    score: 8.1, year: 2026, type: "TV", status: "Finished",
+    eps: 11, episodesAired: 11,
+    genres: ["Action", "Adventure", "Fantasy"],
+    img: "https://intocdn.top/wp-content/uploads/2026/07/wK1SL5EUJ6Bq2UhDCRtT1FA1HdN.jpg",
+    backdrop: "https://intocdn.top/wp-content/uploads/2026/07/xDW6cor12UD0b2IqboQWnrIn0UO-360x480.jpg",
+    description: "A legendary tomb raider is reborn with the power to steal the abilities of ancient relics. His quest for revenge begins as he plunders tombs to become the strongest.",
+    studio: "Bones", duration: "24 min",
+    seasons: [
+      {
+        seasonNumber: 1, title: "Season 1", episodesAired: 11,
+        episodes: [
+          { num: 1, title: "Episode 1", duration: "24:00", img: EP_THUMB_TOMB_RAIDER,
+            videoUrl: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Dogulwang/Dogulwang.S01E01.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv",
+            qualities: [
+              { label: "1080p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Dogulwang/Dogulwang.S01E01.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+              { label: "720p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Dogulwang/Dogulwang.S01E01.720p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+              { label: "480p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Dogulwang/Dogulwang.S01E01.mkv" }
+            ]
+          },
+          { num: 2, title: "Episode 2", duration: "24:00", img: EP_THUMB_TOMB_RAIDER,
+            videoUrl: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Dogulwang/Dogulwang.S01E02.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv",
+            qualities: [
+              { label: "1080p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Dogulwang/Dogulwang.S01E02.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+              { label: "720p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Dogulwang/Dogulwang.S01E02.720p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+              { label: "480p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Dogulwang/Dogulwang.S01E02.mkv" }
+            ]
+          },
+          { num: 3, title: "Episode 3", duration: "24:00", img: EP_THUMB_TOMB_RAIDER,
+            videoUrl: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Dogulwang/Dogulwang.S01E03.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv",
+            qualities: [
+              { label: "1080p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Dogulwang/Dogulwang.S01E03.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+              { label: "720p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Dogulwang/Dogulwang.S01E03.720p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+              { label: "480p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Dogulwang/Dogulwang.S01E03.mkv" }
+            ]
+          },
+          { num: 4, title: "Episode 4", duration: "24:00", img: EP_THUMB_TOMB_RAIDER,
+            videoUrl: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Dogulwang/Dogulwang.S01E04.1080p.WEB-DL.Farsi.Sub.Film2Media.New.mkv",
+            qualities: [
+              { label: "1080p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Dogulwang/Dogulwang.S01E04.1080p.WEB-DL.Farsi.Sub.Film2Media.New.mkv" },
+              { label: "720p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Dogulwang/Dogulwang.S01E04.720p.WEB-DL.Farsi.Sub.Film2Media.New.mkv" },
+              { label: "480p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Dogulwang/Dogulwang.S01E04.New.mkv" }
+            ]
+          },
+          { num: 5, title: "Episode 5", duration: "24:00", img: EP_THUMB_TOMB_RAIDER,
+            videoUrl: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Dogulwang/Dogulwang.S01E05.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv",
+            qualities: [
+              { label: "1080p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Dogulwang/Dogulwang.S01E05.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+              { label: "720p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Dogulwang/Dogulwang.S01E05.720p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+              { label: "480p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Dogulwang/Dogulwang.S01E05.mkv" }
+            ]
+          },
+          { num: 6, title: "Episode 6", duration: "24:00", img: EP_THUMB_TOMB_RAIDER,
+            videoUrl: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Dogulwang/Dogulwang.S01E06.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv",
+            qualities: [
+              { label: "1080p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Dogulwang/Dogulwang.S01E06.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+              { label: "720p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Dogulwang/Dogulwang.S01E06.720p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+              { label: "480p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Dogulwang/Dogulwang.S01E06.mkv" }
+            ]
+          },
+          { num: 7, title: "Episode 7", duration: "24:00", img: EP_THUMB_TOMB_RAIDER,
+            videoUrl: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Dogulwang/Dogulwang.S01E07.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv",
+            qualities: [
+              { label: "1080p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Dogulwang/Dogulwang.S01E07.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+              { label: "720p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Dogulwang/Dogulwang.S01E07.720p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+              { label: "480p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Dogulwang/Dogulwang.S01E07.mkv" }
+            ]
+          },
+          { num: 8, title: "Episode 8", duration: "24:00", img: EP_THUMB_TOMB_RAIDER,
+            videoUrl: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Dogulwang/Dogulwang.S01E08.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv",
+            qualities: [
+              { label: "1080p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Dogulwang/Dogulwang.S01E08.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+              { label: "720p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Dogulwang/Dogulwang.S01E08.720p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+              { label: "480p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Dogulwang/Dogulwang.S01E08.mkv" }
+            ]
+          },
+          { num: 9, title: "Episode 9", duration: "24:00", img: EP_THUMB_TOMB_RAIDER,
+            videoUrl: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Dogulwang/Dogulwang.S01E09.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv",
+            qualities: [
+              { label: "1080p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Dogulwang/Dogulwang.S01E09.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+              { label: "720p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Dogulwang/Dogulwang.S01E09.720p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+              { label: "480p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Dogulwang/Dogulwang.S01E09.mkv" }
+            ]
+          },
+          { num: 10, title: "Episode 10", duration: "24:00", img: EP_THUMB_TOMB_RAIDER,
+            videoUrl: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Dogulwang/Dogulwang.S01E10.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv",
+            qualities: [
+              { label: "1080p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Dogulwang/Dogulwang.S01E10.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+              { label: "720p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Dogulwang/Dogulwang.S01E10.720p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+              { label: "480p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Dogulwang/Dogulwang.S01E10.mkv" }
+            ]
+          },
+          { num: 11, title: "Episode 11", duration: "24:00", img: EP_THUMB_TOMB_RAIDER,
+            videoUrl: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Dogulwang/Dogulwang.S01E11.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv",
+            qualities: [
+              { label: "1080p", url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Dogulwang/Dogulwang.S01E11.1080p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+              { label: "720p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Dogulwang/Dogulwang.S01E11.720p.WEB-DL.Farsi.Sub.Film2Media.mkv" },
+              { label: "480p",  url: "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Dogulwang/Dogulwang.S01E11.mkv" }
+            ]
+          }
+        ]
+      }
+    ]
   }
 ];
 
@@ -601,7 +833,9 @@ export const CONTINUE_WATCHING = [
   { animeId: 1, seasonNumber: 1, epNum: 1, title: "Sparks of Tomorrow", ep: "S1 E01", progress: 0, timeLeft: "24 min", img: EP_THUMB_SPARKS },
   { animeId: 2, seasonNumber: 1, epNum: 1, title: "Black Torch", ep: "S1 E01", progress: 0, timeLeft: "24 min", img: EP_THUMB_BLACKTORCH },
   { animeId: 3, seasonNumber: 1, epNum: 1, title: "Kaiju Girl Caramelise", ep: "S1 E01", progress: 0, timeLeft: "24 min", img: EP_THUMB_KAIJU },
-  { animeId: 4, seasonNumber: 1, epNum: 1, title: "Dandadan", ep: "S1 E01", progress: 0, timeLeft: "24 min", img: EP_THUMB_DANDADAN }
+  { animeId: 4, seasonNumber: 1, epNum: 1, title: "Dandadan", ep: "S1 E01", progress: 0, timeLeft: "24 min", img: EP_THUMB_DANDADAN },
+  { animeId: 5, seasonNumber: 1, epNum: 1, title: "Love Unseen Beneath the Clear Night Sky", ep: "S1 E01", progress: 0, timeLeft: "24 min", img: EP_THUMB_LOVE_UNSEEN },
+  { animeId: 6, seasonNumber: 1, epNum: 1, title: "Tomb Raider King", ep: "S1 E01", progress: 0, timeLeft: "24 min", img: EP_THUMB_TOMB_RAIDER }
 ];
 
 /* --------------------------------------------

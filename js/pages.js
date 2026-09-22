@@ -433,6 +433,10 @@ export function renderDetailEpisodes(anime, seasonNumber) {
   if (recommendedGrid) {
     const currentGenres = anime.genres || [];
 
+    // ★ فقط توی موبایل: حداکثر ۹ کارت (۳×۳) | دسکتاپ: ۱۲ کارت
+    const isMobile = window.matchMedia('(max-width: 768px)').matches;
+    const maxCards = isMobile ? 9 : 12;
+
     const scored = ANIME_DATA
       .filter(a => a.id !== anime.id)
       .map(a => {
@@ -444,7 +448,7 @@ export function renderDetailEpisodes(anime, seasonNumber) {
         if (b.score !== a.score) return b.score - a.score;
         return b.anime.score - a.anime.score;
       })
-      .slice(0, 12);
+      .slice(0, maxCards);
 
     if (scored.length === 0) {
       recommendedGrid.innerHTML = '<p style="color:var(--text-muted);font-size:13px;">No recommendations available.</p>';

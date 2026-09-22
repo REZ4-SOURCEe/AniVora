@@ -642,8 +642,7 @@
   width: 158px;
   flex-shrink: 0;
 }
-
-/* ★ موبایل */
+/* ★ موبایل — کارت‌های Recommended: ۳ تا در هر ردیف */
 @media (max-width: 768px) {
   .detail-about-title,
   .detail-recommended-title {
@@ -655,10 +654,71 @@
     line-height: 1.75;
   }
   .detail-recommended-grid {
-    gap: 12px;
+    gap: 8px;
   }
   .detail-recommended-grid .anime-card {
-    width: calc(50% - 6px);
-    max-width: 180px;
+    width: calc(33.333% - 6px);
+    max-width: none;
+    flex-shrink: 0;
+  }
+/* ★ موبایل — کارت‌های Recommended: ۳ تا در هر ردیف */
+@media (max-width: 768px) {
+  .detail-about-title,
+  .detail-recommended-title {
+    font-size: 14px;
+    margin-bottom: 12px;
+  }
+  .detail-about-text {
+    font-size: 13px;
+    line-height: 1.75;
+  }
+  .detail-recommended-grid {
+    gap: 8px;
+  }
+  .detail-recommended-grid .anime-card {
+    width: calc(33.333% - 6px);
+    max-width: none;
+    flex-shrink: 0;
+  }
+
+  /* متن‌های کارت متناسب با اندازه کوچیک‌تر */
+  .detail-recommended-grid .anime-card .card-body {
+    padding: 6px;
+  }
+
+  /* ★ عنوان فقط یک خط با ... */
+  .detail-recommended-grid .anime-card .card-title {
+    font-size: 11px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+    -webkit-line-clamp: unset;
+    -webkit-box-orient: unset;
+    margin-bottom: 4px;
+  }
+
+  .detail-recommended-grid .anime-card .card-meta-item {
+    font-size: 9.5px;
+  }
+  .detail-recommended-grid .anime-card .status-badge {
+    font-size: 8px !important;
+    padding: 1px 4px !important;
+  }
+  .detail-recommended-grid .anime-card .card-genres {
+    gap: 3px;
+    margin-top: 4px;
+  }
+  .detail-recommended-grid .anime-card .card-genre-tag {
+    font-size: 8.5px;
+    padding: 1px 4px;
+  }
+  .detail-recommended-grid .anime-card .card-score {
+    font-size: 9.5px;
+    padding: 2px 5px;
+  }
+  .detail-recommended-grid .anime-card .card-type {
+    font-size: 9px;
+    padding: 1px 5px;
   }
 }
