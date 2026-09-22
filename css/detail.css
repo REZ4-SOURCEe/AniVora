@@ -1,8 +1,5 @@
 /* ============================================
    ANIVORA — DETAIL PAGE
-   detail-backdrop, detail-top, poster, info,
-   stats, genres, actions, description, tabs,
-   season block, episodes-grid
 ============================================ */
 
 /* ============================================
@@ -221,22 +218,6 @@
 .season-block {
   margin-bottom: 28px;
 }
-.season-title {
-  font-size: 15px;
-  font-weight: 700;
-  margin-bottom: 12px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.season-count-badge {
-  font-size: 11px;
-  background: var(--bg-elevated);
-  color: var(--text-muted);
-  padding: 2px 8px;
-  border-radius: 20px;
-  font-weight: 500;
-}
 
 /* ============================================
    EPISODES GRID
@@ -401,42 +382,6 @@
 }
 
 /* ============================================
-   EPISODE THUMBNAILS (Detail Page)
-============================================ */
-.ep-thumb {
-  width: 90px;
-  height: 52px;
-  border-radius: 6px;
-  overflow: hidden;
-  flex-shrink: 0;
-  position: relative;
-  background: var(--bg-elevated);
-}
-.ep-thumb img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-  position: absolute;
-  inset: 0;
-}
-.ep-play {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(10,10,15,0.55);
-  opacity: 0;
-  transition: var(--transition);
-  color: #fff;
-  z-index: 2;
-}
-.episode-row:hover .ep-play {
-  opacity: 1;
-}
-
-/* ============================================
    SIDEBAR EPISODE THUMBNAILS (Watch Page)
 ============================================ */
 .sidebar-ep-thumb {
@@ -482,4 +427,157 @@
 }
 .up-next-thumb svg {
   color: var(--text-muted);
+}
+
+/* ============================================
+   SEASON DROPDOWN
+============================================ */
+.season-header-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.season-dropdown {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.season-dropdown-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-hover);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+  min-width: 140px;
+  justify-content: space-between;
+  height: 44px;
+}
+.season-dropdown-btn:hover {
+  background: var(--bg-elevated);
+  border-color: var(--accent);
+}
+
+.season-chevron {
+  color: var(--text-muted);
+  transform: rotate(90deg);
+  transition: transform 0.2s ease;
+}
+.season-dropdown.open .season-chevron {
+  transform: rotate(-90deg);
+  color: var(--accent);
+}
+.season-dropdown.open .season-dropdown-btn {
+  border-color: var(--accent);
+  background: var(--bg-elevated);
+}
+
+.season-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  min-width: 180px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-hover);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-modal);
+  padding: 6px;
+  z-index: 100;
+  display: none;
+  animation: fadeUp 0.15s ease both;
+  max-height: 320px;
+  overflow-y: auto;
+}
+.season-dropdown.open .season-dropdown-menu {
+  display: block;
+}
+
+.season-dropdown-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--text-primary);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: var(--transition);
+}
+.season-dropdown-item:hover {
+  background: var(--bg-elevated);
+  color: var(--accent);
+}
+.season-dropdown-item.active {
+  background: var(--accent-dim);
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.season-dropdown-item .season-ep-count {
+  font-size: 11px;
+  color: var(--text-muted);
+  background: var(--bg-elevated);
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-weight: 600;
+}
+.season-dropdown-item.active .season-ep-count {
+  background: rgba(108,99,255,0.2);
+  color: var(--accent);
+}
+
+/* ★ badge مربع کوچیک کنار dropdown */
+.season-count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
+  border: 1px solid var(--border-hover);
+  color: var(--text-primary);
+  font-size: 15px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  flex-shrink: 0;
+  text-align: center;
+}
+
+/* ★ موبایل */
+@media (max-width: 768px) {
+  .season-header-row {
+    gap: 8px;
+  }
+  .season-dropdown-btn {
+    padding: 8px 14px;
+    font-size: 13px;
+    min-width: 120px;
+    height: 40px;
+  }
+  .season-dropdown-item {
+    padding: 9px 11px;
+    font-size: 13px;
+  }
+  .season-count-badge {
+    width: 40px;
+    height: 40px;
+    font-size: 14px;
+  }
 }

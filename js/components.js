@@ -4,7 +4,7 @@
 ============================================ */
 
 import { isInList, toggleList, formatTime, showToast } from './core.js';
-import { ANIME_DATA } from './data.js';
+import { ANIME_DATA, getAllEpisodes, getTotalEpisodes } from './data.js';
 
 /* ============================================
    CARD RENDERER
@@ -13,6 +13,7 @@ export function renderAnimeCard(a) {
   const sc = a.status === 'Airing' ? 'status-airing'
            : a.status === 'Upcoming' ? 'status-upcoming'
            : 'status-finished';
+  const totalEps = getTotalEpisodes(a);
   return `
     <div class="anime-card" onclick="openAnimeDetail(${a.id})">
       <div class="card-poster">
@@ -30,7 +31,7 @@ export function renderAnimeCard(a) {
           <span class="card-meta-item">${a.year}</span>
           <span class="status-badge ${sc}" style="font-size:9px;padding:1px 5px;">${a.status}</span>
         </div>
-        <div class="card-meta" style="margin-top:2px;"><span class="card-meta-item">${a.eps} eps</span></div>
+        <div class="card-meta" style="margin-top:2px;"><span class="card-meta-item">${totalEps} eps</span></div>
         <div class="card-genres">${a.genres.slice(0,2).map(g => `<span class="card-genre-tag">${g}</span>`).join('')}</div>
       </div>
     </div>`;
@@ -43,6 +44,7 @@ export function populateSection(id, data) {
 
 /* ============================================
    DOWNLOAD SHEET (Episodes → Qualities)
+   ★ پشتیبانی از فصل‌ها
 ============================================ */
 export function toggleDownloadMenu(e, animeId, epNum) {
   if (e) e.stopPropagation();
@@ -94,34 +96,71 @@ function openDownloadSheet(anime) {
   const titleEl = sheet.querySelector('#dlSheetTitle');
   const backBtn = sheet.querySelector('#dlSheetBack');
 
+  // ★ جمع‌آوری اپیزودها از ساختار جدید (seasons) یا قدیمی (episodes)
+  const seasons = anime.seasons || [];
+  const allEpisodes = getAllEpisodes(anime);
+
   /* ---------- Step 1: Episodes ---------- */
   function renderEpisodes(withLoading = true) {
     backBtn.style.display = 'none';
     titleEl.textContent = anime.title;
 
-    const episodesHTML = `
-      <div class="download-sheet-subtitle">Select Episode</div>
-      <div class="download-ep-list">
-        ${anime.episodes.map(ep => `
-          <button class="download-ep-item" data-ep="${ep.num}">
-            <div class="download-ep-num">EP ${String(ep.num).padStart(2,'0')}</div>
-            <div class="download-ep-info">
-              <div class="download-ep-name">${ep.title}</div>
-              <div class="download-ep-dur">${ep.duration || '24:00'}</div>
-            </div>
-            <svg class="icon icon-md download-ep-arrow"><use href="#ico-chevron-r"/></svg>
-          </button>
-        `).join('')}
-      </div>
-    `;
+    let episodesHTML = '';
+
+    if (seasons.length > 1) {
+      // ★ اگه چند فصل: برای هر فصل یه بخش جدا
+      episodesHTML = seasons.map(season => `
+        <div class="download-sheet-subtitle" style="margin-top:14px;">
+          ${season.title || `Season ${season.seasonNumber}`}
+        </div>
+        <div class="download-ep-list">
+          ${season.episodes.map(ep => `
+            <button class="download-ep-item" data-season="${season.seasonNumber}" data-ep="${ep.num}">
+              <div class="download-ep-num">S${season.seasonNumber}·E${String(ep.num).padStart(2,'0')}</div>
+              <div class="download-ep-info">
+                <div class="download-ep-name">${ep.title}</div>
+                <div class="download-ep-dur">${ep.duration || '24:00'}</div>
+              </div>
+              <svg class="icon icon-md download-ep-arrow"><use href="#ico-chevron-r"/></svg>
+            </button>
+          `).join('')}
+        </div>
+      `).join('');
+    } else {
+      // ★ یه فصل
+      episodesHTML = `
+        <div class="download-sheet-subtitle">Select Episode</div>
+        <div class="download-ep-list">
+          ${allEpisodes.map(ep => `
+            <button class="download-ep-item" data-season="${ep.seasonNumber || 1}" data-ep="${ep.num}">
+              <div class="download-ep-num">EP ${String(ep.num).padStart(2,'0')}</div>
+              <div class="download-ep-info">
+                <div class="download-ep-name">${ep.title}</div>
+                <div class="download-ep-dur">${ep.duration || '24:00'}</div>
+              </div>
+              <svg class="icon icon-md download-ep-arrow"><use href="#ico-chevron-r"/></svg>
+            </button>
+          `).join('')}
+        </div>
+      `;
+    }
 
     const bindEpisodes = () => {
       body.querySelectorAll('.download-ep-item').forEach(item => {
         item.onclick = (e) => {
           e.stopPropagation();
           const num = parseInt(item.dataset.ep);
-          const ep = anime.episodes.find(x => x.num === num);
-          if (ep) renderQualities(ep);
+          const seasonNum = parseInt(item.dataset.season) || 1;
+
+          let ep = null;
+          if (seasons.length > 0) {
+            const s = seasons.find(x => x.seasonNumber === seasonNum);
+            if (s) ep = s.episodes.find(x => x.num === num);
+          } else {
+            ep = allEpisodes.find(x => x.num === num);
+          }
+
+          if (ep) renderQualities(ep, seasonNum);
         };
       });
     };
@@ -146,9 +185,12 @@ function openDownloadSheet(anime) {
   }
 
   /* ---------- Step 2: Qualities ---------- */
-  function renderQualities(ep) {
+  function renderQualities(ep, seasonNum) {
     backBtn.style.display = 'flex';
-    titleEl.textContent = `Episode ${ep.num}`;
+    const titleText = seasonNum && seasons.length > 1
+      ? `S${seasonNum} · Episode ${ep.num}`
+      : `Episode ${ep.num}`;
+    titleEl.textContent = titleText;
 
     body.innerHTML = `
       <div class="dl-loading">
@@ -286,7 +328,6 @@ export function updatePlayerUI() {
   if (playing) {
     if (center) center.classList.add('hidden');
     if (ppBtn) ppBtn.innerHTML = `<svg class="icon icon-md" style="fill:rgba(255,255,255,0.85);stroke:none;"><use href="#ico-pause"/></svg>`;
-    // ★ مخفی کردن خودکار کنترل‌ها بعد از 5 ثانیه (قبلاً 15 بود)
     if (playerWrap) {
       clearTimeout(hideControlsTimer);
       hideControlsTimer = setTimeout(() => {
@@ -389,7 +430,6 @@ export function handlePlayerTap(e) {
       return;
     }
 
-    // ★ toggle بین نمایش و مخفی کنترل‌ها
     if (playerWrap.classList.contains('playing')) {
       playerWrap.classList.remove('playing');
       clearTimeout(hideControlsTimer);
@@ -401,7 +441,6 @@ export function handlePlayerTap(e) {
     } else {
       playerWrap.classList.add('playing');
       clearTimeout(hideControlsTimer);
-      // ★ بعد از 5 ثانیه دوباره مخفی کن
       hideControlsTimer = setTimeout(() => {
         if (video && !video.paused) {
           playerWrap.classList.add('playing');
@@ -598,19 +637,33 @@ export function bindFullscreenChange() {
 
 /* ============================================
    NEXT EPISODE
+   ★ پشتیبانی از فصل‌ها
 ============================================ */
 export function playNextEpisode(e) {
   if (e) e.stopPropagation();
   const anime = window.__currentAnime;
   const currentEp = window.__currentEpisode;
+  const currentSeasonNum = window.__currentSeason || 1;
   if (!anime || !currentEp) return;
 
-  const nextEp = anime.episodes.find(ep => ep.num === currentEp.num + 1);
-  if (!nextEp) {
-    alert('این آخرین قسمت این انیمه هست.');
+  const seasons = anime.seasons || [{ seasonNumber: 1, episodes: anime.episodes || [] }];
+  const currentSeason = seasons.find(s => s.seasonNumber === currentSeasonNum) || seasons[0];
+
+  // اپیزود بعدی در همون فصل
+  const nextEpInSeason = currentSeason.episodes.find(ep => ep.num === currentEp.num + 1);
+  if (nextEpInSeason) {
+    window.openEpisode(anime.id, currentSeasonNum, nextEpInSeason.num);
     return;
   }
-  window.openEpisode(anime.id, nextEp.num);
+
+  // اگه آخرین اپیزود این فصل بود، برو فصل بعد
+  const nextSeason = seasons.find(s => s.seasonNumber === currentSeasonNum + 1);
+  if (nextSeason && nextSeason.episodes.length > 0) {
+    window.openEpisode(anime.id, nextSeason.seasonNumber, nextSeason.episodes[0].num);
+    return;
+  }
+
+  alert('این آخرین قسمت این انیمه هست.');
 }
 
 /* ============================================
@@ -676,7 +729,6 @@ function showSeekFeedbackSimple(direction, seconds) {
    MOUSE MOVE → نمایش Controls (فقط دسکتاپ)
 ============================================ */
 export function bindPlayerMouseMove() {
-  // ★ فقط روی دستگاه‌های دسکتاپ (بدون touch) فعال باشه
   if (window.matchMedia('(pointer: coarse)').matches) return;
 
   document.addEventListener('mousemove', (e) => {

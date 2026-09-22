@@ -76,7 +76,7 @@
     <symbol id="ico-gem" viewBox="0 0 24 24"><path d="M6 3h12l4 6-10 13L2 9z"/><path d="M2 9h20"/><path d="M6 3l4 6m8-6l-4 6"/></symbol>
     <symbol id="ico-repeat" viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></symbol>
     <symbol id="ico-login" viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></symbol>
-<symbol id="ico-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></symbol>
+    <symbol id="ico-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></symbol>
   </defs>
 </svg>
 
@@ -306,7 +306,16 @@
       </div>
       <div class="tab-panel active" id="tab-episodes">
         <div class="season-block">
-          <div class="season-title">Season 1 <span class="season-count-badge">0 Episodes</span></div>
+          <div class="season-header-row">
+            <div class="season-dropdown" id="seasonDropdown">
+              <button class="season-dropdown-btn" type="button" onclick="toggleSeasonDropdown(event)">
+                <span id="seasonDropdownLabel">Season 1</span>
+                <svg class="icon icon-sm season-chevron"><use href="#ico-chevron-r"/></svg>
+              </button>
+              <div class="season-dropdown-menu" id="seasonDropdownMenu"></div>
+            </div>
+            <span class="season-count-badge" id="seasonCountBadge" title="0 Episodes">0</span>
+          </div>
           <div class="episodes-grid" id="episodesGrid"></div>
         </div>
       </div>
@@ -375,7 +384,7 @@
             <span style="font-size:13px;color:var(--text-muted);display:flex;align-items:center;gap:4px;">
               <svg class="icon icon-sm"><use href="#ico-clock"/></svg> 24 min
             </span>
-            <div style="display:flex;gap:8px;margin-left:auto;flex-wrap:wrap;position:relative;" id="watchActionsRow"></div>
+            <div style="display:flex;gap:8px;margin-left:auto;flex-wrap:wrap;position:relative;align-items:center;" id="watchActionsRow"></div>
           </div>
           <p class="watch-ep-desc"></p>
         </div>
@@ -492,7 +501,6 @@
 
 <div class="tab-panel" id="ptab-history"><div id="historyList"></div></div>
 
-      <div class="tab-panel" id="ptab-history"><div id="historyList"></div></div>
       <div class="tab-panel" id="ptab-favorites"><div class="results-grid" style="padding:0;" id="favoritesGrid"></div></div>
 
       <div class="tab-panel" id="ptab-stats">

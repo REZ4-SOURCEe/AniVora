@@ -1,6 +1,5 @@
 /* ============================================
    ANIVORA — CORE
-   store, router, toast, helpers, auth
 ============================================ */
 
 /* ============================================
@@ -49,12 +48,23 @@ export function setLastPage(page) {
 /* ---------- LAST EPISODE ---------- */
 export function getLastEpisode(animeId) {
   const store = getStore(LAST_EP_KEY);
-  return store[animeId] || null;
+  const v = store[animeId];
+  if (typeof v === 'number') return { seasonNumber: 1, epNum: v };
+  return v || null;
 }
-export function setLastEpisode(animeId, epNum) {
+export function setLastEpisode(animeId, value) {
   const store = getStore(LAST_EP_KEY);
-  store[animeId] = epNum;
+  if (typeof value === 'number') {
+    store[animeId] = { seasonNumber: 1, epNum: value };
+  } else {
+    store[animeId] = value;
+  }
   setStore(LAST_EP_KEY, store);
+}
+export function getLastEpNumber(animeId) {
+  const v = getLastEpisode(animeId);
+  if (!v) return 0;
+  return v.epNum || 0;
 }
 export function clearLastEpisode(animeId) {
   const store = getStore(LAST_EP_KEY);
@@ -257,18 +267,15 @@ export function isLoggedIn() {
 
 export function signup(email, password, username) {
   const users = getUsers();
-
   if (users.find(u => u.email.toLowerCase() === email.toLowerCase())) {
     return { success: false, error: 'This email is already registered.' };
   }
-
   if (!email || !email.includes('@')) {
     return { success: false, error: 'Please enter a valid email.' };
   }
   if (!password || password.length < 6) {
     return { success: false, error: 'Password must be at least 6 characters.' };
   }
-
   const newUser = {
     id: 'u_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
     email: email.toLowerCase(),
@@ -276,11 +283,9 @@ export function signup(email, password, username) {
     username: username || email.split('@')[0],
     createdAt: new Date().toISOString()
   };
-
   users.push(newUser);
   saveUsers(users);
   setSession({ userId: newUser.id, loggedInAt: new Date().toISOString() });
-
   return { success: true, user: newUser };
 }
 
@@ -289,11 +294,7 @@ export function login(email, password) {
   const user = users.find(u =>
     u.email.toLowerCase() === email.toLowerCase() && u.password === password
   );
-
-  if (!user) {
-    return { success: false, error: 'Invalid email or password.' };
-  }
-
+  if (!user) return { success: false, error: 'Invalid email or password.' };
   setSession({ userId: user.id, loggedInAt: new Date().toISOString() });
   return { success: true, user };
 }
@@ -310,13 +311,8 @@ export function computeProfileStats(ANIME_DATA) {
   const likes = getStore(LIKES_KEY);
   const lastEpStore = getStore(LAST_EP_KEY);
 
-  let totalAnime = 0;
-  let totalEpisodes = 0;
-  let totalMinutes = 0;
-  let completed = 0;
-  let watching = 0;
-  let planToWatch = 0;
-  let dropped = 0;
+  let totalAnime = 0, totalEpisodes = 0, totalMinutes = 0;
+  let completed = 0, watching = 0, planToWatch = 0, dropped = 0;
 
   const genreCount = {};
   const yearCount = {};
@@ -328,7 +324,9 @@ export function computeProfileStats(ANIME_DATA) {
 
     totalAnime++;
     const status = listStore[animeId];
-    const watchedEps = lastEpStore[animeId] || 0;
+
+    let watchedEps = lastEpStore[animeId] || 0;
+    if (typeof watchedEps === 'object') watchedEps = watchedEps.epNum || 0;
 
     totalEpisodes += watchedEps;
     totalMinutes += watchedEps * 24;
@@ -349,20 +347,14 @@ export function computeProfileStats(ANIME_DATA) {
     meanScore = listAnimes.reduce((sum, a) => sum + a.score, 0) / listAnimes.length;
   }
 
-  const sortedGenres = Object.entries(genreCount)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 5);
-
+  const sortedGenres = Object.entries(genreCount).sort((a, b) => b[1] - a[1]).slice(0, 5);
   const maxGenreCount = sortedGenres[0]?.[1] || 1;
   const favoriteGenres = sortedGenres.map(([name, count]) => ({
     name, count,
     pct: Math.round((count / maxGenreCount) * 100)
   }));
 
-  const sortedYears = Object.entries(yearCount)
-    .sort((a, b) => parseInt(b[0]) - parseInt(a[0]))
-    .slice(0, 5);
-
+  const sortedYears = Object.entries(yearCount).sort((a, b) => parseInt(b[0]) - parseInt(a[0])).slice(0, 5);
   const maxYearCount = Math.max(...sortedYears.map(y => y[1]), 1);
   const watchByYear = sortedYears.map(([year, count]) => ({
     year, count,
@@ -375,18 +367,11 @@ export function computeProfileStats(ANIME_DATA) {
     : `${totalHours}h`;
 
   return {
-    totalAnime,
-    totalEpisodes,
-    totalMinutes,
-    watchTimeDisplay,
-    completed,
-    watching,
-    planToWatch,
-    dropped,
+    totalAnime, totalEpisodes, totalMinutes, watchTimeDisplay,
+    completed, watching, planToWatch, dropped,
     favorites: likes.length,
     meanScore: meanScore.toFixed(1),
-    favoriteGenres,
-    watchByYear
+    favoriteGenres, watchByYear
   };
 }
 
@@ -433,15 +418,22 @@ export function openListStatusSheet(animeId, triggerBtn) {
   const inList = !!currentStatus;
 
   let progressPct = getProgress(animeId);
-  let lastEp = getLastEpisode(animeId) || 0;
   let dropped = isDropped(animeId);
+
+  const lastEpData = getLastEpisode(animeId);
+  let lastEp = lastEpData ? (lastEpData.epNum || 0) : 0;
 
   let totalEps = 12;
   let airedEps = 12;
   if (window.__animeData && window.__animeData[animeId]) {
     const anime = window.__animeData[animeId];
-    totalEps = anime.eps || anime.episodes.length;
-    airedEps = anime.episodesAired || anime.episodes.length;
+    if (anime.seasons && anime.seasons.length > 0) {
+      totalEps = anime.seasons.reduce((sum, s) => sum + s.episodes.length, 0);
+      airedEps = anime.seasons.reduce((sum, s) => sum + (s.episodesAired || s.episodes.length), 0);
+    } else {
+      totalEps = anime.eps || anime.episodes?.length || 12;
+      airedEps = anime.episodesAired || anime.episodes?.length || 12;
+    }
   }
 
   if (lastEp > airedEps) lastEp = airedEps;
@@ -535,8 +527,7 @@ export function openListStatusSheet(animeId, triggerBtn) {
   const getPctFromEvent = (clientX) => {
     const rect = sliderWrap.getBoundingClientRect();
     let pct = (clientX - rect.left) / rect.width;
-    pct = Math.max(0, Math.min(1, pct));
-    return pct;
+    return Math.max(0, Math.min(1, pct));
   };
 
   const handleMove = (clientX) => {
@@ -616,7 +607,7 @@ export function openListStatusSheet(animeId, triggerBtn) {
     saveBtn.onclick = (e) => {
       e.stopPropagation();
       if (selectedStatus === 'watching') {
-        setLastEpisode(animeId, currentEp);
+        setLastEpisode(animeId, { seasonNumber: 1, epNum: currentEp });
         const pct = Math.round((currentEp / airedEps) * 100);
         setProgress(animeId, pct);
         setDropped(animeId, dropped);
@@ -630,7 +621,7 @@ export function openListStatusSheet(animeId, triggerBtn) {
       } else if (selectedStatus === 'completed') {
         setListStatus(animeId, 'completed');
         setProgress(animeId, 100);
-        setLastEpisode(animeId, totalEps);
+        setLastEpisode(animeId, { seasonNumber: 1, epNum: totalEps });
         setDropped(animeId, false);
         showToast('Marked as Completed');
       } else if (selectedStatus === 'plan_to_watch') {
@@ -701,16 +692,10 @@ export function stopVideo() {
 ============================================ */
 export function showPage(id, skipHistory) {
   const prevPage = window.__currentPage;
-
   if (prevPage === id && !skipHistory) return;
 
-  if (prevPage === 'watch' && id !== 'watch') {
-    stopVideo();
-  }
-
-  if (id === 'profile' && !isLoggedIn()) {
-    id = 'login';
-  }
+  if (prevPage === 'watch' && id !== 'watch') stopVideo();
+  if (id === 'profile' && !isLoggedIn()) id = 'login';
 
   triggerPageLoader();
 
@@ -728,19 +713,13 @@ export function showPage(id, skipHistory) {
 
   if (!skipHistory) {
     const currentHash = location.hash.replace('#', '') || 'home';
-    if (currentHash !== id) {
-      history.pushState({ page: id }, '', '#' + id);
-    }
+    if (currentHash !== id) history.pushState({ page: id }, '', '#' + id);
   }
 
   window.__currentPage = id;
 
-  if (id === 'watchlist') {
-    window.dispatchEvent(new CustomEvent('anivora:watchlist-refresh'));
-  }
-  if (id === 'profile') {
-    window.dispatchEvent(new CustomEvent('anivora:profile-refresh'));
-  }
+  if (id === 'watchlist') window.dispatchEvent(new CustomEvent('anivora:watchlist-refresh'));
+  if (id === 'profile') window.dispatchEvent(new CustomEvent('anivora:profile-refresh'));
 
   if (id === 'detail' && skipHistory) {
     const animeId = window.__currentAnimeId || getLastPage()?.animeId;
@@ -766,8 +745,6 @@ export function openDrawer() {
   if (drawer) drawer.classList.add('open');
   if (overlay) overlay.classList.add('open');
   document.body.style.overflow = 'hidden';
-
-  // ★ آپدیت وضعیت Login/Sign Out
   if (window.updateDrawerAuth) window.updateDrawerAuth();
 }
 export function closeDrawer() {
@@ -787,11 +764,10 @@ export function toggleNotif() {
 }
 
 /* ============================================
-   DRAWER AUTH (Login / Sign Out)
+   DRAWER AUTH + HEADER AVATAR
 ============================================ */
 export function handleDrawerAuth() {
   if (isLoggedIn()) {
-    // ★ Sign Out
     logout();
     showToast('Signed out');
     closeDrawer();
@@ -800,7 +776,6 @@ export function handleDrawerAuth() {
       updateDrawerAuth();
     }, 200);
   } else {
-    // ★ Login
     closeDrawer();
     setTimeout(() => showPage('login'), 200);
   }
@@ -809,20 +784,43 @@ export function handleDrawerAuth() {
 export function updateDrawerAuth() {
   const label = document.getElementById('drawerAuthLabel');
   const btn = document.getElementById('drawerAuthBtn');
-  if (!label || !btn) return;
 
-  const svg = btn.querySelector('svg use');
-  if (isLoggedIn()) {
-    label.textContent = 'Sign Out';
-    if (svg) svg.setAttribute('href', '#ico-logout');
+  if (label && btn) {
+    const svg = btn.querySelector('svg use');
+    if (isLoggedIn()) {
+      label.textContent = 'Sign Out';
+      if (svg) svg.setAttribute('href', '#ico-logout');
+    } else {
+      label.textContent = 'Login';
+      if (svg) svg.setAttribute('href', '#ico-login');
+    }
+  }
+
+  // ★ آپدیت آواتار هدر
+  updateHeaderAvatar();
+}
+
+/* ★★★ آپدیت آواتار هدر با عکس کاربر ★★★ */
+export function updateHeaderAvatar() {
+  const headerAvatar = document.querySelector('.header-actions .avatar');
+  if (!headerAvatar) return;
+
+  const user = getCurrentUser();
+
+  if (user && user.avatar) {
+    // کاربر لاگین کرده و آواتار داره → عکس رو نشون بده
+    headerAvatar.innerHTML = `<img src="${user.avatar}" alt="${user.username}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;">`;
+    headerAvatar.style.background = 'transparent';
   } else {
-    label.textContent = 'Login';
-    if (svg) svg.setAttribute('href', '#ico-login');
+    // پیش‌فرض → آیکون user
+    headerAvatar.innerHTML = `<svg class="icon icon-sm" style="color:#fff;"><use href="#ico-user"/></svg>`;
+    headerAvatar.style.background = 'var(--accent)';
   }
 }
 
 window.handleDrawerAuth = handleDrawerAuth;
 window.updateDrawerAuth = updateDrawerAuth;
+window.updateHeaderAvatar = updateHeaderAvatar;
 
 /* ============================================
    CUSTOM BOTTOM-SHEET SELECT
@@ -898,10 +896,7 @@ export function bindGlobalEvents() {
     }
   }, true);
   window.addEventListener('popstate', function(e) {
-    if (e.state && e.state.page) {
-      showPage(e.state.page, true);
-    } else {
-      showPage('home', true);
-    }
+    if (e.state && e.state.page) showPage(e.state.page, true);
+    else showPage('home', true);
   });
 }

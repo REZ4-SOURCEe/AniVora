@@ -9,7 +9,7 @@ import {
   initCustomSelects, bindGlobalEvents, isInList, isLiked,
   getListStatus, setListStatus, openListStatusSheet, closeListStatusSheet,
   updateAddBtnUI, getLastPage, setLastPage, isLoggedIn,
-  handleDrawerAuth, updateDrawerAuth
+  handleDrawerAuth, updateDrawerAuth, updateHeaderAvatar
 } from './core.js';
 
 import {
@@ -24,6 +24,7 @@ import {
   initHome, initExplore, initWatchlist, initWatchlistTabs,
   initCalendar, openAnimeDetail, openEpisode, watchAnime,
   toggleDesc, switchTab, switchProfileTab,
+  switchSeason, toggleSeasonDropdown,
   toggleClearBtn, clearSearch, addFilter, removeFilter, filterResults,
   renderCharsAndStaff, renderReviews, renderDetailEpisodes,
   removeFromWatchingUI, removeFromFavoritesUI,
@@ -66,6 +67,11 @@ window.watchAnime = watchAnime;
 window.toggleDesc = toggleDesc;
 window.switchTab = switchTab;
 window.switchProfileTab = switchProfileTab;
+
+/* ★ Season Dropdown */
+window.switchSeason = switchSeason;
+window.toggleSeasonDropdown = toggleSeasonDropdown;
+
 window.toggleClearBtn = toggleClearBtn;
 window.clearSearch = clearSearch;
 window.addFilter = addFilter;
@@ -79,9 +85,10 @@ window.closeListStatusSheet = closeListStatusSheet;
 window.getListStatus = getListStatus;
 window.setListStatus = setListStatus;
 
-/* ★ Drawer Auth */
+/* ★ Drawer Auth + Header Avatar */
 window.handleDrawerAuth = handleDrawerAuth;
 window.updateDrawerAuth = updateDrawerAuth;
+window.updateHeaderAvatar = updateHeaderAvatar;
 
 /* Auth */
 window.handleLogin = handleLogin;
@@ -121,8 +128,8 @@ function init() {
   bindPlayerKeyboard();
   bindPlayerMouseMove();
 
-  // ★ آپدیت اولیه drawer auth
   updateDrawerAuth();
+  updateHeaderAvatar();   // ★ آپدیت اولیه آواتار هدر
 
   if (isLoggedIn()) initProfile();
 
