@@ -56,6 +56,11 @@ export function setLastEpisode(animeId, epNum) {
   store[animeId] = epNum;
   setStore(LAST_EP_KEY, store);
 }
+export function clearLastEpisode(animeId) {
+  const store = getStore(LAST_EP_KEY);
+  delete store[animeId];
+  setStore(LAST_EP_KEY, store);
+}
 
 /* ---------- PROGRESS ---------- */
 export function getProgress(animeId) {
@@ -109,6 +114,7 @@ export function setListStatus(animeId, status) {
     delete list[animeId];
     setProgress(animeId, 0);
     setDropped(animeId, false);
+    clearLastEpisode(animeId);   // ★ پاک کردن last_ep وقتی از لیست حذف می‌شه
   } else {
     list[animeId] = status;
   }

@@ -286,13 +286,14 @@ export function updatePlayerUI() {
   if (playing) {
     if (center) center.classList.add('hidden');
     if (ppBtn) ppBtn.innerHTML = `<svg class="icon icon-md" style="fill:rgba(255,255,255,0.85);stroke:none;"><use href="#ico-pause"/></svg>`;
+    // ★ مخفی کردن خودکار کنترل‌ها بعد از 5 ثانیه (قبلاً 15 بود)
     if (playerWrap) {
       clearTimeout(hideControlsTimer);
       hideControlsTimer = setTimeout(() => {
         if (video && !video.paused) {
           playerWrap.classList.add('playing');
         }
-      }, 15000);
+      }, 5000);
     }
   } else {
     if (center) center.classList.remove('hidden');
@@ -388,6 +389,7 @@ export function handlePlayerTap(e) {
       return;
     }
 
+    // ★ toggle بین نمایش و مخفی کنترل‌ها
     if (playerWrap.classList.contains('playing')) {
       playerWrap.classList.remove('playing');
       clearTimeout(hideControlsTimer);
@@ -395,10 +397,16 @@ export function handlePlayerTap(e) {
         if (video && !video.paused) {
           playerWrap.classList.add('playing');
         }
-      }, 15000);
+      }, 5000);
     } else {
       playerWrap.classList.add('playing');
       clearTimeout(hideControlsTimer);
+      // ★ بعد از 5 ثانیه دوباره مخفی کن
+      hideControlsTimer = setTimeout(() => {
+        if (video && !video.paused) {
+          playerWrap.classList.add('playing');
+        }
+      }, 5000);
     }
   }, 300);
 }
@@ -665,16 +673,19 @@ function showSeekFeedbackSimple(direction, seconds) {
 }
 
 /* ============================================
-   MOUSE MOVE → نشون دادن Controls، بعد 15s مخفی
+   MOUSE MOVE → نمایش Controls (فقط دسکتاپ)
 ============================================ */
 export function bindPlayerMouseMove() {
+  // ★ فقط روی دستگاه‌های دسکتاپ (بدون touch) فعال باشه
+  if (window.matchMedia('(pointer: coarse)').matches) return;
+
   document.addEventListener('mousemove', (e) => {
     if (window.__currentPage !== 'watch') return;
 
     const playerWrap = document.querySelector('.player-wrap');
     if (!playerWrap) return;
 
-    if (!e.target.closest('.player-wrap') && !e.target.closest('.watch-page')) return;
+    if (!e.target.closest('.player-wrap')) return;
 
     playerWrap.classList.remove('playing');
 
@@ -687,6 +698,6 @@ export function bindPlayerMouseMove() {
       if (v && !v.paused) {
         playerWrap.classList.add('playing');
       }
-    }, 15000);
-  }, true);
+    }, 5000);
+  });
 }

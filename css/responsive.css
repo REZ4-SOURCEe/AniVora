@@ -53,75 +53,164 @@
   .continue-card { width: 220px; }
   .results-grid { grid-template-columns: repeat(2, 1fr); }
 
-/* ---------- DETAIL ---------- */
-/* ---------- DETAIL ---------- */
-.detail-backdrop { height: 100px; }
-.detail-top {
-  gap: 12px;
-  margin-top: -60px;
-  align-items: flex-start;
-}
-.detail-poster { width: 100px; }
-.detail-info { padding-top: 30px; }
+  /* ============================================
+     DETAIL PAGE — حالت موبایل
+  ============================================ */
+  .detail-backdrop { height: 110px; }
 
-.detail-genres-row {
-  margin-bottom: 6px;
-  gap: 4px;
-}
-.detail-title { font-size: 16px; margin-bottom: 3px; }
-.detail-jp-title { font-size: 11px; margin-bottom: 8px; }
+  .detail-main { padding: 0 14px; }
 
-/* آمار — همه در یک خط */
-.detail-stats-row {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 12px;
-  overflow-x: auto;
-  scrollbar-width: none;
-  padding-bottom: 2px;
-}
-.detail-stats-row::-webkit-scrollbar { display: none; }
-.detail-stat {
-  flex-shrink: 0;
-  gap: 1px;
-}
-.detail-stat-label { font-size: 8.5px; }
-.detail-stat-value { font-size: 11.5px; }
+  /* ★ ردیف اصلی — پوستر پایین‌تر + اطلاعات هم‌تراز با اون */
+  .detail-top {
+    display: flex;
+    flex-direction: row;
+    gap: 14px;
+    margin-top: -30px;
+    position: relative;
+    z-index: 2;
+    align-items: flex-start;
+  }
 
-/* دکمه‌ها — همیشه یک خط، پرکننده کل عرض */
-.detail-actions-row {
-  width: 100%;
-  margin-top: 12px;
-  padding-top: 12px;
-  padding-left: 0;
-  padding-right: 0;
-  gap: 8px;
-  flex-wrap: nowrap;
-  align-items: stretch;
-  justify-content: space-between;
-}
-.detail-actions-row .btn {
-  height: 44px;
-  padding: 0 12px;
-  font-size: 12.5px;
-  flex: 0 1 auto;
-  min-width: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  white-space: nowrap;
-}
-.detail-actions-row .btn-primary {
-  flex: 1 1 auto;
-  padding: 0 14px;
-}
-.detail-actions-row .btn-icon {
-  flex: 0 0 44px;
-  width: 44px;
-  height: 44px;
-  padding: 0;
-}
+  .detail-poster {
+    width: 115px;
+    flex-shrink: 0;
+    border-radius: 10px;
+    border-width: 2px;
+    aspect-ratio: 2/3;
+    margin-top: 0;
+  }
+
+  .detail-info {
+    flex: 1;
+    min-width: 0;
+    padding-top: 34px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+
+  /* ژانرها — یک ردیف تمیز */
+  .detail-genres-row {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+  .detail-genres-row .tag {
+    font-size: 10px;
+    padding: 3px 10px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  /* عنوان اصلی */
+  .detail-title {
+    font-size: 17px;
+    font-weight: 800;
+    line-height: 1.2;
+    margin: 0 0 4px 0;
+    letter-spacing: -0.3px;
+  }
+
+  /* عنوان ژاپنی */
+  .detail-jp-title {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin: 0 0 12px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* ★ آمار — ردیف افقی با فاصله یکنواخت */
+  .detail-stats-row {
+    display: flex;
+    gap: 20px;
+    flex-wrap: nowrap;
+    margin: 0;
+    padding: 0;
+    align-items: flex-start;
+  }
+  .detail-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex-shrink: 0;
+  }
+  .detail-stat-label {
+    font-size: 9.5px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 700;
+  }
+  .detail-stat-value {
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+  .detail-stat-value svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  /* ★ دکمه‌ها — تمام عرض، زیر عکس و اطلاعات */
+  .detail-actions-row {
+    width: 100%;
+    margin-top: 16px;
+    padding-top: 14px;
+    padding-left: 0;
+    padding-right: 0;
+    gap: 8px;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    justify-content: space-between;
+  }
+  .detail-actions-row .btn {
+    height: 42px;
+    padding: 0 12px;
+    font-size: 12px;
+    flex: 0 1 auto;
+    min-width: 0;
+    gap: 6px;
+    white-space: nowrap;
+  }
+  .detail-actions-row .btn-primary {
+    flex: 1 1 auto;
+    padding: 0 14px;
+  }
+  .detail-actions-row .btn-icon {
+    flex: 0 0 42px;
+    width: 42px;
+    height: 42px;
+    padding: 0;
+  }
+
+  /* توضیحات */
+  .detail-desc {
+    font-size: 13px;
+    line-height: 1.7;
+    margin-top: 20px;
+  }
+
+  /* تب‌ها */
+  .detail-tabs { margin-top: 24px; }
+  .detail-tabs .tab-btn {
+    padding: 9px 14px;
+    font-size: 12.5px;
+  }
+
+  /* اپیزودها */
+  .episodes-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .episode-row { padding: 10px; }
+  .ep-thumb { width: 80px; height: 46px; }
+
   /* ---------- PLAYER ---------- */
   .player-wrap { max-height: 56vw; }
   .player-controls { padding: 24px 14px 12px; }
@@ -191,6 +280,35 @@
   .results-grid { gap: 10px; }
   .calendar-grid { grid-template-columns: 1fr; }
   .dashboard-stats { grid-template-columns: repeat(2, 1fr); }
+
+  /* ---------- DETAIL (موبایل کوچیک) ---------- */
+  .detail-backdrop { height: 90px; }
+  .detail-poster { width: 100px; }
+  .detail-top { margin-top: -25px; gap: 12px; }
+  .detail-info { padding-top: 28px; }
+
+  .detail-genres-row .tag {
+    font-size: 9.5px;
+    padding: 2px 8px;
+  }
+  .detail-title { font-size: 15px; }
+  .detail-jp-title { font-size: 10px; margin-bottom: 10px; }
+
+  .detail-stats-row { gap: 16px; }
+  .detail-stat-label { font-size: 8.5px; }
+  .detail-stat-value { font-size: 12px; }
+  .detail-stat-value svg { width: 11px; height: 11px; }
+
+  .detail-actions-row .btn {
+    height: 40px;
+    font-size: 11.5px;
+    padding: 0 10px;
+  }
+  .detail-actions-row .btn-icon {
+    flex: 0 0 40px;
+    width: 40px;
+    height: 40px;
+  }
 
   /* ---------- PROFILE STATS ---------- */
   .profile-stats-strip { grid-template-columns: repeat(5, 1fr); }

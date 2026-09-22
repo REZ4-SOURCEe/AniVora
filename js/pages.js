@@ -217,7 +217,6 @@ export function filterResults() {
 /* ============================================
    DETAIL PAGE
 ============================================ */
-
 export function openAnimeDetail(animeId) {
   const anime = ANIME_DATA.find(a => a.id === animeId);
   if (!anime) return;
@@ -228,16 +227,6 @@ export function openAnimeDetail(animeId) {
 
   const posterImg = document.querySelector('#page-detail .detail-poster img');
   if (posterImg) posterImg.src = anime.img;
-
-  /* ★ ترتیب:
-     بالا (کنار عکس):
-       1) ژانرها
-       2) اسم اصلی
-       3) اسم ژاپنی
-       4) نمره + سال + تعداد قسمت + Studio
-     پایین:
-       فقط دکمه‌ها
-  */
 
   // 1) ژانرها
   const genreColors = {
@@ -278,7 +267,6 @@ export function openAnimeDetail(animeId) {
     </div>
   `;
 
-  /* ★ بخش extra حذف شد (Status/Type/Duration) */
   const extraRow = document.getElementById('detailExtraRow');
   if (extraRow) extraRow.remove();
 
@@ -313,7 +301,7 @@ function renderDetailActions(anime) {
       <svg class="icon icon-sm"><use href="#ico-download"/></svg> Download
     </button>
 
-    <button class="btn btn-ghost btn-icon ${added ? 'is-added' : ''}" data-add-btn="${anime.id}" onclick="toggleList(${anime.id}, this)" title="Add to List">
+    <button class="btn btn-ghost btn-icon ${added ? 'is-added' : ''}" id="detailAddBtn" title="Add to List">
       <svg class="icon icon-md"><use href="#${added ? 'ico-check' : 'ico-plus'}"/></svg>
     </button>
 
@@ -323,6 +311,38 @@ function renderDetailActions(anime) {
 
     <div class="download-menu" id="dlMenuDetail"></div>
   `;
+
+  // ★ دکمه Add — با کالبک برای آپدیت فوری تیک‌ها
+  const addBtn = row.querySelector('#detailAddBtn');
+  if (addBtn) {
+    addBtn.setAttribute('data-add-btn', anime.id);
+    addBtn.onclick = (e) => {
+      e.stopPropagation();
+      toggleList(anime.id, addBtn);
+    };
+  }
+
+  // ★ Event listener — هر بار لیست عوض شد، اپیزودها رو دوباره رندر کن
+  if (window.__detailListListener) {
+    window.removeEventListener('anivora:list-changed', window.__detailListListener);
+  }
+  window.__detailListListener = (e) => {
+    // فقط اگه event مربوط به همین انیمه باشه
+    if (e.detail?.animeId === anime.id) {
+      // دکمه Add رو دوباره آپدیت کن
+      const btn = document.getElementById('detailAddBtn');
+      if (btn) {
+        const status = getListStatus(anime.id);
+        const isAdded = !!status;
+        btn.classList.toggle('is-added', isAdded);
+        const svg = btn.querySelector('svg use');
+        if (svg) svg.setAttribute('href', isAdded ? '#ico-check' : '#ico-plus');
+      }
+      // ★ تیک‌های اپیزودها رو دوباره رندر کن
+      renderDetailEpisodes(anime);
+    }
+  };
+  window.addEventListener('anivora:list-changed', window.__detailListListener);
 }
 
 export function renderDetailEpisodes(anime) {
@@ -434,24 +454,9 @@ export function openEpisode(animeId, epNum) {
 
   setLastPage({ page: 'watch', animeId, epNum });
 
-  const totalEps = anime.eps || anime.episodes.length;
-  const airedEps = anime.episodesAired || anime.episodes.length;
-
-  const currentStatus = getListStatus(anime.id);
-  if (!currentStatus || currentStatus === 'not_watched' || currentStatus === 'plan_to_watch') {
-    setListStatus(anime.id, 'watching');
-  }
+  // ★ دیگه اینجا به لیست اضافه نمی‌کنیم
+  // فقط وقتی ۵۰٪ اپیزود دیده شد، توی loadEpisodeInPlayer به لیست اضافه می‌شه
   addToWatching(anime.id);
-  setLastEpisode(anime.id, epNum);
-
-  const progressPct = Math.min(100, Math.round((epNum / airedEps) * 100));
-  setProgress(anime.id, progressPct);
-
-  if (epNum >= airedEps && airedEps >= totalEps) {
-    setListStatus(anime.id, 'completed');
-  } else if (currentStatus !== 'completed') {
-    setListStatus(anime.id, 'watching');
-  }
 
   cleanupPlayer();
   showPage('watch');
@@ -552,6 +557,57 @@ function loadEpisodeInPlayer(anime, ep) {
   });
 
   video.addEventListener('timeupdate', updatePlayerTime);
+
+  // ★★★ تشخیص «دیده‌شده» فقط وقتی ۵۰٪ ویدیو پخش شد ★★★
+  let markedAsWatched = false;
+  video.addEventListener('timeupdate', () => {
+    if (markedAsWatched) return;
+    if (!video.duration || isNaN(video.duration)) return;
+
+    const watchedRatio = video.currentTime / video.duration;
+
+    if (watchedRatio >= 0.5) {
+      markedAsWatched = true;
+
+      const totalEps = anime.eps || anime.episodes.length;
+      const airedEps = anime.episodesAired || anime.episodes.length;
+      const progressPct = Math.min(100, Math.round((ep.num / airedEps) * 100));
+
+      // ★★★ اولین بار که یه اپیزود ۵۰٪ دیده می‌شه، انیمه به لیست اضافه می‌شه
+      const currentStatus = getListStatus(anime.id);
+      const isFirstTime = !currentStatus ||
+                          currentStatus === 'not_watched' ||
+                          currentStatus === 'plan_to_watch';
+
+      setLastEpisode(anime.id, ep.num);
+      setProgress(anime.id, progressPct);
+
+      if (isFirstTime) {
+        // اولین بار → اضافه به Watching
+        if (ep.num >= airedEps && airedEps >= totalEps) {
+          setListStatus(anime.id, 'completed');
+          showToast('Marked as Completed');
+        } else {
+          setListStatus(anime.id, 'watching');
+          showToast('Added to Watching');
+        }
+      } else {
+        // قبلاً توی لیسته → فقط progress آپدیت
+        if (ep.num >= airedEps && airedEps >= totalEps) {
+          setListStatus(anime.id, 'completed');
+        } else if (currentStatus !== 'completed') {
+          setListStatus(anime.id, 'watching');
+        }
+      }
+
+      window.dispatchEvent(new CustomEvent('anivora:watchlist-refresh'));
+
+      // آپدیت فوری تیک اپیزود
+      window.dispatchEvent(new CustomEvent('anivora:episode-watched', {
+        detail: { animeId: anime.id, epNum: ep.num }
+      }));
+    }
+  });
 
   initQualitySelector(ep, defaultQuality);
   initSpeedSelector();
@@ -1056,13 +1112,23 @@ export function bindProfileEvents() {
   });
 }
 
-/* ★ DETAIL REFRESH — وقتی از watch به detail برمی‌گردیم */
 export function bindDetailEvents() {
   window.addEventListener('anivora:detail-refresh', (e) => {
     const animeId = e.detail?.animeId || window.__currentAnimeId;
     if (animeId) {
       openAnimeDetail(animeId);
     }
+  });
+
+  // ★ listener جدید — وقتی اپیزود ۵۰٪ دیده شد، تیک رو فوری رندر کن
+  window.addEventListener('anivora:episode-watched', (e) => {
+    const animeId = e.detail?.animeId;
+    if (!animeId) return;
+
+    const anime = ANIME_DATA.find(a => a.id === animeId);
+    if (!anime) return;
+
+    renderDetailEpisodes(anime);
   });
 }
 
@@ -1126,7 +1192,6 @@ export function openEditProfileModal(user) {
     <div class="edit-profile-footer">
       <button class="btn btn-ghost" onclick="closeEditProfileModal()" type="button">Cancel</button>
       <button class="btn btn-primary" onclick="saveProfileChanges()" type="button">
-        <svg class="icon icon-sm" style="fill:#fff;stroke:none;"><use href="#ico-check"/></svg>
         Save Changes
       </button>
     </div>

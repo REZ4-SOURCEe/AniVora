@@ -151,12 +151,29 @@
 }
 .active-filter-remove {
   cursor: pointer;
-  opacity: 0.6;
+  opacity: 0.85;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: rgba(108,99,255,0.18);
+  color: var(--accent);
+  flex-shrink: 0;
   transition: var(--transition);
+  margin-left: 2px;
 }
 .active-filter-remove:hover {
   opacity: 1;
+  background: rgba(224,85,85,0.25);
+  color: var(--danger);
+}
+.active-filter-remove svg {
+  width: 11px;
+  height: 11px;
+  display: block;
+  stroke: currentColor;
+  stroke-width: 2.5;
+  fill: none;
 }
