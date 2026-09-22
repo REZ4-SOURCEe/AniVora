@@ -114,7 +114,7 @@ export function setListStatus(animeId, status) {
     delete list[animeId];
     setProgress(animeId, 0);
     setDropped(animeId, false);
-    clearLastEpisode(animeId);   // ★ پاک کردن last_ep وقتی از لیست حذف می‌شه
+    clearLastEpisode(animeId);
   } else {
     list[animeId] = status;
   }
@@ -742,7 +742,6 @@ export function showPage(id, skipHistory) {
     window.dispatchEvent(new CustomEvent('anivora:profile-refresh'));
   }
 
-  // ★ اگه به detail برگشتیم، دوباره رندر کن
   if (id === 'detail' && skipHistory) {
     const animeId = window.__currentAnimeId || getLastPage()?.animeId;
     if (animeId) {
@@ -767,6 +766,9 @@ export function openDrawer() {
   if (drawer) drawer.classList.add('open');
   if (overlay) overlay.classList.add('open');
   document.body.style.overflow = 'hidden';
+
+  // ★ آپدیت وضعیت Login/Sign Out
+  if (window.updateDrawerAuth) window.updateDrawerAuth();
 }
 export function closeDrawer() {
   const drawer = document.getElementById('mobileDrawer');
@@ -783,6 +785,44 @@ export function goFromDrawer(pageId) {
 export function toggleNotif() {
   document.getElementById('notifPanel')?.classList.toggle('open');
 }
+
+/* ============================================
+   DRAWER AUTH (Login / Sign Out)
+============================================ */
+export function handleDrawerAuth() {
+  if (isLoggedIn()) {
+    // ★ Sign Out
+    logout();
+    showToast('Signed out');
+    closeDrawer();
+    setTimeout(() => {
+      showPage('home');
+      updateDrawerAuth();
+    }, 200);
+  } else {
+    // ★ Login
+    closeDrawer();
+    setTimeout(() => showPage('login'), 200);
+  }
+}
+
+export function updateDrawerAuth() {
+  const label = document.getElementById('drawerAuthLabel');
+  const btn = document.getElementById('drawerAuthBtn');
+  if (!label || !btn) return;
+
+  const svg = btn.querySelector('svg use');
+  if (isLoggedIn()) {
+    label.textContent = 'Sign Out';
+    if (svg) svg.setAttribute('href', '#ico-logout');
+  } else {
+    label.textContent = 'Login';
+    if (svg) svg.setAttribute('href', '#ico-login');
+  }
+}
+
+window.handleDrawerAuth = handleDrawerAuth;
+window.updateDrawerAuth = updateDrawerAuth;
 
 /* ============================================
    CUSTOM BOTTOM-SHEET SELECT

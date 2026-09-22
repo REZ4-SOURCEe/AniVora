@@ -186,7 +186,7 @@ export function renderActiveFilters() {
   el.innerHTML = activeFilters.map((f, i) => `
     <span class="active-filter-tag">${f.key}
       <span class="active-filter-remove" onclick="removeFilter(${i})">
-        <svg style="width:13px;height:13px;"><use href="#ico-x"/></svg>
+        <svg style="width:11px;height:11px;"><use href="#ico-x"/></svg>
       </span>
     </span>`).join('');
 }
@@ -228,7 +228,6 @@ export function openAnimeDetail(animeId) {
   const posterImg = document.querySelector('#page-detail .detail-poster img');
   if (posterImg) posterImg.src = anime.img;
 
-  // 1) ژانرها
   const genreColors = {
     'Action':'genre-action','Fantasy':'genre-fantasy','Drama':'genre-drama',
     'Romance':'genre-romance','Sci-Fi':'genre-scifi','Horror':'genre-horror',
@@ -239,13 +238,9 @@ export function openAnimeDetail(animeId) {
     return `<span class="tag ${cls}">${g}</span>`;
   }).join('');
 
-  // 2) اسم اصلی
   document.querySelector('.detail-title').textContent = anime.title;
-
-  // 3) اسم ژاپنی
   document.querySelector('.detail-jp-title').textContent = anime.jp || '';
 
-  // 4) نمره + سال + تعداد قسمت + Studio
   document.querySelector('.detail-stats-row').innerHTML = `
     <div class="detail-stat">
       <span class="detail-stat-label">Score</span>
@@ -312,7 +307,6 @@ function renderDetailActions(anime) {
     <div class="download-menu" id="dlMenuDetail"></div>
   `;
 
-  // ★ دکمه Add — با کالبک برای آپدیت فوری تیک‌ها
   const addBtn = row.querySelector('#detailAddBtn');
   if (addBtn) {
     addBtn.setAttribute('data-add-btn', anime.id);
@@ -322,14 +316,11 @@ function renderDetailActions(anime) {
     };
   }
 
-  // ★ Event listener — هر بار لیست عوض شد، اپیزودها رو دوباره رندر کن
   if (window.__detailListListener) {
     window.removeEventListener('anivora:list-changed', window.__detailListListener);
   }
   window.__detailListListener = (e) => {
-    // فقط اگه event مربوط به همین انیمه باشه
     if (e.detail?.animeId === anime.id) {
-      // دکمه Add رو دوباره آپدیت کن
       const btn = document.getElementById('detailAddBtn');
       if (btn) {
         const status = getListStatus(anime.id);
@@ -338,7 +329,6 @@ function renderDetailActions(anime) {
         const svg = btn.querySelector('svg use');
         if (svg) svg.setAttribute('href', isAdded ? '#ico-check' : '#ico-plus');
       }
-      // ★ تیک‌های اپیزودها رو دوباره رندر کن
       renderDetailEpisodes(anime);
     }
   };
@@ -454,8 +444,6 @@ export function openEpisode(animeId, epNum) {
 
   setLastPage({ page: 'watch', animeId, epNum });
 
-  // ★ دیگه اینجا به لیست اضافه نمی‌کنیم
-  // فقط وقتی ۵۰٪ اپیزود دیده شد، توی loadEpisodeInPlayer به لیست اضافه می‌شه
   addToWatching(anime.id);
 
   cleanupPlayer();
@@ -558,7 +546,6 @@ function loadEpisodeInPlayer(anime, ep) {
 
   video.addEventListener('timeupdate', updatePlayerTime);
 
-  // ★★★ تشخیص «دیده‌شده» فقط وقتی ۵۰٪ ویدیو پخش شد ★★★
   let markedAsWatched = false;
   video.addEventListener('timeupdate', () => {
     if (markedAsWatched) return;
@@ -573,7 +560,6 @@ function loadEpisodeInPlayer(anime, ep) {
       const airedEps = anime.episodesAired || anime.episodes.length;
       const progressPct = Math.min(100, Math.round((ep.num / airedEps) * 100));
 
-      // ★★★ اولین بار که یه اپیزود ۵۰٪ دیده می‌شه، انیمه به لیست اضافه می‌شه
       const currentStatus = getListStatus(anime.id);
       const isFirstTime = !currentStatus ||
                           currentStatus === 'not_watched' ||
@@ -583,7 +569,6 @@ function loadEpisodeInPlayer(anime, ep) {
       setProgress(anime.id, progressPct);
 
       if (isFirstTime) {
-        // اولین بار → اضافه به Watching
         if (ep.num >= airedEps && airedEps >= totalEps) {
           setListStatus(anime.id, 'completed');
           showToast('Marked as Completed');
@@ -592,7 +577,6 @@ function loadEpisodeInPlayer(anime, ep) {
           showToast('Added to Watching');
         }
       } else {
-        // قبلاً توی لیسته → فقط progress آپدیت
         if (ep.num >= airedEps && airedEps >= totalEps) {
           setListStatus(anime.id, 'completed');
         } else if (currentStatus !== 'completed') {
@@ -601,8 +585,6 @@ function loadEpisodeInPlayer(anime, ep) {
       }
 
       window.dispatchEvent(new CustomEvent('anivora:watchlist-refresh'));
-
-      // آپدیت فوری تیک اپیزود
       window.dispatchEvent(new CustomEvent('anivora:episode-watched', {
         detail: { animeId: anime.id, epNum: ep.num }
       }));
@@ -773,6 +755,10 @@ export function handleLogin() {
   }
 
   showToast('Welcome back, ' + result.user.username + '!');
+
+  // ★ آپدیت drawer
+  if (window.updateDrawerAuth) window.updateDrawerAuth();
+
   showPage('profile');
 }
 
@@ -780,7 +766,11 @@ export function handleLogout() {
   logout();
   showToast('Signed out');
   renderLoginPage();
-  showPage('login');
+
+  // ★ آپدیت drawer
+  if (window.updateDrawerAuth) window.updateDrawerAuth();
+
+  showPage('home');
 }
 
 export function renderSignupPage() {
@@ -841,6 +831,33 @@ export function handleSignup() {
     return;
   }
 
+  // ★ آواتار رندوم انتخاب کن
+  const PRESET_AVATARS = [
+    'assets/avatars/avatar-1.jpg',
+    'assets/avatars/avatar-2.jpg',
+    'assets/avatars/avatar-3.jpg',
+    'assets/avatars/avatar-4.jpg',
+    'assets/avatars/avatar-5.jpg',
+    'assets/avatars/avatar-6.jpg',
+    'assets/avatars/avatar-7.jpg',
+    'assets/avatars/avatar-8.jpg',
+    'assets/avatars/avatar-9.jpg',
+    'assets/avatars/avatar-10.jpg',
+    'assets/avatars/avatar-11.jpg',
+    'assets/avatars/avatar-12.jpg',
+  ];
+  const randomAvatar = PRESET_AVATARS[Math.floor(Math.random() * PRESET_AVATARS.length)];
+
+  const users = getUsers();
+  const userIndex = users.findIndex(u => u.id === result.user.id);
+  if (userIndex !== -1) {
+    users[userIndex].avatar = randomAvatar;
+    saveUsers(users);
+  }
+
+  // ★ آپدیت drawer
+  if (window.updateDrawerAuth) window.updateDrawerAuth();
+
   showToast('Account created!');
   showPage('profile');
 }
@@ -896,27 +913,86 @@ export function initProfile() {
 
   const overviewStats = document.querySelector('.profile-stats-grid');
   if (overviewStats) {
+    const listStore = getListStore();
+    const listIds = Object.keys(listStore).map(id => parseInt(id));
+    const favIds = getStore('anivora_likes');
+    const allIds = new Set([...listIds, ...favIds]);
+    const totalAnime = allIds.size;
+
+    const lastEpStore = getStore('anivora_last_ep');
+
+    let totalMinutesAll = 0;
+    let totalMinutesWatched = 0;
+
+    allIds.forEach(id => {
+      const anime = ANIME_DATA.find(a => a.id === id);
+      if (!anime) return;
+
+      const epsCount = anime.episodes ? anime.episodes.length : (anime.eps || 12);
+      const epDuration = 24;
+
+      totalMinutesAll += epsCount * epDuration;
+
+      const watchedEps = lastEpStore[id] || 0;
+      totalMinutesWatched += Math.min(watchedEps, epsCount) * epDuration;
+    });
+
+    function formatWatchTime(minutes) {
+      if (minutes <= 0) return '0m';
+      const h = Math.floor(minutes / 60);
+      const m = minutes % 60;
+      if (h === 0) return `${m}m`;
+      if (m === 0) return `${h}h`;
+      return `${h}h ${m}m`;
+    }
+
+    const watchedFormatted = formatWatchTime(Math.round(totalMinutesWatched));
+
+    const progressPct = totalMinutesAll > 0
+      ? Math.min(100, Math.round((totalMinutesWatched / totalMinutesAll) * 100))
+      : 0;
+
+    const dashArray = 2 * Math.PI * 45;
+    const dashOffset = dashArray * (1 - progressPct / 100);
+
     overviewStats.innerHTML = `
-      <div class="stat-card" style="background:var(--bg-card);border:1px solid var(--border);border-top:3px solid var(--accent);border-radius:var(--radius-md);padding:18px;text-align:center;">
-        <svg class="icon icon-md" style="color:var(--accent);margin:0 auto 10px;display:block;"><use href="#ico-tv"/></svg>
-        <div style="font-size:26px;font-weight:800;color:var(--accent);">${stats.watching}</div>
-        <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">Currently Watching</div>
+      <div class="profile-stats-new">
+        <div class="profile-stats-fields">
+          <div class="profile-stat-field field-completed">
+            <div class="profile-stat-field-value">${stats.completed}</div>
+            <div class="profile-stat-field-label">Completed</div>
+          </div>
+          <div class="profile-stat-field field-episodes">
+            <div class="profile-stat-field-value">${stats.totalEpisodes}</div>
+            <div class="profile-stat-field-label">Episodes</div>
+          </div>
+          <div class="profile-stat-field field-favorites">
+            <div class="profile-stat-field-value">${stats.favorites}</div>
+            <div class="profile-stat-field-label">Favorites</div>
+          </div>
+          <div class="profile-stat-field field-total">
+            <div class="profile-stat-field-value">${totalAnime}</div>
+            <div class="profile-stat-field-label">Total Anime</div>
+          </div>
+        </div>
+
+        <div class="profile-watch-time-circle">
+          <svg viewBox="0 0 100 100" class="profile-circle-svg">
+            <circle cx="50" cy="50" r="45" class="profile-circle-bg"/>
+            <circle cx="50" cy="50" r="45" class="profile-circle-fill"
+                    stroke-dasharray="${dashArray}"
+                    stroke-dashoffset="${dashOffset}"/>
+          </svg>
+          <div class="profile-circle-content">
+            <div class="profile-circle-value">${watchedFormatted}</div>
+          </div>
+        </div>
       </div>
-      <div class="stat-card" style="background:var(--bg-card);border:1px solid var(--border);border-top:3px solid var(--success);border-radius:var(--radius-md);padding:18px;text-align:center;">
-        <svg class="icon icon-md" style="color:var(--success);margin:0 auto 10px;display:block;"><use href="#ico-check"/></svg>
-        <div style="font-size:26px;font-weight:800;color:var(--success);">${stats.completed}</div>
-        <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">Completed</div>
-      </div>
-      <div class="stat-card" style="background:var(--bg-card);border:1px solid var(--border);border-top:3px solid var(--gold);border-radius:var(--radius-md);padding:18px;text-align:center;">
-        <svg class="icon icon-md" style="color:var(--gold);margin:0 auto 10px;display:block;fill:var(--gold);stroke:none;"><use href="#ico-star"/></svg>
-        <div style="font-size:26px;font-weight:800;color:var(--gold);">${stats.meanScore}</div>
-        <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">Mean Score</div>
-      </div>
-      <div class="stat-card" style="background:var(--bg-card);border:1px solid var(--border);border-top:3px solid #ff78a0;border-radius:var(--radius-md);padding:18px;text-align:center;">
-        <svg class="icon icon-md" style="color:#ff78a0;margin:0 auto 10px;display:block;"><use href="#ico-heart"/></svg>
-        <div style="font-size:26px;font-weight:800;color:#ff78a0;">${stats.favorites}</div>
-        <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">Favorites</div>
-      </div>
+
+      <button class="profile-view-stats-btn" onclick="switchProfileTab(document.querySelector('.profile-tabs .tab-btn:last-child'), 'ptab-stats')">
+        View Full Statistics
+        <svg class="icon icon-sm"><use href="#ico-chevron-r"/></svg>
+      </button>
     `;
   }
 
@@ -1098,6 +1174,132 @@ export function initProfile() {
       `).join('');
     }
   }
+
+  // ★★★ Other List — Not Watched + Plan to Watch + Dropped ★★★
+  const otherListContent = document.getElementById('otherListContent');
+  if (otherListContent) {
+    const listStore = getListStore();
+
+    function collectLists() {
+      const notWatched = [];
+      const planToWatch = [];
+      const dropped = [];
+
+      Object.keys(listStore).forEach(idStr => {
+        const animeId = parseInt(idStr);
+        const anime = ANIME_DATA.find(a => a.id === animeId);
+        if (!anime) return;
+
+        const status = listStore[animeId];
+        if (status === 'not_watched')        notWatched.push(anime);
+        else if (status === 'plan_to_watch') planToWatch.push(anime);
+        if (isDropped(animeId))              dropped.push(anime);
+      });
+
+      return { notWatched, planToWatch, dropped };
+    }
+
+    function renderAnimeListItem(a) {
+      const lastEp = getLastEpisode(a.id);
+      const totalEps = a.episodes.length;
+      const airedEps = a.episodesAired || totalEps;
+      const isDroppedItem = isDropped(a.id);
+      const droppedNote = isDroppedItem
+        ? `<div style="font-size:10.5px;color:var(--danger);margin-top:4px;font-style:italic;">Dropped${lastEp ? ` at Ep ${lastEp}` : ''}</div>`
+        : '';
+
+      let sub = (lastEp && lastEp > 0)
+        ? `Watched up to Ep ${lastEp} / ${airedEps}`
+        : `${a.type} · ${a.year} · ${a.eps} eps`;
+
+      return `
+        <div class="watchlist-item" onclick="openAnimeDetail(${a.id})" style="cursor:pointer;margin-bottom:0;">
+          <div class="wl-main-row">
+            <img src="${a.img}" alt="">
+            <div class="watchlist-item-info">
+              <div class="watchlist-item-title">${a.title}</div>
+              <div class="watchlist-item-meta">${sub}</div>
+              ${droppedNote}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderOverview(notWatched, planToWatch, dropped) {
+      function section(title, items, color, key) {
+        if (items.length === 0) {
+          return `
+            <div style="margin-bottom:22px;">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+                <span style="width:3px;height:16px;background:${color};border-radius:2px;"></span>
+                <span style="font-size:14px;font-weight:700;">${title}</span>
+                <span style="font-size:11px;color:var(--text-muted);background:var(--bg-elevated);padding:2px 8px;border-radius:20px;">0</span>
+              </div>
+              <p style="font-size:12.5px;color:var(--text-muted);padding:8px 12px;">No anime in this list.</p>
+            </div>
+          `;
+        }
+
+        return `
+          <div style="margin-bottom:24px;">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+              <span style="width:3px;height:16px;background:${color};border-radius:2px;"></span>
+              <span style="font-size:14px;font-weight:700;">${title}</span>
+              <span style="font-size:11px;color:var(--text-muted);background:var(--bg-elevated);padding:2px 8px;border-radius:20px;">${items.length}</span>
+              <button
+                onclick="document.getElementById('otherListOverview').style.display='none'; document.getElementById('otherListDetail_${key}').style.display='block';"
+                style="margin-left:auto;background:transparent;border:1px solid var(--border-hover);color:var(--accent);font-size:11.5px;font-weight:600;padding:5px 12px;border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;">
+                See All
+                <svg class="icon icon-sm" style="width:13px;height:13px;"><use href="#ico-chevron-r"/></svg>
+              </button>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;">
+              ${items.slice(0, 3).map(renderAnimeListItem).join('')}
+            </div>
+          </div>
+        `;
+      }
+
+      return `
+        ${section('Not Watched', notWatched, 'var(--text-muted)', 'notWatched')}
+        ${section('Plan to Watch', planToWatch, '#40c4ff', 'planToWatch')}
+        ${section('Dropped', dropped, 'var(--danger)', 'dropped')}
+      `;
+    }
+
+    function renderDetailView(title, items, key) {
+      return `
+        <div id="otherListDetail_${key}" style="display:none;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+            <button
+              onclick="document.getElementById('otherListDetail_${key}').style.display='none'; document.getElementById('otherListOverview').style.display='block';"
+              style="width:36px;height:36px;border-radius:50%;background:var(--bg-elevated);color:var(--text-primary);display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;flex-shrink:0;">
+              <svg class="icon icon-md" style="width:18px;height:18px;"><use href="#ico-chevron-l"/></svg>
+            </button>
+            <div>
+              <div style="font-size:16px;font-weight:800;">${title}</div>
+              <div style="font-size:12px;color:var(--text-muted);">${items.length} anime</div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;">
+            ${items.map(renderAnimeListItem).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    const { notWatched, planToWatch, dropped } = collectLists();
+
+    otherListContent.innerHTML = `
+      <div id="otherListOverview">
+        ${renderOverview(notWatched, planToWatch, dropped)}
+      </div>
+      ${renderDetailView('Not Watched', notWatched, 'notWatched')}
+      ${renderDetailView('Plan to Watch', planToWatch, 'planToWatch')}
+      ${renderDetailView('Dropped', dropped, 'dropped')}
+    `;
+  }
 }
 
 export function bindProfileEvents() {
@@ -1120,7 +1322,6 @@ export function bindDetailEvents() {
     }
   });
 
-  // ★ listener جدید — وقتی اپیزود ۵۰٪ دیده شد، تیک رو فوری رندر کن
   window.addEventListener('anivora:episode-watched', (e) => {
     const animeId = e.detail?.animeId;
     if (!animeId) return;
@@ -1146,9 +1347,34 @@ export function openEditProfileModal(user) {
   const modal = document.createElement('div');
   modal.className = 'edit-profile-modal';
 
+  // ★ لیست آواتارهای آماده (لوکال - jpg)
+  const PRESET_AVATARS = [
+    'assets/avatars/avatar-1.jpg',
+    'assets/avatars/avatar-2.jpg',
+    'assets/avatars/avatar-3.jpg',
+    'assets/avatars/avatar-4.jpg',
+    'assets/avatars/avatar-5.jpg',
+    'assets/avatars/avatar-6.jpg',
+    'assets/avatars/avatar-7.jpg',
+    'assets/avatars/avatar-8.jpg',
+    'assets/avatars/avatar-9.jpg',
+    'assets/avatars/avatar-10.jpg',
+    'assets/avatars/avatar-11.jpg',
+    'assets/avatars/avatar-12.jpg',
+  ];
+
   const avatarHTML = user.avatar
     ? `<img src="${user.avatar}" alt="">`
     : `<svg class="icon icon-xl" style="color:rgba(255,255,255,0.5);"><use href="#ico-user"/></svg>`;
+
+  const avatarsGridHTML = PRESET_AVATARS.map((url) => `
+    <button type="button"
+            class="preset-avatar-btn ${user.avatar === url ? 'selected' : ''}"
+            data-avatar-url="${url}"
+            onclick="selectPresetAvatar(this, '${url}')">
+      <img src="${url}" alt="Avatar" loading="lazy">
+    </button>
+  `).join('');
 
   modal.innerHTML = `
     <div class="edit-profile-header">
@@ -1163,17 +1389,18 @@ export function openEditProfileModal(user) {
         <div class="edit-avatar-preview" id="editAvatarPreview">
           ${avatarHTML}
         </div>
-        <div class="edit-avatar-actions">
-          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('avatarInput').click()" type="button">
-            <svg class="icon icon-sm"><use href="#ico-upload"/></svg>
-            Change Avatar
-          </button>
+        <div style="font-size:12px;color:var(--text-muted);text-align:center;margin-top:4px;">
+          Choose an avatar
+        </div>
+        <div class="preset-avatars-grid" id="presetAvatarsGrid">
+          ${avatarsGridHTML}
+        </div>
+        <div class="edit-avatar-actions" style="margin-top:10px;">
           <button class="btn btn-ghost btn-sm" onclick="removeAvatar()" type="button">
             <svg class="icon icon-sm"><use href="#ico-trash"/></svg>
-            Remove
+            Remove Avatar
           </button>
         </div>
-        <input type="file" id="avatarInput" accept="image/*" style="display:none;" onchange="handleAvatarUpload(event)">
       </div>
 
       <div class="form-group">
@@ -1232,6 +1459,33 @@ export function closeEditProfileModal() {
   }
 }
 
+/* ============================================
+   SELECT PRESET AVATAR
+============================================ */
+export function selectPresetAvatar(btn, avatarUrl) {
+  // ★ آواتار فعلی رو ست کن
+  window.__pendingAvatar = avatarUrl;
+
+  // ★ نمایش پیش‌نمایش
+  const preview = document.getElementById('editAvatarPreview');
+  if (preview) {
+    preview.innerHTML = `<img src="${avatarUrl}" alt="">`;
+  }
+
+  // ★ همه دکمه‌ها رو unselect کن
+  document.querySelectorAll('.preset-avatar-btn').forEach(b => {
+    b.classList.remove('selected');
+  });
+
+  // ★ این دکمه رو select کن
+  if (btn) btn.classList.add('selected');
+}
+
+window.selectPresetAvatar = selectPresetAvatar;
+
+/* ============================================
+   AVATAR UPLOAD (دیگه استفاده نمی‌شه ولی نگه‌داشتم)
+============================================ */
 export function handleAvatarUpload(event) {
   const file = event.target.files[0];
   if (!file) return;
@@ -1278,6 +1532,10 @@ export function removeAvatar() {
   if (preview) {
     preview.innerHTML = `<svg class="icon icon-xl" style="color:rgba(255,255,255,0.5);"><use href="#ico-user"/></svg>`;
   }
+  // ★ همه دکمه‌های آواتار رو unselect کن
+  document.querySelectorAll('.preset-avatar-btn').forEach(b => {
+    b.classList.remove('selected');
+  });
 }
 
 export function saveProfileChanges() {

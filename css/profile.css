@@ -7,7 +7,7 @@
    PROFILE PAGE
 ============================================ */
 .profile-page {
-  padding: 32px 0 48px;
+  padding: 0 0 48px;          /* ★ padding-top: 0 تا کنترل به hero برسه */
   width: 100%;
   overflow-x: hidden;
 }
@@ -15,11 +15,12 @@
 .profile-hero {
   position: relative;
   background: transparent;
-  padding: 24px 16px 8px;
+  padding: 24px 16px 0;        /* ★ bottom حذف شد (0) */
   overflow: visible;
   width: 100%;
   box-sizing: border-box;
 }
+
 .profile-hero::before {
   content: '';
   position: absolute;
@@ -46,9 +47,11 @@
   display: flex;
   align-items: center;
   gap: 16px;
-  margin-bottom: 22px;
+  margin-bottom: 24px;         /* ★ 24px فاصله پایین — قبل از خط */
   width: 100%;
+  min-height: 80px;
 }
+
 .profile-avatar-lg {
   width: 80px;
   height: 80px;
@@ -86,8 +89,9 @@
 }
 .profile-edit-btn {
   flex-shrink: 0;
-  align-self: flex-start;
-  margin-top: -15px;
+  align-self: center;          /* ★ center → هم‌سطح آواتار */
+  margin-top: 0;
+  margin-left: auto;
   cursor: pointer;
 }
 
@@ -95,10 +99,12 @@
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   align-items: center;
-  padding: 14px 0 6px;
+  padding: 6px 0 6px;          /* ★ top خیلی کم — خط نزدیکه به padding-top */
   border-top: 1px solid var(--border);
   width: 100%;
 }
+
+
 .profile-stat {
   text-align: center;
   min-width: 0;
@@ -163,11 +169,205 @@
   box-sizing: border-box;
   overflow-x: hidden;
 }
+/* ============================================
+   PROFILE STATS — NEW (دایره + ۴ فیلد)
+============================================ */
+.profile-content .tab-panel {
+  margin-top: -20px;
+}
+
 .profile-stats-grid {
+  margin-bottom: 16px;
+}
+
+.profile-stats-new {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
-  gap: 12px;
-  margin-bottom: 28px;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 20px;
+  align-items: center;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 22px 20px;
+  margin-bottom: 14px;
+}
+
+/* ۴ فیلد مربعی */
+.profile-stats-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.profile-stat-field {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px 12px;
+  text-align: center;
+  transition: var(--transition);
+}
+.profile-stat-field:hover {
+  border-color: var(--border-hover);
+  transform: translateY(-2px);
+}
+.profile-stat-field-value {
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1.2;
+  margin-bottom: 4px;
+}
+.profile-stat-field-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* رنگ هر فیلد */
+.field-completed .profile-stat-field-value { color: var(--success); }
+.field-episodes  .profile-stat-field-value { color: var(--accent); }
+.field-favorites .profile-stat-field-value { color: #ff78a0; }
+.field-total     .profile-stat-field-value { color: var(--gold); }
+
+/* دایره Watch Time */
+.profile-watch-time-circle {
+  position: relative;
+  width: 100%;
+  max-width: 160px;
+  aspect-ratio: 1;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-circle-svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.profile-circle-bg {
+  fill: none;
+  stroke: var(--bg-elevated);
+  stroke-width: 8;
+}
+
+.profile-circle-fill {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 8;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1s ease;
+}
+
+.profile-circle-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.profile-circle-value {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.profile-circle-label {
+  display: none;
+}
+
+/* دکمه View Full Statistics */
+.profile-view-stats-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 14px;
+  background: var(--accent);
+  color: #fff;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  transition: var(--transition);
+}
+.profile-view-stats-btn:hover {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+}
+.profile-view-stats-btn svg {
+  transition: transform 0.2s ease;
+}
+.profile-view-stats-btn:hover svg {
+  transform: translateX(3px);
+}
+
+/* ★ موبایل — دایره + فیلدها کنار هم */
+@media (max-width: 768px) {
+  .profile-stats-new {
+    grid-template-columns: 1fr auto;
+    gap: 14px;
+    padding: 16px 14px;
+    align-items: center;
+  }
+
+  .profile-watch-time-circle {
+    max-width: 110px;
+    width: 110px;
+  }
+
+  .profile-stat-field {
+    padding: 12px 8px;
+  }
+  .profile-stat-field-value {
+    font-size: 18px;
+  }
+  .profile-stat-field-label {
+    font-size: 9.5px;
+  }
+  .profile-circle-value {
+    font-size: 20px;
+  }
+    .profile-hero {
+    padding: 16px 16px 0;         /* ★ top: 16px */
+  }
+  .profile-top-row {
+    margin-bottom: 16px;          /* ★ پایین: 16px — برابر با بالا */
+  }
+  .profile-stats-strip {
+    padding: 6px 0 6px;           /* ★ برابری حفظ شه */
+  }
+}
+
+/* ★ موبایل خیلی کوچک */
+@media (max-width: 380px) {
+  .profile-stats-new {
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    padding: 14px 12px;
+  }
+  .profile-watch-time-circle {
+    max-width: 90px;
+    width: 90px;
+  }
+  .profile-stat-field {
+    padding: 10px 6px;
+  }
+  .profile-stat-field-value {
+    font-size: 16px;
+  }
+  .profile-stat-field-label {
+    font-size: 9px;
+  }
+  .profile-circle-value {
+    font-size: 17px;
+  }
 }
 
 /* Recent Activity item */
@@ -670,5 +870,77 @@
   .edit-avatar-preview {
     width: 76px;
     height: 76px;
+  }
+}
+
+
+/* ============================================
+   PRESET AVATARS GRID
+============================================ */
+.preset-avatars-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  width: 100%;
+  margin-top: 10px;
+  padding: 0 4px;
+}
+
+.preset-avatar-btn {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid transparent;
+  background: var(--bg-elevated);
+  cursor: pointer;
+  padding: 0;
+  transition: var(--transition);
+}
+
+.preset-avatar-btn img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.preset-avatar-btn:hover {
+  border-color: var(--border-hover);
+  transform: scale(1.06);
+}
+
+.preset-avatar-btn.selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(108,99,255,0.25);
+}
+
+.preset-avatar-btn.selected::after {
+  content: '✓';
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 18px;
+  height: 18px;
+  background: var(--accent);
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 800;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+}
+
+@media (max-width: 480px) {
+  .preset-avatars-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+  .preset-avatar-btn.selected::after {
+    width: 16px;
+    height: 16px;
+    font-size: 9px;
   }
 }

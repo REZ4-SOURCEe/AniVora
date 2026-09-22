@@ -8,7 +8,8 @@ import {
   triggerPageLoader, toggleList, toggleLike, showToast,
   initCustomSelects, bindGlobalEvents, isInList, isLiked,
   getListStatus, setListStatus, openListStatusSheet, closeListStatusSheet,
-  updateAddBtnUI, getLastPage, setLastPage, isLoggedIn
+  updateAddBtnUI, getLastPage, setLastPage, isLoggedIn,
+  handleDrawerAuth, updateDrawerAuth
 } from './core.js';
 
 import {
@@ -78,6 +79,10 @@ window.closeListStatusSheet = closeListStatusSheet;
 window.getListStatus = getListStatus;
 window.setListStatus = setListStatus;
 
+/* ★ Drawer Auth */
+window.handleDrawerAuth = handleDrawerAuth;
+window.updateDrawerAuth = updateDrawerAuth;
+
 /* Auth */
 window.handleLogin = handleLogin;
 window.handleSignup = handleSignup;
@@ -116,20 +121,17 @@ function init() {
   bindPlayerKeyboard();
   bindPlayerMouseMove();
 
+  // ★ آپدیت اولیه drawer auth
+  updateDrawerAuth();
+
   if (isLoggedIn()) initProfile();
 
-  // ★★★ تغییر اصلی: همیشه صفحه home باز بشه
-  // — فقط اگه از خود داخل سایت رفرش شد و hash واقعی وجود داشت، همون رو باز کن
   const hash = location.hash ? location.hash.replace('#', '') : 'home';
   const validPages = ['home', 'explore', 'detail', 'watch', 'seasonal', 'watchlist', 'profile', 'calendar', 'login', 'signup'];
 
-  // ★ اگه hash خالی بود یا نامعتبر → home
-  // ★ اگه کاربر تازه وارد شده (bar اول) → home
-  // ★ فقط اگه hash دقیقاً #watch یا #detail بود (یعنی کاربر خودش رفرش زده) → همون رو باز کن
   const isFirstVisit = !sessionStorage.getItem('anivora_visited');
 
   if (isFirstVisit) {
-    // ★ بار اول → همیشه home
     sessionStorage.setItem('anivora_visited', '1');
     setLastPage(null);
 
@@ -142,7 +144,6 @@ function init() {
     const p = document.getElementById('page-home');
     if (p) p.classList.add('active');
   } else {
-    // ★ بار دوم به بعد → اگه hash #watch یا #detail بود، همون رو بازیابی کن
     const isRestoreHash = hash === 'watch' || hash === 'detail';
 
     if (isRestoreHash) {
@@ -150,7 +151,6 @@ function init() {
       if (restored) {
         window.__currentPage = hash;
       } else {
-        // اگه بازیابی نشد → home
         setLastPage(null);
         history.replaceState({ page: 'home' }, '', '#home');
         window.__currentPage = 'home';
@@ -159,7 +159,6 @@ function init() {
         if (p) p.classList.add('active');
       }
     } else if (validPages.includes(hash) && hash !== 'home') {
-      // صفحات دیگه مثل explore, watchlist, profile و ...
       let pageId = hash;
       if (pageId === 'profile' && !isLoggedIn()) pageId = 'login';
 
@@ -172,7 +171,6 @@ function init() {
         history.replaceState({ page: pageId }, '', '#' + pageId);
       }
     } else {
-      // hash خالی یا نامعتبر → home
       setLastPage(null);
       history.replaceState({ page: 'home' }, '', '#home');
       window.__currentPage = 'home';
