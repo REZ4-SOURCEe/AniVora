@@ -53,17 +53,75 @@
   .continue-card { width: 220px; }
   .results-grid { grid-template-columns: repeat(2, 1fr); }
 
-  /* ---------- DETAIL ---------- */
-  .detail-backdrop { height: 100px; }
-  .detail-top {
-    flex-direction: column;
-    margin-top: -60px;
-    gap: 16px;
-    align-items: flex-start;
-  }
-  .detail-poster { width: 130px; }
-  .detail-actions-row { width: 100%; }
+/* ---------- DETAIL ---------- */
+/* ---------- DETAIL ---------- */
+.detail-backdrop { height: 100px; }
+.detail-top {
+  gap: 12px;
+  margin-top: -60px;
+  align-items: flex-start;
+}
+.detail-poster { width: 100px; }
+.detail-info { padding-top: 30px; }
 
+.detail-genres-row {
+  margin-bottom: 6px;
+  gap: 4px;
+}
+.detail-title { font-size: 16px; margin-bottom: 3px; }
+.detail-jp-title { font-size: 11px; margin-bottom: 8px; }
+
+/* آمار — همه در یک خط */
+.detail-stats-row {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 12px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 2px;
+}
+.detail-stats-row::-webkit-scrollbar { display: none; }
+.detail-stat {
+  flex-shrink: 0;
+  gap: 1px;
+}
+.detail-stat-label { font-size: 8.5px; }
+.detail-stat-value { font-size: 11.5px; }
+
+/* دکمه‌ها — همیشه یک خط، پرکننده کل عرض */
+.detail-actions-row {
+  width: 100%;
+  margin-top: 12px;
+  padding-top: 12px;
+  padding-left: 0;
+  padding-right: 0;
+  gap: 8px;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  justify-content: space-between;
+}
+.detail-actions-row .btn {
+  height: 44px;
+  padding: 0 12px;
+  font-size: 12.5px;
+  flex: 0 1 auto;
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+.detail-actions-row .btn-primary {
+  flex: 1 1 auto;
+  padding: 0 14px;
+}
+.detail-actions-row .btn-icon {
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+}
   /* ---------- PLAYER ---------- */
   .player-wrap { max-height: 56vw; }
   .player-controls { padding: 24px 14px 12px; }

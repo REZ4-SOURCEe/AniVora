@@ -488,11 +488,12 @@
    LOGIN / AUTH PAGE
 ============================================ */
 .auth-page {
-  min-height: 100vh;
+  min-height: calc(94vh - var(--header-h));
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 20px;
+  box-sizing: border-box;
 }
 .auth-logo {
   font-size: 22px;

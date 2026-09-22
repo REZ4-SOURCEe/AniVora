@@ -217,6 +217,7 @@ export function filterResults() {
 /* ============================================
    DETAIL PAGE
 ============================================ */
+
 export function openAnimeDetail(animeId) {
   const anime = ANIME_DATA.find(a => a.id === animeId);
   if (!anime) return;
@@ -228,24 +229,17 @@ export function openAnimeDetail(animeId) {
   const posterImg = document.querySelector('#page-detail .detail-poster img');
   if (posterImg) posterImg.src = anime.img;
 
-  document.querySelector('.detail-jp-title').textContent = anime.jp || '';
-  document.querySelector('.detail-title').textContent = anime.title;
+  /* ★ ترتیب:
+     بالا (کنار عکس):
+       1) ژانرها
+       2) اسم اصلی
+       3) اسم ژاپنی
+       4) نمره + سال + تعداد قسمت + Studio
+     پایین:
+       فقط دکمه‌ها
+  */
 
-  document.querySelector('.detail-stats-row').innerHTML = `
-    <div class="detail-stat">
-      <span class="detail-stat-label">Score</span>
-      <span class="detail-stat-value" style="color:var(--gold);display:flex;align-items:center;gap:4px;">
-        <svg class="icon icon-sm" style="fill:var(--gold);stroke:none;"><use href="#ico-star"/></svg> ${anime.score}
-      </span>
-    </div>
-    <div class="detail-stat"><span class="detail-stat-label">Year</span><span class="detail-stat-value">${anime.year}</span></div>
-    <div class="detail-stat"><span class="detail-stat-label">Status</span><span class="status-badge ${anime.status === 'Airing' ? 'status-airing' : 'status-finished'}">${anime.status}</span></div>
-    <div class="detail-stat"><span class="detail-stat-label">Episodes</span><span class="detail-stat-value">${anime.eps}</span></div>
-    <div class="detail-stat"><span class="detail-stat-label">Type</span><span class="detail-stat-value">${anime.type}</span></div>
-    <div class="detail-stat"><span class="detail-stat-label">Duration</span><span class="detail-stat-value">${anime.duration || '24 min'}</span></div>
-    <div class="detail-stat"><span class="detail-stat-label">Studio</span><span class="detail-stat-value">${anime.studio || '-'}</span></div>
-  `;
-
+  // 1) ژانرها
   const genreColors = {
     'Action':'genre-action','Fantasy':'genre-fantasy','Drama':'genre-drama',
     'Romance':'genre-romance','Sci-Fi':'genre-scifi','Horror':'genre-horror',
@@ -255,6 +249,38 @@ export function openAnimeDetail(animeId) {
     const cls = genreColors[g] || 'badge-genre';
     return `<span class="tag ${cls}">${g}</span>`;
   }).join('');
+
+  // 2) اسم اصلی
+  document.querySelector('.detail-title').textContent = anime.title;
+
+  // 3) اسم ژاپنی
+  document.querySelector('.detail-jp-title').textContent = anime.jp || '';
+
+  // 4) نمره + سال + تعداد قسمت + Studio
+  document.querySelector('.detail-stats-row').innerHTML = `
+    <div class="detail-stat">
+      <span class="detail-stat-label">Score</span>
+      <span class="detail-stat-value" style="color:var(--gold);display:flex;align-items:center;gap:4px;">
+        <svg class="icon icon-sm" style="fill:var(--gold);stroke:none;"><use href="#ico-star"/></svg> ${anime.score}
+      </span>
+    </div>
+    <div class="detail-stat">
+      <span class="detail-stat-label">Year</span>
+      <span class="detail-stat-value">${anime.year}</span>
+    </div>
+    <div class="detail-stat">
+      <span class="detail-stat-label">Episodes</span>
+      <span class="detail-stat-value">${anime.eps}</span>
+    </div>
+    <div class="detail-stat">
+      <span class="detail-stat-label">Studio</span>
+      <span class="detail-stat-value">${anime.studio || '-'}</span>
+    </div>
+  `;
+
+  /* ★ بخش extra حذف شد (Status/Type/Duration) */
+  const extraRow = document.getElementById('detailExtraRow');
+  if (extraRow) extraRow.remove();
 
   const desc = document.getElementById('detailDesc');
   desc.textContent = anime.description || 'No description available.';
@@ -278,28 +304,23 @@ function renderDetailActions(anime) {
   const added = !!status;
   const liked = isLiked(anime.id);
 
-  let addLabel = 'Add to List';
-  if (status === 'watching')      addLabel = 'Watching';
-  if (status === 'completed')     addLabel = 'Completed';
-  if (status === 'plan_to_watch') addLabel = 'Plan to Watch';
-  if (status === 'not_watched')   addLabel = 'Not Watched';
-
   row.innerHTML = `
     <button class="btn btn-primary" onclick="watchAnime(${anime.id})">
       <svg class="icon icon-sm" style="fill:#fff;stroke:none;"><use href="#ico-play"/></svg>Watch Now
     </button>
-    <button class="btn btn-ghost ${added ? 'is-added' : ''}" data-add-btn="${anime.id}" onclick="toggleList(${anime.id}, this)">
-      <svg class="icon icon-sm"><use href="#${added ? 'ico-check' : 'ico-plus'}"/></svg> ${addLabel}
+
+    <button class="btn btn-ghost" onclick="toggleDownloadMenu(event, ${anime.id}, 1)">
+      <svg class="icon icon-sm"><use href="#ico-download"/></svg> Download
     </button>
+
+    <button class="btn btn-ghost btn-icon ${added ? 'is-added' : ''}" data-add-btn="${anime.id}" onclick="toggleList(${anime.id}, this)" title="Add to List">
+      <svg class="icon icon-md"><use href="#${added ? 'ico-check' : 'ico-plus'}"/></svg>
+    </button>
+
     <button class="btn btn-ghost btn-icon ${liked ? 'is-liked' : ''}" data-like-btn="${anime.id}" onclick="toggleLike(${anime.id}, this)" title="Like">
       <svg class="icon icon-md"><use href="#${liked ? 'ico-heart-fill' : 'ico-heart'}"/></svg>
     </button>
-    <button class="btn btn-ghost btn-icon" onclick="shareAnime(${anime.id})" title="Share">
-      <svg class="icon icon-md"><use href="#ico-share"/></svg>
-    </button>
-    <button class="btn btn-ghost btn-icon" onclick="toggleDownloadMenu(event, ${anime.id}, 1)" title="Download">
-      <svg class="icon icon-md"><use href="#ico-download"/></svg>
-    </button>
+
     <div class="download-menu" id="dlMenuDetail"></div>
   `;
 }
