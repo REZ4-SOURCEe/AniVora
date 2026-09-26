@@ -9,11 +9,12 @@ import { ANIME_DATA, getAllEpisodes, getTotalEpisodes } from './data.js';
 /* ============================================
    CARD RENDERER
 ============================================ */
-export function renderAnimeCard(a) {
+export function renderAnimeCard(a, options = {}) {
   const sc = a.status === 'Airing' ? 'status-airing'
            : a.status === 'Upcoming' ? 'status-upcoming'
            : 'status-finished';
   const totalEps = getTotalEpisodes(a);
+  const titleClass = options.twoLine ? 'card-title two-line' : 'card-title';
   return `
     <div class="anime-card" onclick="openAnimeDetail(${a.id})">
       <div class="card-poster">
@@ -26,7 +27,7 @@ export function renderAnimeCard(a) {
         ${a.status === 'Airing' ? '<div class="card-airing-dot"></div>' : ''}
       </div>
       <div class="card-body">
-        <div class="card-title">${a.title}</div>
+        <div class="${titleClass}">${a.title}</div>
         <div class="card-meta">
           <span class="card-meta-item">${a.year}</span>
           <span class="status-badge ${sc}" style="font-size:9px;padding:1px 5px;">${a.status}</span>
@@ -37,9 +38,9 @@ export function renderAnimeCard(a) {
     </div>`;
 }
 
-export function populateSection(id, data) {
+export function populateSection(id, data, options = {}) {
   const el = document.getElementById(id);
-  if (el) el.innerHTML = data.map(a => renderAnimeCard(a)).join('');
+  if (el) el.innerHTML = data.map(a => renderAnimeCard(a, options)).join('');
 }
 
 /* ============================================
@@ -148,7 +149,6 @@ function openDownloadSheet(anime) {
   function renderEpisodes() {
     if (!currentSeason) return;
 
-    // دکمه back: اگه چند فصل داره، برگرده به لیست فصل‌ها
     backBtn.style.display = hasMultipleSeasons ? 'flex' : 'none';
     backBtn.onclick = (e) => {
       e.stopPropagation();
@@ -222,20 +222,70 @@ function openDownloadSheet(anime) {
       body.innerHTML = `
         <div class="download-sheet-subtitle">Select Quality</div>
         <div class="download-quality-list">
-          ${qualities.map(q => `
-            <a class="download-quality-item" href="${q.url}" download target="_blank" rel="noopener" onclick="event.stopPropagation()">
-              <div class="download-quality-icon">
-                <svg class="icon icon-md"><use href="#ico-download"/></svg>
-              </div>
-              <div class="download-quality-info">
-                <div class="download-quality-label">${q.label}</div>
-                <div class="download-quality-desc">MKV · Video File</div>
-              </div>
-              <svg class="icon icon-md download-quality-arrow"><use href="#ico-chevron-r"/></svg>
-            </a>
+          ${qualities.map((q) => `
+            <div class="download-quality-item">
+              <a class="download-quality-main" href="${q.url}" download target="_blank" rel="noopener" onclick="event.stopPropagation()">
+                <div class="download-quality-icon">
+                  <svg class="icon icon-md"><use href="#ico-download"/></svg>
+                </div>
+                <div class="download-quality-info">
+                  <div class="download-quality-label">${q.label}</div>
+                  <div class="download-quality-desc">MKV · Video File</div>
+                </div>
+                <svg class="icon icon-md download-quality-arrow"><use href="#ico-chevron-r"/></svg>
+              </a>
+              <button class="download-quality-copy" type="button" title="Copy link" data-url="${q.url}">
+                <svg class="icon icon-sm"><use href="#ico-copy"/></svg>
+              </button>
+            </div>
           `).join('')}
         </div>
       `;
+
+      // ★ بایند دکمه‌های کپی
+      body.querySelectorAll('.download-quality-copy').forEach(btn => {
+        btn.onclick = (e) => {
+          e.stopPropagation();
+          e.preventDefault();
+          const url = btn.getAttribute('data-url');
+          if (!url) return;
+
+          const doCopy = () => {
+            if (navigator.clipboard && window.isSecureContext) {
+              return navigator.clipboard.writeText(url);
+            } else {
+              return new Promise((resolve, reject) => {
+                try {
+                  const ta = document.createElement('textarea');
+                  ta.value = url;
+                  ta.style.cssText = 'position:fixed;left:-9999px;top:-9999px;opacity:0;';
+                  document.body.appendChild(ta);
+                  ta.focus();
+                  ta.select();
+                  const ok = document.execCommand('copy');
+                  document.body.removeChild(ta);
+                  ok ? resolve() : reject();
+                } catch (err) { reject(err); }
+              });
+            }
+          };
+
+          doCopy()
+            .then(() => {
+              const originalHTML = btn.innerHTML;
+              btn.innerHTML = `<svg class="icon icon-sm" style="color:var(--success);"><use href="#ico-check"/></svg>`;
+              btn.classList.add('copied');
+              setTimeout(() => {
+                btn.innerHTML = originalHTML;
+                btn.classList.remove('copied');
+              }, 1200);
+              if (window.showToast) window.showToast('Download link copied!');
+            })
+            .catch(() => {
+              if (window.showToast) window.showToast('Failed to copy link');
+            });
+        };
+      });
     }, 350);
   }
 
@@ -663,14 +713,12 @@ export function playNextEpisode(e) {
   const seasons = anime.seasons || [{ seasonNumber: 1, episodes: anime.episodes || [] }];
   const currentSeason = seasons.find(s => s.seasonNumber === currentSeasonNum) || seasons[0];
 
-  // اپیزود بعدی در همون فصل
   const nextEpInSeason = currentSeason.episodes.find(ep => ep.num === currentEp.num + 1);
   if (nextEpInSeason) {
     window.openEpisode(anime.id, currentSeasonNum, nextEpInSeason.num);
     return;
   }
 
-  // اگه آخرین اپیزود این فصل بود، برو فصل بعد
   const nextSeason = seasons.find(s => s.seasonNumber === currentSeasonNum + 1);
   if (nextSeason && nextSeason.episodes.length > 0) {
     window.openEpisode(anime.id, nextSeason.seasonNumber, nextSeason.episodes[0].num);

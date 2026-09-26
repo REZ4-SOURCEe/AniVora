@@ -36,6 +36,7 @@ export function initHome() {
   initHero();
   initContinueWatching();
   populateSection('trendingRow', shuffle(ANIME_DATA).slice(0, 10));
+  initWeeklyPick();
   populateSection('newEpsRow', shuffle(ANIME_DATA).slice(0, 8));
   populateSection('ratedRow', [...ANIME_DATA].sort((a,b) => b.score - a.score).slice(0, 8));
   populateSection('seasonalGrid', shuffle(ANIME_DATA).slice(0, 16));
@@ -134,6 +135,82 @@ function initContinueWatching() {
 }
 
 /* ============================================
+   WEEKLY RECOMMENDATION — یک انیمه رندم در هفته
+============================================ */
+function initWeeklyPick() {
+  const wrap = document.getElementById('weeklyPickWrap');
+  if (!wrap || !ANIME_DATA || ANIME_DATA.length === 0) return;
+
+  // شماره هفته‌ی سال — در طول یک هفته ثابت می‌مونه
+  const now = new Date();
+  const startOfYear = new Date(now.getFullYear(), 0, 1);
+  const days = Math.floor((now - startOfYear) / 86400000);
+  const weekNumber = Math.floor((days + startOfYear.getDay()) / 7);
+
+  const seed = (now.getFullYear() * 100) + weekNumber;
+  const index = seed % ANIME_DATA.length;
+  const anime = ANIME_DATA[index];
+
+  const genreColors = {
+    'Action':'genre-action','Fantasy':'genre-fantasy','Drama':'genre-drama',
+    'Romance':'genre-romance','Sci-Fi':'genre-scifi','Horror':'genre-horror',
+    'Comedy':'genre-comedy','Supernatural':'genre-fantasy'
+  };
+
+  const status = getListStatus(anime.id);
+  const added = !!status;
+  const liked = isLiked(anime.id);
+
+  wrap.innerHTML = `
+    <div class="weekly-pick">
+      <div class="weekly-pick-banner" onclick="openAnimeDetail(${anime.id})">
+        <img src="${anime.backdrop || anime.img}" alt="${anime.title}" loading="lazy">
+        <div class="weekly-pick-overlay"></div>
+        <div class="weekly-pick-content">
+          <div class="weekly-pick-genres">
+            ${anime.genres.slice(0, 3).map(g =>
+              `<span class="tag ${genreColors[g] || 'badge-genre'}">${g}</span>`
+            ).join('')}
+          </div>
+          <div class="weekly-pick-title">${anime.title}</div>
+          <div class="weekly-pick-jp">${anime.jp || ''}</div>
+          <div class="weekly-pick-meta">
+            <span class="weekly-pick-score">
+              <svg style="width:13px;height:13px;fill:var(--gold);stroke:none;"><use href="#ico-star"/></svg>
+              ${anime.score}
+            </span>
+            <span class="weekly-pick-meta-item">
+              <svg class="icon icon-sm"><use href="#ico-calendar"/></svg> ${anime.year}
+            </span>
+            <span class="weekly-pick-meta-item">
+              <svg class="icon icon-sm"><use href="#ico-tv"/></svg> ${anime.eps} Episodes
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="weekly-pick-actions">
+        <button class="btn-watch" onclick="openAnimeDetail(${anime.id})">
+          <svg class="icon icon-sm" style="fill:#fff;stroke:none;"><use href="#ico-play"/></svg>
+          Watch Now
+        </button>
+        <button class="btn-icon-square ${added ? 'is-added' : ''}"
+                data-add-btn="${anime.id}"
+                onclick="toggleList(${anime.id}, this)"
+                title="Add to List">
+          <svg class="icon icon-md"><use href="#${added ? 'ico-check' : 'ico-plus'}"/></svg>
+        </button>
+        <button class="btn-icon-square ${liked ? 'is-liked' : ''}"
+                data-like-btn="${anime.id}"
+                onclick="toggleLike(${anime.id}, this)"
+                title="Like">
+          <svg class="icon icon-md"><use href="#${liked ? 'ico-heart-fill' : 'ico-heart'}"/></svg>
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+/* ============================================
    EXPLORE PAGE
 ============================================ */
 export function initExplore() { filterResults(); }
@@ -193,10 +270,51 @@ export function filterResults() {
     if (f.type === 'Genre') res = res.filter(a => a.genres.includes(f.val));
   });
 
+  // ★ مرتب‌سازی برای Highest Rated و Popular و Trending
+  if (activeFilters.find(f => f.type === 'sort' && f.val === 'score')) {
+    res.sort((a, b) => b.score - a.score);
+  }
+
   const grid = document.getElementById('resultsGrid');
   const cnt = document.getElementById('resultCount');
   if (grid) grid.innerHTML = res.map(a => renderAnimeCard(a)).join('');
   if (cnt) cnt.textContent = res.length;
+}
+
+/* ============================================
+   ★ SHOW CATEGORY — برای دکمه‌های See All و Header
+============================================ */
+export function showCategory(category) {
+  // پاک کردن فیلترهای قبلی
+  activeFilters = [];
+  renderActiveFilters();
+
+  // پاک کردن سرچ
+  const searchInput = document.getElementById('mainSearchInput');
+  if (searchInput) searchInput.value = '';
+  toggleClearBtn();
+
+  if (category === 'continue-watching') {
+    showPage('watchlist');
+    return;
+  }
+
+  // ★ اول برو به صفحه explore
+  showPage('explore');
+
+  // ★ بعد فیلترها را اعمال کن
+  if (category === 'trending') {
+    activeFilters.push({ key: 'Trending Now', type: 'sort', val: 'score' });
+  } else if (category === 'new-episodes') {
+    activeFilters.push({ key: 'Status: Airing', type: 'Status', val: 'Airing' });
+  } else if (category === 'highest-rated') {
+    activeFilters.push({ key: 'Sort: Highest Rated', type: 'sort', val: 'score' });
+  } else if (category === 'popular') {
+    activeFilters.push({ key: 'Sort: Popular', type: 'sort', val: 'score' });
+  }
+
+  renderActiveFilters();
+  filterResults();
 }
 
 /* ============================================
@@ -206,7 +324,6 @@ export function openAnimeDetail(animeId, keepState = false) {
   const anime = ANIME_DATA.find(a => a.id === animeId);
   if (!anime) return;
 
-  // ★ ذخیره state قبلی (اگه انیمه جدید باز می‌شه)
   const currentActiveTab = document.querySelector('.detail-tabs .tab-btn.active');
   const prevAnimeId = window.__currentAnimeId;
 
@@ -264,19 +381,15 @@ export function openAnimeDetail(animeId, keepState = false) {
   renderDetailActions(anime);
   renderDetailEpisodes(anime, 1);
 
-  // ★★★ showPage با skipHistory=true (خودمون pushState می‌زنیم)
   showPage('detail', true);
 
-  // ★★★ pushState جدید با animeId (فقط اگه انیمه جدید باز می‌شه)
   if (!keepState) {
     const prevStateAnimeId = history.state?.animeId;
-    // فقط اگه animeId با state قبلی فرق داشت، pushState بزن
     if (prevStateAnimeId !== animeId) {
       history.pushState({ page: 'detail', animeId: animeId }, '', '#detail');
     }
   }
 
-  // ★ مدیریت تب فعال
   if (keepState) {
     const savedState = getDetailState();
     if (savedState && savedState.animeId === animeId) {
@@ -382,7 +495,6 @@ function renderDetailActions(anime) {
   window.addEventListener('anivora:list-changed', window.__detailListListener);
 }
 
-/* ★★★ رندر اپیزودها با dropdown فصل + About + Recommended ★★★ */
 export function renderDetailEpisodes(anime, seasonNumber) {
   window.__currentSeason = seasonNumber || 1;
 
@@ -396,7 +508,6 @@ export function renderDetailEpisodes(anime, seasonNumber) {
   const currentSeasonData = seasons.find(s => s.seasonNumber === window.__currentSeason) || seasons[0];
   const currentEpisodes = currentSeasonData.episodes || [];
 
-  // ★ پر کردن dropdown menu
   const menuEl = document.getElementById('seasonDropdownMenu');
   if (menuEl) {
     menuEl.innerHTML = seasons.map(s => `
@@ -409,31 +520,25 @@ export function renderDetailEpisodes(anime, seasonNumber) {
     `).join('');
   }
 
-  // ★ آپدیت برچسب دکمه
   const labelEl = document.getElementById('seasonDropdownLabel');
   if (labelEl) {
     labelEl.textContent = currentSeasonData.title || `Season ${window.__currentSeason}`;
   }
 
-  // ★ آپدیت شمارنده (فقط عدد)
   const countEl = document.getElementById('seasonCountBadge');
   if (countEl) {
     countEl.textContent = currentEpisodes.length;
     countEl.title = `${currentEpisodes.length} Episodes`;
   }
 
-  // ★ پر کردن تب About
   const aboutDescEl = document.getElementById('tabAboutDesc');
   if (aboutDescEl) {
     aboutDescEl.textContent = anime.description || 'No description available.';
   }
 
-  // ★ پر کردن تب Recommended بر اساس ژانرهای مشابه
   const recommendedGrid = document.getElementById('tabRecommendedGrid');
   if (recommendedGrid) {
     const currentGenres = anime.genres || [];
-
-    // ★ فقط توی موبایل: حداکثر ۹ کارت (۳×۳) | دسکتاپ: ۱۲ کارت
     const isMobile = window.matchMedia('(max-width: 768px)').matches;
     const maxCards = isMobile ? 9 : 12;
 
@@ -457,7 +562,6 @@ export function renderDetailEpisodes(anime, seasonNumber) {
     }
   }
 
-  // ★ رندر اپیزودها
   const grid = document.getElementById('episodesGrid');
   if (!grid) return;
 
@@ -493,7 +597,6 @@ export function renderDetailEpisodes(anime, seasonNumber) {
   }).join('');
 }
 
-/* ★★★ سوییچ بین فصل‌ها ★★★ */
 export function switchSeason(animeId, seasonNumber) {
   const anime = ANIME_DATA.find(a => a.id === animeId);
   if (!anime) return;
@@ -504,7 +607,6 @@ export function switchSeason(animeId, seasonNumber) {
   renderDetailEpisodes(anime, seasonNumber);
 }
 
-/* ★★★ توگل dropdown ★★★ */
 export function toggleSeasonDropdown(e) {
   if (e) e.stopPropagation();
   const dd = document.getElementById('seasonDropdown');
@@ -512,7 +614,6 @@ export function toggleSeasonDropdown(e) {
   dd.classList.toggle('open');
 }
 
-/* ★★★ بستن dropdown با کلیک بیرون ★★★ */
 document.addEventListener('click', (e) => {
   const dd = document.getElementById('seasonDropdown');
   if (!dd) return;
@@ -825,7 +926,6 @@ function renderWatchSidebar(anime, seasonNumber, currentEpNum) {
   }).join('');
 }
 
-/* ★★★ Up Next — اپیزودهای بعدی ★★★ */
 function renderUpNext(anime, seasonNumber, currentEpNum) {
   const row = document.getElementById('upNextRow');
   if (!row) return;

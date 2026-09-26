@@ -727,7 +727,6 @@ export function showPage(id, skipHistory) {
   if (!skipHistory) {
     const currentHash = location.hash.replace('#', '') || 'home';
     if (currentHash !== id) {
-      // ★ اگه صفحه detail هست، animeId هم ذخیره کن
       const state = { page: id };
       if (id === 'detail' && window.__currentAnimeId) {
         state.animeId = window.__currentAnimeId;
@@ -740,9 +739,22 @@ export function showPage(id, skipHistory) {
 
   if (id === 'watchlist') window.dispatchEvent(new CustomEvent('anivora:watchlist-refresh'));
   if (id === 'profile') window.dispatchEvent(new CustomEvent('anivora:profile-refresh'));
-
-  // ★ حذف بلوک detail-refresh — این باعث حلقه بی‌نهایت می‌شد
 }
+
+/* ============================================
+   ★ GO BACK — برگرد به صفحه قبلی
+============================================ */
+export function goBack() {
+  // اگه تاریخچه مرورگر وجود داشت و state داره، برگرد به صفحه قبلی
+  if (history.state && history.state.page) {
+    history.back();
+  } else {
+    // در غیر این صورت برو به Home
+    showPage('home');
+  }
+}
+
+window.goBack = goBack;
 
 export function updateBottomNav(id) {
   const items = document.querySelectorAll('.bottom-nav-item');
@@ -905,7 +917,6 @@ export function bindGlobalEvents() {
     }
   }, true);
   window.addEventListener('popstate', function(e) {
-    // ★ اگه state صفحه detail بود، با keepState=true به openAnimeDetail برگردون
     if (e.state && e.state.page === 'detail' && e.state.animeId) {
       if (window.openAnimeDetail) {
         window.openAnimeDetail(e.state.animeId, true);

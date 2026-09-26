@@ -204,16 +204,27 @@
 }
 
 .card-body { padding: 10px; }
+
+/* ★ عنوان کارت — پیش‌فرض یک خط با ... */
 .card-title {
   font-size: 12.5px;
   font-weight: 600;
   line-height: 1.4;
   overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  margin-bottom: 6px;
+}
+
+/* ★ اگر کارتی خواست دو خط شود، کلاس two-line را اضافه کن */
+.card-title.two-line {
+  white-space: normal;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
-  margin-bottom: 6px;
+  text-overflow: unset;
 }
+
 .card-meta {
   display: flex;
   align-items: center;
@@ -1243,31 +1254,69 @@
   flex-shrink: 0;
 }
 
+/* ============================================
+   DOWNLOAD QUALITY (با دکمه کپی)
+============================================ */
 .download-quality-list {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
+/* ★ هر کیفیت = کارت اصلی + دکمه کپی کنارش */
 .download-quality-item {
   display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 16px 14px;
+  align-items: stretch;
   background: #17171f;
   border: 1px solid rgba(255,255,255,0.05);
   border-radius: 12px;
-  color: var(--text-primary);
-  text-decoration: none;
-  cursor: pointer;
+  overflow: hidden;
   transition: background 0.15s ease, border-color 0.15s ease;
 }
 .download-quality-item:hover {
   background: #1d1d28;
   border-color: rgba(108,99,255,0.4);
 }
-.download-quality-item:active {
-  transform: scale(0.99);
+
+/* بخش اصلی (لینک دانلود) */
+.download-quality-main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 14px;
+  color: var(--text-primary);
+  text-decoration: none;
+  min-width: 0;
+  cursor: pointer;
+}
+.download-quality-main:hover {
+  color: var(--text-primary);
+}
+
+/* ★ دکمه کپی */
+.download-quality-copy {
+  flex-shrink: 0;
+  width: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-left: 1px solid rgba(255,255,255,0.06);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.download-quality-copy:hover {
+  background: rgba(108,99,255,0.12);
+  color: var(--accent);
+}
+.download-quality-copy:active {
+  transform: scale(0.95);
+}
+.download-quality-copy.copied {
+  background: rgba(76,175,128,0.12);
 }
 
 .download-quality-icon {

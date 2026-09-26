@@ -9,7 +9,8 @@ import {
   initCustomSelects, bindGlobalEvents, isInList, isLiked,
   getListStatus, setListStatus, openListStatusSheet, closeListStatusSheet,
   updateAddBtnUI, getLastPage, setLastPage, isLoggedIn,
-  handleDrawerAuth, updateDrawerAuth, updateHeaderAvatar
+  handleDrawerAuth, updateDrawerAuth, updateHeaderAvatar,
+  goBack
 } from './core.js';
 
 import {
@@ -26,6 +27,7 @@ import {
   toggleDesc, switchTab, switchProfileTab,
   switchSeason, toggleSeasonDropdown,
   toggleClearBtn, clearSearch, addFilter, removeFilter, filterResults,
+  showCategory,
   renderCharsAndStaff, renderReviews, renderDetailEpisodes,
   removeFromWatchingUI, removeFromFavoritesUI,
   bindWatchlistEvents, restoreStateAfterRefresh,
@@ -77,6 +79,7 @@ window.clearSearch = clearSearch;
 window.addFilter = addFilter;
 window.removeFilter = removeFilter;
 window.filterResults = filterResults;
+window.showCategory = showCategory;
 window.removeFromWatchingUI = removeFromWatchingUI;
 window.removeFromFavoritesUI = removeFromFavoritesUI;
 
@@ -89,6 +92,9 @@ window.setListStatus = setListStatus;
 window.handleDrawerAuth = handleDrawerAuth;
 window.updateDrawerAuth = updateDrawerAuth;
 window.updateHeaderAvatar = updateHeaderAvatar;
+
+/* ★ Go Back */
+window.goBack = goBack;
 
 /* Auth */
 window.handleLogin = handleLogin;
@@ -129,7 +135,7 @@ function init() {
   bindPlayerMouseMove();
 
   updateDrawerAuth();
-  updateHeaderAvatar();   // ★ آپدیت اولیه آواتار هدر
+  updateHeaderAvatar();
 
   if (isLoggedIn()) initProfile();
 

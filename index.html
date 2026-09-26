@@ -77,6 +77,7 @@
     <symbol id="ico-repeat" viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></symbol>
     <symbol id="ico-login" viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></symbol>
     <symbol id="ico-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></symbol>
+    <symbol id="ico-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></symbol>
   </defs>
 </svg>
 
@@ -110,10 +111,8 @@
     </div>
     <nav class="nav-links">
       <a href="javascript:void(0)" class="active" onclick="showPage('home')">Home</a>
-      <a href="javascript:void(0)" onclick="showPage('explore')">Anime</a>
       <a href="javascript:void(0)" onclick="showPage('seasonal')">Seasonal</a>
-      <a href="javascript:void(0)" onclick="showPage('explore')">Genres</a>
-      <a href="javascript:void(0)" onclick="showPage('explore')">Popular</a>
+      <a href="javascript:void(0)" onclick="showCategory('popular')">Popular</a>
       <a href="javascript:void(0)" onclick="showPage('calendar')">Calendar</a>
     </nav>
     <div class="header-actions">
@@ -174,7 +173,7 @@
   <section class="section" style="padding-top:36px;">
     <div class="section-header">
       <h2 class="section-title"><span class="section-title-bar"></span>Continue Watching</h2>
-      <a class="section-link" onclick="showPage('watchlist')">View All <svg class="icon icon-sm"><use href="#ico-chevron-r"/></svg></a>
+      <a class="section-link" onclick="showCategory('continue-watching')">View All <svg class="icon icon-sm"><use href="#ico-chevron-r"/></svg></a>
     </div>
     <div class="scroll-row" id="continueRow"></div>
   </section>
@@ -182,15 +181,22 @@
   <section class="section" style="padding-top:0;">
     <div class="section-header">
       <h2 class="section-title"><span class="section-title-bar"></span><svg class="icon icon-md" style="color:var(--accent);"><use href="#ico-trending"/></svg>Trending Now</h2>
-      <a class="section-link" onclick="showPage('explore')">See All <svg class="icon icon-sm"><use href="#ico-chevron-r"/></svg></a>
+      <a class="section-link" onclick="showCategory('trending')">See All <svg class="icon icon-sm"><use href="#ico-chevron-r"/></svg></a>
     </div>
     <div class="scroll-row" id="trendingRow"></div>
+  </section>
+
+  <section class="section weekly-section" style="padding-top:0;">
+    <div class="section-header">
+      <h2 class="section-title"><span class="section-title-bar"></span><svg class="icon icon-md" style="color:var(--gold);"><use href="#ico-gem"/></svg>Weekly Recommendation</h2>
+    </div>
+    <div id="weeklyPickWrap"></div>
   </section>
 
   <section class="section" style="padding-top:0;">
     <div class="section-header">
       <h2 class="section-title"><span class="section-title-bar"></span><svg class="icon icon-md" style="color:var(--accent);"><use href="#ico-zap"/></svg>New Episodes</h2>
-      <a class="section-link" onclick="showPage('explore')">See All <svg class="icon icon-sm"><use href="#ico-chevron-r"/></svg></a>
+      <a class="section-link" onclick="showCategory('new-episodes')">See All <svg class="icon icon-sm"><use href="#ico-chevron-r"/></svg></a>
     </div>
     <div class="scroll-row" id="newEpsRow"></div>
   </section>
@@ -198,7 +204,7 @@
   <section class="section" style="padding-top:0;padding-bottom:60px;">
     <div class="section-header">
       <h2 class="section-title"><span class="section-title-bar"></span><svg class="icon icon-md" style="color:var(--gold);"><use href="#ico-star"/></svg>Highest Rated</h2>
-      <a class="section-link" onclick="showPage('explore')">See All <svg class="icon icon-sm"><use href="#ico-chevron-r"/></svg></a>
+      <a class="section-link" onclick="showCategory('highest-rated')">See All <svg class="icon icon-sm"><use href="#ico-chevron-r"/></svg></a>
     </div>
     <div class="scroll-row" id="ratedRow"></div>
   </section>

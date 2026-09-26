@@ -193,3 +193,500 @@
   justify-content: center;
   gap: 7px;
 }
+
+
+/* ============================================
+   WEEKLY RECOMMENDATION — پست افقی (بنر 16:9)
+============================================ */
+.weekly-pick {
+  max-width: 900px;
+  margin: 0 auto;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: var(--transition);
+}
+.weekly-pick:hover {
+  border-color: var(--border-hover);
+}
+
+/* بنر ۱۶:۹ */
+.weekly-pick-banner {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/9;
+  overflow: hidden;
+  background: var(--bg-elevated);
+  cursor: pointer;
+}
+.weekly-pick-banner img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s ease;
+}
+.weekly-pick:hover .weekly-pick-banner img {
+  transform: scale(1.03);
+}
+
+/* گرادیان تیره سمت چپ برای خوانایی متن */
+.weekly-pick-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to right,
+      rgba(10,10,15,0.92) 0%,
+      rgba(10,10,15,0.65) 35%,
+      rgba(10,10,15,0.15) 65%,
+      transparent 100%),
+    linear-gradient(to top,
+      rgba(10,10,15,0.85) 0%,
+      transparent 45%);
+  pointer-events: none;
+}
+
+/* محتوای روی عکس — سمت چپ */
+.weekly-pick-content {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 2;
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  max-width: 60%;
+  pointer-events: none;
+}
+
+/* ژانرها */
+.weekly-pick-genres {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+/* عنوان */
+.weekly-pick-title {
+  font-size: clamp(20px, 2.6vw, 30px);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.5px;
+  color: #fff;
+  margin-bottom: 6px;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.6);
+}
+.weekly-pick-jp {
+  font-size: 12.5px;
+  color: rgba(255,255,255,0.6);
+  margin-bottom: 12px;
+}
+
+/* ردیف متا (نمره، سال، تعداد قسمت) */
+.weekly-pick-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-size: 13px;
+  color: rgba(255,255,255,0.85);
+}
+.weekly-pick-meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.weekly-pick-score {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 800;
+  color: var(--gold);
+  font-size: 14px;
+}
+
+/* نوار دکمه‌ها زیر عکس */
+.weekly-pick-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  background: var(--bg-card);
+  border-top: 1px solid var(--border);
+}
+
+/* دکمه Watch — چپ، اصلی */
+.weekly-pick-actions .btn-watch {
+  flex: 1;
+  height: 42px;
+  border-radius: var(--radius-sm);
+  background: var(--accent);
+  color: #fff;
+  font-size: 13.5px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: none;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.weekly-pick-actions .btn-watch:hover {
+  background: var(--accent-hover);
+}
+.weekly-pick-actions .btn-watch:active {
+  transform: scale(0.98);
+}
+
+/* دکمه‌های آیکونی (List / Like) */
+.weekly-pick-actions .btn-icon-square {
+  flex: 0 0 42px;
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-hover);
+  color: var(--text-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition);
+  padding: 0;
+}
+.weekly-pick-actions .btn-icon-square:hover {
+  background: var(--bg-hover);
+}
+.weekly-pick-actions .btn-icon-square.is-added {
+  background: rgba(76,175,128,0.14);
+  color: var(--success);
+  border-color: rgba(76,175,128,0.35);
+}
+.weekly-pick-actions .btn-icon-square.is-liked {
+  background: rgba(255,120,160,0.15);
+  color: #ff78a0;
+  border-color: rgba(255,120,160,0.4);
+}
+.weekly-pick-actions .btn-icon-square.is-liked svg {
+  fill: #ff78a0;
+  stroke: #ff78a0;
+}
+
+/* ---------- موبایل ---------- */
+@media (max-width: 768px) {
+  .weekly-pick { max-width: 100%; }
+
+  .weekly-pick-banner {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16/9;
+  }
+
+  .weekly-pick-content {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    height: auto;
+    max-width: 85%;
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    pointer-events: none;
+  }
+
+  .weekly-pick-genres {
+    margin-bottom: 8px;
+  }
+  .weekly-pick-genres .tag {
+    font-size: 10px;
+    padding: 2px 9px;
+  }
+
+  .weekly-pick-title {
+    font-size: 18px;
+    margin-bottom: 4px;
+  }
+  .weekly-pick-jp {
+    font-size: 11px;
+    margin-bottom: 8px;
+  }
+
+  .weekly-pick-meta {
+    font-size: 11.5px;
+    gap: 12px;
+  }
+  .weekly-pick-score { font-size: 12.5px; }
+
+  /* دکمه‌ها زیر عکس */
+  .weekly-pick-actions {
+    position: static;
+    left: auto;
+    bottom: auto;
+    padding: 10px;
+    gap: 6px;
+    background: var(--bg-card);
+    border-top: 1px solid var(--border);
+    pointer-events: auto;
+  }
+
+  .weekly-pick-actions .btn-watch {
+    flex: 1;
+    height: 38px;
+    font-size: 12.5px;
+    gap: 5px;
+    padding: 0 12px;
+    transform: none;
+  }
+  .weekly-pick-actions .btn-watch:hover {
+    transform: none;
+  }
+
+  .weekly-pick-actions .btn-icon-square {
+    flex: 0 0 38px;
+    width: 38px;
+    height: 38px;
+    transform: none;
+  }
+  .weekly-pick-actions .btn-icon-square:hover {
+    transform: none;
+  }
+}
+
+/* ============================================
+   WEEKLY RECOMMENDATION — دسکتاپ شبیه Hero
+   (فقط در ≥ 1025px اعمال میشه)
+============================================ */
+@media (min-width: 1025px) {
+  #weeklyPickWrap {
+    padding: 0 !important;
+  }
+
+  .weekly-pick {
+    max-width: 100%;
+    margin: 0;
+    border-radius: 0;
+    border: none;
+    background: transparent;
+    position: relative;
+    height: 62vh;
+    min-height: 460px;
+    max-height: 620px;
+    overflow: hidden;
+  }
+
+  .weekly-pick-banner {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    aspect-ratio: auto;
+    cursor: pointer;
+  }
+
+  .weekly-pick-banner img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top;
+    transition: transform 0.4s ease;
+  }
+
+  .weekly-pick:hover .weekly-pick-banner img {
+    transform: scale(1.03);
+  }
+
+  .weekly-pick-overlay {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(to right,
+        rgba(10,10,15,0.96) 0%,
+        rgba(10,10,15,0.72) 40%,
+        rgba(10,10,15,0.1) 72%,
+        transparent 100%),
+      linear-gradient(to top,
+        rgba(10,10,15,1) 0%,
+        rgba(10,10,15,0.4) 30%,
+        transparent 60%),
+      linear-gradient(to bottom,
+        rgba(10,10,15,1) 0%,
+        rgba(10,10,15,0.6) 8%,
+        transparent 22%);
+    pointer-events: none;
+  }
+
+  .weekly-pick-content {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 0;
+    z-index: 2;
+    padding: 0 52px 84px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    max-width: 640px;
+    pointer-events: none;
+  }
+
+  .weekly-pick-genres {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+  .weekly-pick-genres .tag {
+    font-size: 13px;
+    padding: 5px 14px;
+    font-weight: 600;
+    border-radius: 20px;
+  }
+
+  .weekly-pick-title {
+    font-size: clamp(28px, 4vw, 48px);
+    font-weight: 800;
+    line-height: 1.14;
+    letter-spacing: -0.5px;
+    margin-bottom: 6px;
+    color: #fff;
+    text-shadow: 0 2px 12px rgba(0,0,0,0.6);
+  }
+
+  .weekly-pick-jp {
+    font-size: 13.5px;
+    color: var(--text-secondary);
+    margin-bottom: 14px;
+  }
+
+  .weekly-pick-meta {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+  .weekly-pick-meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+  }
+  .weekly-pick-score {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--gold);
+  }
+
+  /* دکمه‌ها روی تصویر در پایین چپ */
+  .weekly-pick-actions {
+    position: absolute;
+    left: 52px;
+    bottom: 40px;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0;
+    background: transparent;
+    border-top: none;
+    pointer-events: auto;
+  }
+
+  .weekly-pick-actions .btn-watch {
+    flex: 0 0 auto;
+    height: auto;
+    padding: 10px 22px;
+    border-radius: var(--radius-sm);
+    background: var(--accent);
+    color: #fff;
+    font-size: 13.5px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    border: none;
+    cursor: pointer;
+    transition: var(--transition);
+    white-space: nowrap;
+  }
+  .weekly-pick-actions .btn-watch:hover {
+    background: var(--accent-hover);
+    transform: translateY(-1px);
+  }
+
+  .weekly-pick-actions .btn-icon-square {
+    flex: 0 0 auto;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border-radius: var(--radius-sm);
+    background: rgba(255,255,255,0.07);
+    border: 1px solid var(--border-hover);
+    color: var(--text-primary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition);
+  }
+  .weekly-pick-actions .btn-icon-square:hover {
+    background: rgba(255,255,255,0.11);
+    transform: translateY(-1px);
+  }
+  .weekly-pick-actions .btn-icon-square.is-added {
+    background: rgba(76,175,128,0.14);
+    color: var(--success);
+    border-color: rgba(76,175,128,0.35);
+  }
+  .weekly-pick-actions .btn-icon-square.is-liked {
+    background: rgba(255,120,160,0.15);
+    color: #ff78a0;
+    border-color: rgba(255,120,160,0.4);
+  }
+  .weekly-pick-actions .btn-icon-square.is-liked svg {
+    fill: #ff78a0;
+    stroke: #ff78a0;
+  }
+}
+
+/* ============================================
+   WEEKLY SECTION — فاصله بالا و پایین یکنواخت
+============================================ */
+.weekly-section {
+  padding-top: 0;
+  padding-bottom: 0;
+  margin: 0;
+}
+
+#weeklyPickWrap {
+  padding: 0 16px;
+  margin-bottom: 48px;
+}
+
+@media (max-width: 768px) {
+  #weeklyPickWrap {
+    margin-bottom: 48px;
+  }
+}
+
+@media (min-width: 1025px) {
+  #weeklyPickWrap {
+    padding: 0;
+    margin-bottom: 0;
+  }
+}
