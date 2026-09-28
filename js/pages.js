@@ -2,8 +2,6 @@
    ANIVORA — PAGES
 ============================================ */
 
-import { ANIME_DATA, CONTINUE_WATCHING, CHARACTERS, STAFF_DATA, CALENDAR_DATA, REVIEWS,
-         getTotalEpisodes, getAiredEpisodes } from './data.js';
 import {
   showPage, updateBottomNav, triggerPageLoader,
   isInList, isLiked, toggleList, toggleLike, showToast, shuffle,
@@ -26,6 +24,25 @@ import {
   initQualitySelector, initSpeedSelector
 } from './components.js';
 
+/* ============================================
+   HELPERS
+============================================ */
+function getTotalEpisodes(anime) {
+  if (!anime) return 0;
+  if (anime.seasons && anime.seasons.length > 0) {
+    return anime.seasons.reduce((sum, s) => sum + s.episodes.length, 0);
+  }
+  return anime.episodes ? anime.episodes.length : 0;
+}
+
+function getAiredEpisodes(anime) {
+  if (!anime) return 0;
+  if (anime.seasons && anime.seasons.length > 0) {
+    return anime.seasons.reduce((sum, s) => sum + (s.episodesAired || s.episodes.length), 0);
+  }
+  return anime.episodesAired || (anime.episodes ? anime.episodes.length : 0);
+}
+
 let activeFilters = [];
 let watchlistFilter = 'all';
 
@@ -33,6 +50,9 @@ let watchlistFilter = 'all';
    HOME PAGE
 ============================================ */
 export function initHome() {
+  const ANIME_DATA = window.ANIME_DATA || [];
+  if (ANIME_DATA.length === 0) return;
+
   initHero();
   initContinueWatching();
   populateSection('trendingRow', shuffle(ANIME_DATA).slice(0, 10));
@@ -43,6 +63,7 @@ export function initHome() {
 }
 
 function initHero() {
+  const ANIME_DATA = window.ANIME_DATA || [];
   if (!ANIME_DATA || ANIME_DATA.length === 0) return;
   const heroAnime = ANIME_DATA[Math.floor(Math.random() * ANIME_DATA.length)];
   window.__heroAnimeId = heroAnime.id;
@@ -59,7 +80,7 @@ function initHero() {
     const statusBadge = heroAnime.status === 'Airing'
       ? `<span class="badge badge-airing"><span class="airing-dot"></span>Airing</span>`
       : `<span class="badge badge-genre">${heroAnime.status}</span>`;
-    const genreBadges = heroAnime.genres.slice(0, 3).map(g =>
+    const genreBadges = (heroAnime.genres || []).slice(0, 3).map(g =>
       `<span class="badge badge-genre">${g}</span>`
     ).join('');
     badges.innerHTML = statusBadge + genreBadges;
@@ -113,8 +134,53 @@ function initHero() {
 
 function initContinueWatching() {
   const row = document.getElementById('continueRow');
-  if (!row || typeof CONTINUE_WATCHING === 'undefined') return;
-  row.innerHTML = CONTINUE_WATCHING.map(d => `
+  if (!row) return;
+
+  const ANIME_DATA = window.ANIME_DATA || [];
+  const lastEpStore = getStore('anivora_last_ep');
+
+  const items = [];
+  Object.keys(lastEpStore).forEach(idStr => {
+    const animeId = parseInt(idStr);
+    const anime = ANIME_DATA.find(a => a.id === animeId);
+    if (!anime) return;
+
+    let lastEpData = lastEpStore[animeId];
+    let epNum = 0, seasonNumber = 1;
+    if (typeof lastEpData === 'object') {
+      epNum = lastEpData.epNum;
+      seasonNumber = lastEpData.seasonNumber || 1;
+    } else {
+      epNum = lastEpData;
+    }
+    if (!epNum || epNum <= 0) return;
+
+    const seasons = anime.seasons || [{ seasonNumber: 1, episodes: anime.episodes || [] }];
+    const season = seasons.find(s => s.seasonNumber === seasonNumber) || seasons[0];
+    const ep = season.episodes.find(e => e.num === epNum);
+    if (!ep) return;
+
+    const progress = getProgress(animeId);
+    items.push({
+      animeId,
+      seasonNumber,
+      epNum,
+      title: anime.title,
+      ep: `S${seasonNumber} E${String(epNum).padStart(2, '0')}`,
+      progress: progress || 0,
+      timeLeft: ep.duration || '24 min',
+      img: ep.img || anime.img
+    });
+  });
+
+  const displayItems = items.slice(0, 6);
+
+  if (displayItems.length === 0) {
+    row.innerHTML = '<div style="color:var(--text-muted);padding:12px;font-size:13px;">No continue watching items.</div>';
+    return;
+  }
+
+  row.innerHTML = displayItems.map(d => `
     <div class="continue-card" onclick="openEpisode(${d.animeId}, ${d.seasonNumber || 1}, ${d.epNum})">
       <div class="continue-thumb">
         <img src="${d.img}" alt="" loading="lazy">
@@ -134,14 +200,11 @@ function initContinueWatching() {
   `).join('');
 }
 
-/* ============================================
-   WEEKLY RECOMMENDATION — یک انیمه رندم در هفته
-============================================ */
 function initWeeklyPick() {
   const wrap = document.getElementById('weeklyPickWrap');
+  const ANIME_DATA = window.ANIME_DATA || [];
   if (!wrap || !ANIME_DATA || ANIME_DATA.length === 0) return;
 
-  // شماره هفته‌ی سال — در طول یک هفته ثابت می‌مونه
   const now = new Date();
   const startOfYear = new Date(now.getFullYear(), 0, 1);
   const days = Math.floor((now - startOfYear) / 86400000);
@@ -168,7 +231,7 @@ function initWeeklyPick() {
         <div class="weekly-pick-overlay"></div>
         <div class="weekly-pick-content">
           <div class="weekly-pick-genres">
-            ${anime.genres.slice(0, 3).map(g =>
+            ${(anime.genres || []).slice(0, 3).map(g =>
               `<span class="tag ${genreColors[g] || 'badge-genre'}">${g}</span>`
             ).join('')}
           </div>
@@ -260,6 +323,7 @@ export function removeFilter(idx) {
 }
 
 export function filterResults() {
+  const ANIME_DATA = window.ANIME_DATA || [];
   const q = (document.getElementById('mainSearchInput')?.value || '').toLowerCase();
   let res = [...ANIME_DATA];
   if (q) res = res.filter(a => a.title.toLowerCase().includes(q) || (a.jp || '').toLowerCase().includes(q));
@@ -267,10 +331,9 @@ export function filterResults() {
   activeFilters.forEach(f => {
     if (f.type === 'Type') res = res.filter(a => a.type === f.val);
     if (f.type === 'Status') res = res.filter(a => a.status === f.val);
-    if (f.type === 'Genre') res = res.filter(a => a.genres.includes(f.val));
+    if (f.type === 'Genre') res = res.filter(a => (a.genres || []).includes(f.val));
   });
 
-  // ★ مرتب‌سازی برای Highest Rated و Popular و Trending
   if (activeFilters.find(f => f.type === 'sort' && f.val === 'score')) {
     res.sort((a, b) => b.score - a.score);
   }
@@ -281,15 +344,10 @@ export function filterResults() {
   if (cnt) cnt.textContent = res.length;
 }
 
-/* ============================================
-   ★ SHOW CATEGORY — برای دکمه‌های See All و Header
-============================================ */
 export function showCategory(category) {
-  // پاک کردن فیلترهای قبلی
   activeFilters = [];
   renderActiveFilters();
 
-  // پاک کردن سرچ
   const searchInput = document.getElementById('mainSearchInput');
   if (searchInput) searchInput.value = '';
   toggleClearBtn();
@@ -299,10 +357,8 @@ export function showCategory(category) {
     return;
   }
 
-  // ★ اول برو به صفحه explore
   showPage('explore');
 
-  // ★ بعد فیلترها را اعمال کن
   if (category === 'trending') {
     activeFilters.push({ key: 'Trending Now', type: 'sort', val: 'score' });
   } else if (category === 'new-episodes') {
@@ -321,6 +377,7 @@ export function showCategory(category) {
    DETAIL PAGE
 ============================================ */
 export function openAnimeDetail(animeId, keepState = false) {
+  const ANIME_DATA = window.ANIME_DATA || [];
   const anime = ANIME_DATA.find(a => a.id === animeId);
   if (!anime) return;
 
@@ -355,7 +412,7 @@ export function openAnimeDetail(animeId, keepState = false) {
     'Romance':'genre-romance','Sci-Fi':'genre-scifi','Horror':'genre-horror',
     'Comedy':'genre-comedy','Military':'genre-scifi','Supernatural':'genre-fantasy'
   };
-  document.querySelector('.detail-genres-row').innerHTML = anime.genres.map(g => {
+  document.querySelector('.detail-genres-row').innerHTML = (anime.genres || []).map(g => {
     const cls = genreColors[g] || 'badge-genre';
     return `<span class="tag ${cls}">${g}</span>`;
   }).join('');
@@ -538,6 +595,7 @@ export function renderDetailEpisodes(anime, seasonNumber) {
 
   const recommendedGrid = document.getElementById('tabRecommendedGrid');
   if (recommendedGrid) {
+    const ANIME_DATA = window.ANIME_DATA || [];
     const currentGenres = anime.genres || [];
     const isMobile = window.matchMedia('(max-width: 768px)').matches;
     const maxCards = isMobile ? 9 : 12;
@@ -598,6 +656,7 @@ export function renderDetailEpisodes(anime, seasonNumber) {
 }
 
 export function switchSeason(animeId, seasonNumber) {
+  const ANIME_DATA = window.ANIME_DATA || [];
   const anime = ANIME_DATA.find(a => a.id === animeId);
   if (!anime) return;
 
@@ -625,40 +684,8 @@ document.addEventListener('click', (e) => {
 window.switchSeason = switchSeason;
 window.toggleSeasonDropdown = toggleSeasonDropdown;
 
-export function renderCharsAndStaff() {
-  const grid = document.getElementById('charGrid');
-  if (grid && typeof CHARACTERS !== 'undefined') {
-    grid.innerHTML = CHARACTERS.map(c => `
-      <div class="detail-person-card">
-        <img src="${c.img}" alt="">
-        <div><div class="detail-person-name">${c.name}</div><div class="detail-person-role">${c.role}</div></div>
-      </div>`).join('');
-  }
-  const staff = document.getElementById('staffGrid');
-  if (staff && typeof STAFF_DATA !== 'undefined') {
-    staff.innerHTML = STAFF_DATA.map(s => `
-      <div class="detail-person-card">
-        <img src="${s.img}" alt="">
-        <div><div class="detail-person-name">${s.name}</div><div class="detail-person-role">${s.role}</div></div>
-      </div>`).join('');
-  }
-}
-
-export function renderReviews() {
-  const list = document.getElementById('reviewsList');
-  if (!list || typeof REVIEWS === 'undefined') return;
-  list.innerHTML = REVIEWS.map(r => `
-    <div class="review-card">
-      <div class="review-header">
-        <div class="review-avatar">${r.initial}</div>
-        <div><div class="review-user">${r.user}</div><div class="review-date">${r.date}</div></div>
-        <div class="review-score">
-          <svg style="width:13px;height:13px;fill:var(--gold);stroke:none;"><use href="#ico-star"/></svg> ${r.score}/10
-        </div>
-      </div>
-      <p class="review-text">${r.text}</p>
-    </div>`).join('');
-}
+export function renderCharsAndStaff() { return; }
+export function renderReviews() { return; }
 
 export function toggleDesc() {
   return;
@@ -682,6 +709,7 @@ export function switchProfileTab(btn, panelId) {
    WATCH PAGE
 ============================================ */
 export function openEpisode(animeId, seasonNumber, epNum) {
+  const ANIME_DATA = window.ANIME_DATA || [];
   const anime = ANIME_DATA.find(a => a.id === animeId);
   if (!anime) return;
 
@@ -733,6 +761,7 @@ function cleanupPlayer() {
 }
 
 export function watchAnime(animeId) {
+  const ANIME_DATA = window.ANIME_DATA || [];
   const anime = ANIME_DATA.find(a => a.id === animeId);
   if (!anime) return;
   const seasons = anime.seasons || [{ seasonNumber: 1, episodes: anime.episodes || [] }];
@@ -1105,6 +1134,7 @@ export function handleSignup() {
    PROFILE
 ============================================ */
 export function initProfile() {
+  const ANIME_DATA = window.ANIME_DATA || [];
   if (!isLoggedIn()) return;
   const user = getCurrentUser();
   if (!user) return;
@@ -1310,7 +1340,6 @@ export function initProfile() {
         </div>`).join('');
   }
 
-  // Other List
   const otherListContent = document.getElementById('otherListContent');
   if (otherListContent) {
     const listStore = getListStore();
@@ -1397,6 +1426,7 @@ export function bindDetailEvents() {
   window.addEventListener('anivora:episode-watched', (e) => {
     const animeId = e.detail?.animeId;
     if (!animeId) return;
+    const ANIME_DATA = window.ANIME_DATA || [];
     const anime = ANIME_DATA.find(a => a.id === animeId);
     if (!anime) return;
     const currentSeason = window.__currentSeason || 1;
@@ -1543,6 +1573,7 @@ export function saveProfileChanges() {
 export function initWatchlist() {
   const el = document.getElementById('watchlistContent');
   if (!el) return;
+  const ANIME_DATA = window.ANIME_DATA || [];
   const listStore = getListStore();
   const favoriteIds = getStore('anivora_likes');
   let items = [];
@@ -1640,6 +1671,7 @@ export function bindWatchlistEvents() {
    RESTORE STATE AFTER REFRESH
 ============================================ */
 export function restoreStateAfterRefresh() {
+  const ANIME_DATA = window.ANIME_DATA || [];
   const hashPage = location.hash ? location.hash.replace('#','') : null;
   const lastPage = getLastPage();
   let targetPage = hashPage;
@@ -1695,7 +1727,18 @@ export function restoreStateAfterRefresh() {
 ============================================ */
 export function initCalendar() {
   const grid = document.getElementById('calendarGrid');
-  if (!grid || typeof CALENDAR_DATA === 'undefined') return;
+  if (!grid) return;
+
+  const CALENDAR_DATA = {
+    "Monday":    [{title:"Sparks of Tomorrow", ep:"Ep 1"}],
+    "Tuesday":   [{title:"Black Torch", ep:"Ep 1"}],
+    "Wednesday": [{title:"Kaiju Girl Caramelise", ep:"Ep 1"}],
+    "Thursday":  [{title:"Black Torch", ep:"Ep 4"}],
+    "Friday":    [{title:"Sparks of Tomorrow", ep:"Ep 5"}],
+    "Saturday":  [{title:"Kaiju Girl Caramelise", ep:"Ep 6"}],
+    "Sunday":    [{title:"Dandadan", ep:"Ep 7"}]
+  };
+
   const days = Object.keys(CALENDAR_DATA);
   const today = "Saturday";
   grid.innerHTML = days.map(day => `

@@ -4,7 +4,25 @@
 ============================================ */
 
 import { isInList, toggleList, formatTime, showToast } from './core.js';
-import { ANIME_DATA, getAllEpisodes, getTotalEpisodes } from './data.js';
+
+/* ============================================
+   HELPERS (جایگزین توابع data.js)
+============================================ */
+function getTotalEpisodes(anime) {
+  if (!anime) return 0;
+  if (anime.seasons && anime.seasons.length > 0) {
+    return anime.seasons.reduce((sum, s) => sum + s.episodes.length, 0);
+  }
+  return anime.episodes ? anime.episodes.length : 0;
+}
+
+function getAiredEpisodes(anime) {
+  if (!anime) return 0;
+  if (anime.seasons && anime.seasons.length > 0) {
+    return anime.seasons.reduce((sum, s) => sum + (s.episodesAired || s.episodes.length), 0);
+  }
+  return anime.episodesAired || (anime.episodes ? anime.episodes.length : 0);
+}
 
 /* ============================================
    CARD RENDERER
@@ -15,6 +33,8 @@ export function renderAnimeCard(a, options = {}) {
            : 'status-finished';
   const totalEps = getTotalEpisodes(a);
   const titleClass = options.twoLine ? 'card-title two-line' : 'card-title';
+  const genres = a.genres || [];
+
   return `
     <div class="anime-card" onclick="openAnimeDetail(${a.id})">
       <div class="card-poster">
@@ -33,7 +53,7 @@ export function renderAnimeCard(a, options = {}) {
           <span class="status-badge ${sc}" style="font-size:9px;padding:1px 5px;">${a.status}</span>
         </div>
         <div class="card-meta" style="margin-top:2px;"><span class="card-meta-item">${totalEps} eps</span></div>
-        <div class="card-genres">${a.genres.slice(0,2).map(g => `<span class="card-genre-tag">${g}</span>`).join('')}</div>
+        <div class="card-genres">${genres.slice(0,2).map(g => `<span class="card-genre-tag">${g}</span>`).join('')}</div>
       </div>
     </div>`;
 }
@@ -48,6 +68,7 @@ export function populateSection(id, data, options = {}) {
 ============================================ */
 export function toggleDownloadMenu(e, animeId, epNum) {
   if (e) e.stopPropagation();
+  const ANIME_DATA = window.ANIME_DATA || [];
   const anime = ANIME_DATA.find(a => a.id === animeId);
   if (!anime) return;
 
@@ -105,7 +126,6 @@ function openDownloadSheet(anime) {
 
   let currentSeason = null;
 
-  /* ---------- STEP 1: Seasons (اگه چند فصل داره) ---------- */
   function renderSeasons() {
     backBtn.style.display = 'none';
     titleEl.textContent = anime.title;
@@ -145,7 +165,6 @@ function openDownloadSheet(anime) {
     }, 350);
   }
 
-  /* ---------- STEP 2: Episodes ---------- */
   function renderEpisodes() {
     if (!currentSeason) return;
 
@@ -194,7 +213,6 @@ function openDownloadSheet(anime) {
     }, 350);
   }
 
-  /* ---------- STEP 3: Qualities ---------- */
   function renderQualities(ep) {
     backBtn.style.display = 'flex';
     backBtn.onclick = (e) => {
@@ -242,7 +260,6 @@ function openDownloadSheet(anime) {
         </div>
       `;
 
-      // ★ بایند دکمه‌های کپی
       body.querySelectorAll('.download-quality-copy').forEach(btn => {
         btn.onclick = (e) => {
           e.stopPropagation();
@@ -289,13 +306,11 @@ function openDownloadSheet(anime) {
     }, 350);
   }
 
-  /* ---------- Close Button ---------- */
   sheet.querySelector('#dlSheetClose').onclick = (e) => {
     e.stopPropagation();
     closeDownloadSheet();
   };
 
-  /* ---------- Start ---------- */
   if (hasMultipleSeasons) {
     renderSeasons();
   } else {
@@ -701,7 +716,6 @@ export function bindFullscreenChange() {
 
 /* ============================================
    NEXT EPISODE
-   ★ پشتیبانی از فصل‌ها
 ============================================ */
 export function playNextEpisode(e) {
   if (e) e.stopPropagation();

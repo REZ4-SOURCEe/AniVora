@@ -37,13 +37,51 @@ import {
   handleAvatarUpload, removeAvatar, saveProfileChanges
 } from './pages.js';
 
-import { ANIME_DATA } from './data.js';
+// ★ دیگر ANIME_DATA را از data.js import نمی‌کنیم
 
 /* ============================================
-   EXPOSE ANIME_DATA TO WINDOW
+   GLOBAL DATA
 ============================================ */
-window.__animeData = {};
-ANIME_DATA.forEach(a => { window.__animeData[a.id] = a; });
+let ANIME_DATA = [];
+
+/* ============================================
+   LOAD DATA FROM API
+============================================ */
+async function loadData() {
+  try {
+    // ★ آدرس نسبی — چون از Pages Functions استفاده می‌کنیم
+    const API_URL = '/api/anime';
+
+    const response = await fetch(API_URL);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    ANIME_DATA = await response.json();
+
+    // پر کردن متغیر سراسری برای استفاده در سایر فایل‌ها
+    window.__animeData = {};
+    ANIME_DATA.forEach(a => { window.__animeData[a.id] = a; });
+    window.ANIME_DATA = ANIME_DATA;
+
+    console.log(`✅ Loaded ${ANIME_DATA.length} anime from API`);
+    return true;
+  } catch (error) {
+    console.error('❌ Failed to load anime data:', error);
+
+    const loader = document.getElementById('pageLoader');
+    if (loader) {
+      loader.innerHTML = `
+        <div style="text-align:center;color:var(--danger);">
+          <svg class="icon icon-xl" style="width:48px;height:48px;margin-bottom:12px;"><use href="#ico-x"/></svg>
+          <div style="font-size:14px;font-weight:600;">Failed to load data</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">Please check your connection and refresh.</div>
+        </div>
+      `;
+    }
+    return false;
+  }
+}
 
 /* ============================================
    EXPOSE TO WINDOW
@@ -70,7 +108,6 @@ window.toggleDesc = toggleDesc;
 window.switchTab = switchTab;
 window.switchProfileTab = switchProfileTab;
 
-/* ★ Season Dropdown */
 window.switchSeason = switchSeason;
 window.toggleSeasonDropdown = toggleSeasonDropdown;
 
@@ -88,15 +125,12 @@ window.closeListStatusSheet = closeListStatusSheet;
 window.getListStatus = getListStatus;
 window.setListStatus = setListStatus;
 
-/* ★ Drawer Auth + Header Avatar */
 window.handleDrawerAuth = handleDrawerAuth;
 window.updateDrawerAuth = updateDrawerAuth;
 window.updateHeaderAvatar = updateHeaderAvatar;
 
-/* ★ Go Back */
 window.goBack = goBack;
 
-/* Auth */
 window.handleLogin = handleLogin;
 window.handleSignup = handleSignup;
 window.handleLogout = handleLogout;
@@ -105,7 +139,6 @@ window.goToProfile = function() {
   else showPage('login');
 };
 
-/* Edit Profile */
 window.openEditProfileModal = openEditProfileModal;
 window.closeEditProfileModal = closeEditProfileModal;
 window.handleAvatarUpload = handleAvatarUpload;
@@ -115,7 +148,12 @@ window.saveProfileChanges = saveProfileChanges;
 /* ============================================
    INIT
 ============================================ */
-function init() {
+async function init() {
+  // ★ اول داده‌ها را بارگذاری کن
+  const dataLoaded = await loadData();
+
+  if (!dataLoaded) return;
+
   renderLoginPage();
   renderSignupPage();
 
@@ -219,4 +257,7 @@ function refreshStoredButtons() {
   });
 }
 
+/* ============================================
+   START
+============================================ */
 document.addEventListener('DOMContentLoaded', init);

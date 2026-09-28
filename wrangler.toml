@@ -1,0 +1,8 @@
+name = "anivora"
+pages_build_output_dir = "./"
+compatibility_date = "2025-01-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "anivora-db"
+database_id = "puthere"
