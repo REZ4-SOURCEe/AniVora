@@ -50,7 +50,7 @@ let ANIME_DATA = [];
 async function loadData() {
   try {
     // ★ آدرس نسبی — چون از Pages Functions استفاده می‌کنیم
-    const API_URL = 'https://anivora.pages.dev/api/anime';
+    const API_URL = location.hostname.endsWith('github.io') ? 'data.json' : '/api/anime';
 
     const response = await fetch(API_URL);
     if (!response.ok) {
