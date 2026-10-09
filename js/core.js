@@ -46,7 +46,7 @@ export function setLastPage(page) {
   try { localStorage.setItem(LAST_PAGE_KEY, JSON.stringify(page)); } catch(e) {}
 }
 
-/* ---------- DETAIL STATE (برای برگشت به تب Recommended) ---------- */
+/* ---------- DETAIL STATE ---------- */
 export function getDetailState() {
   try { return JSON.parse(sessionStorage.getItem(DETAIL_STATE_KEY)) || null; }
   catch(e) { return null; }
@@ -145,6 +145,15 @@ export function setListStatus(animeId, status) {
 
   document.querySelectorAll(`[data-add-btn="${animeId}"]`).forEach(b => updateAddBtnUI(b, animeId));
 
+  // ★ فقط اگر در صفحه watchlist هستیم، refresh کن
+  if (window.__currentPage === 'watchlist') {
+    window.dispatchEvent(new CustomEvent('anivora:watchlist-refresh'));
+  }
+  // ★ فقط اگر در صفحه profile هستیم، refresh کن
+  if (window.__currentPage === 'profile') {
+    window.dispatchEvent(new CustomEvent('anivora:profile-refresh'));
+  }
+  // ★ event عمومی
   window.dispatchEvent(new CustomEvent('anivora:list-changed', {
     detail: { animeId, status }
   }));
@@ -174,9 +183,6 @@ export function updateAddBtnUI(btn, animeId) {
   } else {
     const svg = btn.querySelector('svg use');
     if (svg) svg.setAttribute('href', `#${icon}`);
-    if (btn.textContent.trim().length > 0) {
-      btn.innerHTML = `<svg class="icon icon-sm"><use href="#${icon}"/></svg> ${label}`;
-    }
   }
   btn.classList.toggle('is-added', inList);
 }
@@ -193,6 +199,14 @@ export function toggleLike(animeId, btn) {
 
   document.querySelectorAll(`[data-like-btn="${animeId}"]`).forEach(b => updateLikeBtnUI(b, animeId));
   if (btn) updateLikeBtnUI(btn, animeId);
+
+  // ★ فقط اگر در صفحه watchlist یا profile هستیم، refresh کن
+  if (window.__currentPage === 'watchlist') {
+    window.dispatchEvent(new CustomEvent('anivora:watchlist-refresh'));
+  }
+  if (window.__currentPage === 'profile') {
+    window.dispatchEvent(new CustomEvent('anivora:profile-refresh'));
+  }
 
   window.dispatchEvent(new CustomEvent('anivora:likes-changed', {
     detail: { animeId }
@@ -215,6 +229,13 @@ export function removeFromFavorites(animeId) {
   likes = likes.filter(id => id !== animeId);
   setStore(LIKES_KEY, likes);
   document.querySelectorAll(`[data-like-btn="${animeId}"]`).forEach(b => updateLikeBtnUI(b, animeId));
+
+  if (window.__currentPage === 'watchlist') {
+    window.dispatchEvent(new CustomEvent('anivora:watchlist-refresh'));
+  }
+  if (window.__currentPage === 'profile') {
+    window.dispatchEvent(new CustomEvent('anivora:profile-refresh'));
+  }
 
   window.dispatchEvent(new CustomEvent('anivora:likes-changed', {
     detail: { animeId }
@@ -280,11 +301,11 @@ export function isLoggedIn() {
 
 export function signup(email, password, username) {
   const users = getUsers();
-  if (users.find(u => u.email.toLowerCase() === email.toLowerCase())) {
-    return { success: false, error: 'This email is already registered.' };
-  }
   if (!email || !email.includes('@')) {
     return { success: false, error: 'Please enter a valid email.' };
+  }
+  if (users.find(u => u.email.toLowerCase() === email.toLowerCase())) {
+    return { success: false, error: 'This email is already registered.' };
   }
   if (!password || password.length < 6) {
     return { success: false, error: 'Password must be at least 6 characters.' };
@@ -294,6 +315,7 @@ export function signup(email, password, username) {
     email: email.toLowerCase(),
     password: password,
     username: username || email.split('@')[0],
+    avatar: null,
     createdAt: new Date().toISOString()
   };
   users.push(newUser);
@@ -303,6 +325,9 @@ export function signup(email, password, username) {
 }
 
 export function login(email, password) {
+  if (!email || !password) {
+    return { success: false, error: 'Please enter email and password.' };
+  }
   const users = getUsers();
   const user = users.find(u =>
     u.email.toLowerCase() === email.toLowerCase() && u.password === password
@@ -349,7 +374,7 @@ export function computeProfileStats(ANIME_DATA) {
     if (status === 'plan_to_watch') planToWatch++;
     if (isDropped(animeId)) dropped++;
 
-    anime.genres.forEach(g => { genreCount[g] = (genreCount[g] || 0) + 1; });
+    (anime.genres || []).forEach(g => { genreCount[g] = (genreCount[g] || 0) + 1; });
     yearCount[anime.year] = (yearCount[anime.year] || 0) + 1;
   });
 
@@ -651,10 +676,10 @@ export function openListStatusSheet(animeId, triggerBtn) {
     };
   }
 
-  overlay.onclick = () => { document.removeEventListener('keydown', escHandler); closeListStatusSheet(); };
   const escHandler = (e) => {
     if (e.key === 'Escape') { document.removeEventListener('keydown', escHandler); closeListStatusSheet(); }
   };
+  overlay.onclick = () => { document.removeEventListener('keydown', escHandler); closeListStatusSheet(); };
   document.addEventListener('keydown', escHandler);
 
   document.body.appendChild(overlay);
@@ -737,6 +762,7 @@ export function showPage(id, skipHistory) {
 
   window.__currentPage = id;
 
+  // ★ Refresh فقط برای صفحه‌ای که فعال شده
   if (id === 'watchlist') window.dispatchEvent(new CustomEvent('anivora:watchlist-refresh'));
   if (id === 'profile') window.dispatchEvent(new CustomEvent('anivora:profile-refresh'));
 }
@@ -745,11 +771,9 @@ export function showPage(id, skipHistory) {
    ★ GO BACK — برگرد به صفحه قبلی
 ============================================ */
 export function goBack() {
-  // اگه تاریخچه مرورگر وجود داشت و state داره، برگرد به صفحه قبلی
   if (history.state && history.state.page) {
     history.back();
   } else {
-    // در غیر این صورت برو به Home
     showPage('home');
   }
 }

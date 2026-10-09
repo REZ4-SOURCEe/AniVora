@@ -49,15 +49,26 @@ let ANIME_DATA = [];
 ============================================ */
 async function loadData() {
   try {
-    // ★ آدرس نسبی — چون از Pages Functions استفاده می‌کنیم
-    const API_URL = location.hostname.endsWith('github.io') ? 'data.json' : '/api/anime';
+    // ★ اگر روی GitHub Pages هستیم، از data.json استفاده کن
+    // در غیر این صورت از API
+    const isGitHubPages = location.hostname.endsWith('github.io');
+    const API_URL = isGitHubPages ? 'data.json' : '/api/anime';
+
+    console.log('Loading data from:', API_URL);
 
     const response = await fetch(API_URL);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    ANIME_DATA = await response.json();
+    const data = await response.json();
+
+    // ★ چک کن آرایه باشه
+    if (!Array.isArray(data)) {
+      throw new Error('Data is not an array');
+    }
+
+    ANIME_DATA = data;
 
     // پر کردن متغیر سراسری برای استفاده در سایر فایل‌ها
     window.__animeData = {};

@@ -532,6 +532,7 @@ function renderDetailActions(anime) {
     };
   }
 
+  // ★ حذف listener قدیمی و ساخت listener جدید
   if (window.__detailListListener) {
     window.removeEventListener('anivora:list-changed', window.__detailListListener);
   }
@@ -545,8 +546,11 @@ function renderDetailActions(anime) {
         const svg = btn.querySelector('svg use');
         if (svg) svg.setAttribute('href', isAdded ? '#ico-check' : '#ico-plus');
       }
-      const currentSeason = window.__currentSeason || 1;
-      renderDetailEpisodes(anime, currentSeason);
+      // ★ اگر در صفحه detail هستیم، episodes رو دوباره رندر کن
+      if (window.__currentPage === 'detail') {
+        const currentSeason = window.__currentSeason || 1;
+        renderDetailEpisodes(anime, currentSeason);
+      }
     }
   };
   window.addEventListener('anivora:list-changed', window.__detailListListener);
@@ -886,7 +890,11 @@ function loadEpisodeInPlayer(anime, ep, seasonNumber) {
         }
       }
 
-      window.dispatchEvent(new CustomEvent('anivora:watchlist-refresh'));
+      // ★ فقط اگر در صفحه watchlist هستیم refresh کن
+      if (window.__currentPage === 'watchlist') {
+        window.dispatchEvent(new CustomEvent('anivora:watchlist-refresh'));
+      }
+
       window.dispatchEvent(new CustomEvent('anivora:episode-watched', {
         detail: { animeId: anime.id, seasonNumber, epNum: ep.num }
       }));
@@ -1138,7 +1146,18 @@ export function initProfile() {
   if (!isLoggedIn()) return;
   const user = getCurrentUser();
   if (!user) return;
-  const stats = computeProfileStats(ANIME_DATA);
+
+  let stats;
+  try {
+    stats = computeProfileStats(ANIME_DATA);
+  } catch(e) {
+    console.error('computeProfileStats error:', e);
+    stats = {
+      totalAnime: 0, totalEpisodes: 0, totalMinutes: 0, watchTimeDisplay: '0h',
+      completed: 0, watching: 0, planToWatch: 0, dropped: 0,
+      favorites: 0, meanScore: '0.0', favoriteGenres: [], watchByYear: []
+    };
+  }
 
   const avatarContainer = document.getElementById('profileAvatar');
   if (avatarContainer) {
@@ -1414,8 +1433,6 @@ export function initProfile() {
 
 export function bindProfileEvents() {
   window.addEventListener('anivora:profile-refresh', () => { if (isLoggedIn()) initProfile(); });
-  window.addEventListener('anivora:list-changed', () => { if (window.__currentPage === 'profile' && isLoggedIn()) initProfile(); });
-  window.addEventListener('anivora:likes-changed', () => { if (window.__currentPage === 'profile' && isLoggedIn()) initProfile(); });
 }
 
 export function bindDetailEvents() {
@@ -1429,8 +1446,11 @@ export function bindDetailEvents() {
     const ANIME_DATA = window.ANIME_DATA || [];
     const anime = ANIME_DATA.find(a => a.id === animeId);
     if (!anime) return;
-    const currentSeason = window.__currentSeason || 1;
-    renderDetailEpisodes(anime, currentSeason);
+    // ★ فقط اگر در صفحه detail هستیم، episodes رو دوباره رندر کن
+    if (window.__currentPage === 'detail') {
+      const currentSeason = window.__currentSeason || 1;
+      renderDetailEpisodes(anime, currentSeason);
+    }
   });
 }
 
@@ -1662,9 +1682,9 @@ export function initWatchlistTabs() {
 }
 
 export function bindWatchlistEvents() {
-  window.addEventListener('anivora:list-changed', () => initWatchlist());
-  window.addEventListener('anivora:likes-changed', () => initWatchlist());
-  window.addEventListener('anivora:watchlist-refresh', () => initWatchlist());
+  window.addEventListener('anivora:watchlist-refresh', () => {
+    if (window.__currentPage === 'watchlist') initWatchlist();
+  });
 }
 
 /* ============================================
