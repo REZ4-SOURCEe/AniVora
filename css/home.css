@@ -16,7 +16,7 @@
 .hero-bg {
   position: absolute;
   inset: 0;
-  background-image: url('https://images.unsplash.com/photo-1578632767115-351597cf2477?w=1600&q=80');
+  background-color: var(--bg-card);
   background-size: cover;
   background-position: center top;
 }
@@ -211,7 +211,6 @@
   border-color: var(--border-hover);
 }
 
-/* بنر ۱۶:۹ */
 .weekly-pick-banner {
   position: relative;
   width: 100%;
@@ -231,7 +230,6 @@
   transform: scale(1.03);
 }
 
-/* گرادیان تیره سمت چپ برای خوانایی متن */
 .weekly-pick-overlay {
   position: absolute;
   inset: 0;
@@ -247,7 +245,6 @@
   pointer-events: none;
 }
 
-/* محتوای روی عکس — سمت چپ */
 .weekly-pick-content {
   position: absolute;
   left: 0;
@@ -262,7 +259,6 @@
   pointer-events: none;
 }
 
-/* ژانرها */
 .weekly-pick-genres {
   display: flex;
   gap: 6px;
@@ -270,7 +266,6 @@
   margin-bottom: 12px;
 }
 
-/* عنوان */
 .weekly-pick-title {
   font-size: clamp(20px, 2.6vw, 30px);
   font-weight: 800;
@@ -286,7 +281,6 @@
   margin-bottom: 12px;
 }
 
-/* ردیف متا (نمره، سال، تعداد قسمت) */
 .weekly-pick-meta {
   display: flex;
   align-items: center;
@@ -309,7 +303,6 @@
   font-size: 14px;
 }
 
-/* نوار دکمه‌ها زیر عکس */
 .weekly-pick-actions {
   display: flex;
   align-items: center;
@@ -319,7 +312,6 @@
   border-top: 1px solid var(--border);
 }
 
-/* دکمه Watch — چپ، اصلی */
 .weekly-pick-actions .btn-watch {
   flex: 1;
   height: 42px;
@@ -343,7 +335,6 @@
   transform: scale(0.98);
 }
 
-/* دکمه‌های آیکونی (List / Like) */
 .weekly-pick-actions .btn-icon-square {
   flex: 0 0 42px;
   width: 42px;
@@ -377,7 +368,6 @@
   stroke: #ff78a0;
 }
 
-/* ---------- موبایل ---------- */
 @media (max-width: 768px) {
   .weekly-pick { max-width: 100%; }
 
@@ -425,7 +415,6 @@
   }
   .weekly-pick-score { font-size: 12.5px; }
 
-  /* دکمه‌ها زیر عکس */
   .weekly-pick-actions {
     position: static;
     left: auto;
@@ -460,10 +449,6 @@
   }
 }
 
-/* ============================================
-   WEEKLY RECOMMENDATION — دسکتاپ شبیه Hero
-   (فقط در ≥ 1025px اعمال میشه)
-============================================ */
 @media (min-width: 1025px) {
   #weeklyPickWrap {
     padding: 0 !important;
@@ -591,7 +576,6 @@
     color: var(--gold);
   }
 
-  /* دکمه‌ها روی تصویر در پایین چپ */
   .weekly-pick-actions {
     position: absolute;
     left: 52px;
