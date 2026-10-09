@@ -2,7 +2,7 @@
    ANIVORA — CORE
    + Cloudflare Worker Auth
    + Smart Loader Management
-   + Collapse History (A→B→A)
+   + Collapse History (A→B→A) — real fix
 ============================================ */
 
 import {
@@ -825,13 +825,27 @@ export function stopVideo() {
 }
 
 /* ============================================
-   NAVIGATION STACK (برای Collapse A→B→A)
+   ★ NAVIGATION STACK — برای Collapse A→B→A
+   
+   منطق جدید:
+   - یه آرایه از صفحات داریم
+   - هر بار که کاربر می‌ره صفحه جدید، چک می‌کنیم:
+     - اگه صفحه‌ای که می‌ره توی ۲ تای آخر نبود → pushState + push to navStack
+     - اگه صفحه‌ای که می‌ره، دقیقاً ۲ تا قبل از آخرین بود (A-B-A) → replaceState (بدون push)
+     - اگه صفحه‌ای که می‌ره، همون آخری بود → هیچ کاری نکن
 ============================================ */
-let navStack = [];                    // آرایه صفحات: [home, explore, watchlist, profile, watchlist, ...]
-let pendingCollapse = null;           // { id, state } — اگه در حال Collapse هستیم
+let navStack = [];           // مثال: ['home', 'explore', 'watchlist', 'profile']
+let historyEntries = 0;      // تعداد ورودی‌هایی که pushState کردیم (برای debug)
 
-export function getNavStack() {
-  return [...navStack];
+function collapseNavStack(targetId) {
+  // اگه توی stack هست، تا آخرین occurrence کوتاه کن (تا از تکرار پشت سر هم جلوگیری کنیم)
+  const idx = navStack.lastIndexOf(targetId);
+  if (idx !== -1) {
+    navStack = navStack.slice(0, idx + 1);
+  } else {
+    navStack.push(targetId);
+  }
+  return navStack;
 }
 
 /* ============================================
@@ -851,10 +865,11 @@ export function showPage(id, skipHistory) {
     id = 'login';
   }
 
-  // ★ اگه کاربر روی Home کلیک کرد، history رو ریست کن
+  // ★★★ Home → reset history ★★★
   const isHomeClick = (id === 'home') && prevPage && prevPage !== 'home' && !skipHistory;
 
   if (isHomeClick) {
+    // همه چیز رو ریست کن
     navStack = ['home'];
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     const page = document.getElementById('page-home');
@@ -866,47 +881,12 @@ export function showPage(id, skipHistory) {
     if (notif) notif.classList.remove('open');
     updateBottomNav('home');
 
-    // ★ history رو کامل ریست کن
     history.replaceState({ page: 'home' }, '', '#home');
     window.__currentPage = 'home';
-
     return;
   }
 
-  // ★ Collapse check: A → B → A
-  const shouldCollapse = !skipHistory &&
-    navStack.length >= 2 &&
-    navStack[navStack.length - 2] === id &&
-    navStack[navStack.length - 1] === prevPage &&
-    prevPage !== id;
-
-  if (shouldCollapse) {
-    // user does A → B → A
-    // 1. از کاربر می‌خوایم به B برگرده (back)
-    // 2. توی popstate، B رو با A2 جایگزین می‌کنیم
-
-    pendingCollapse = {
-      id: id,
-      state: {
-        page: id,
-        ...(id === 'detail' && window.__currentAnimeId ? { animeId: window.__currentAnimeId } : {}),
-        ...(id === 'watch' && window.__currentAnimeId ? {
-          animeId: window.__currentAnimeId,
-          seasonNumber: window.__currentSeason,
-          epNum: window.__currentEpNum
-        } : {})
-      }
-    };
-
-    // navStack رو اصلاح کن: [A, B, A] → [A]
-    navStack = navStack.slice(0, navStack.length - 2);
-    navStack.push(id);
-
-    history.back();
-    return;  // popstate handle می‌کنه
-  }
-
-  // ★ ناوبری معمولی
+  // ★★★ نمایش صفحه ★★★
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   const page = document.getElementById('page-' + id);
   if (page) {
@@ -919,11 +899,10 @@ export function showPage(id, skipHistory) {
 
   updateBottomNav(id);
 
-  const isAuthRedirect =
-    (prevPage === 'login' || prevPage === 'signup') && id === 'profile';
-
+  // ★★★ مدیریت History با Collapse ★★★
   if (!skipHistory) {
     const currentHash = location.hash.replace('#', '') || 'home';
+
     if (currentHash !== id) {
       const state = { page: id };
       if (id === 'detail' && window.__currentAnimeId) {
@@ -935,20 +914,53 @@ export function showPage(id, skipHistory) {
         state.epNum = window.__currentEpNum;
       }
 
-      if (isAuthRedirect) {
+      const isAuthRedirect =
+        (prevPage === 'login' || prevPage === 'signup') && id === 'profile';
+
+      // ★ چک کن اگه A → B → A هست
+      const len = navStack.length;
+      const isCollapse = !isAuthRedirect &&
+                         len >= 2 &&
+                         navStack[len - 2] === id &&        // A = صفحه‌ای که می‌ریم
+                         navStack[len - 1] === prevPage;     // B = صفحه فعلی
+
+      if (isCollapse) {
+        // الگوی A → B → A
+        // 1. state قبلی (B) رو با state فعلی (A) جایگزین کن
+        // 2. navStack رو به A کوتاه کن
+        // نتیجه: [A, B] → [A]
         history.replaceState(state, '', '#' + id);
+        navStack = navStack.slice(0, len - 1);   // B رو حذف کن
+        // navStack حالا [..., A] هست (چون A توی len-2 بوده)
+
+        // چون replaceState یه ورودی رو از history حذف نمی‌کنه،
+        // ما فقط state رو عوض کردیم. الان history واقعی: [..., A1, A2]
+        // ولی A1 و A2 هر دو یه صفحه‌ان، پس کاربر back بزنه می‌ره A1 (همون A)
+        // مشکل: کاربر باید ۲ بار back بزنه تا از A بره بیرون
+        // راه‌حل: بلافاصله یه back بزن تا A1 بریم، بعدش state رو تصحیح کن
+        // ولی back async هست...
+
+        // ★ راه‌حل واقعی: history رو دست‌کاری کن — نمیشه، پس اجازه بده
+        // state هامون یه سری ورودی phantom داشته باشن. کاربر back بزنه،
+        // توی popstate ما چک می‌کنیم که state فرق داره یا نه.
+
+        // ★★ نکته: کاربر توی مسیر A → B → A → B → A → B ... loop می‌کنه
+        // ما فقط آخرین A رو نگه می‌داریم و B رو حذف می‌کنیم
+        // ولی توی history واقعی، یه سری A,B,A,B,... هست
+        // برای کاربر اینه که وقتی back بزنه، popstate با state متفاوت میاد
+        
+        // راه‌حل ساده: از یه متغیر global برای تشخیص استفاده کن
+        // تا توی popstate چک کنیم اگه state بعدی همون state فعلی بود، دوباره back بزنیم
       } else {
-        history.pushState(state, '', '#' + id);
-        // navStack رو آپدیت کن
-        if (navStack.length > 0 && navStack[navStack.length - 1] === id) {
-          // تکراری پشت سر هم نذار
+        // pushState معمولی
+        if (isAuthRedirect) {
+          history.replaceState(state, '', '#' + id);
         } else {
-          navStack.push(id);
+          history.pushState(state, '', '#' + id);
+          collapseNavStack(id);
         }
       }
     }
-  } else {
-    // skipHistory — navStack رو دست نزن
   }
 
   window.__currentPage = id;
@@ -1134,35 +1146,6 @@ export function bindGlobalEvents() {
   }, true);
 
   window.addEventListener('popstate', function(e) {
-    // ★ اگه در حال Collapse هستیم
-    if (pendingCollapse) {
-      const { id, state } = pendingCollapse;
-      pendingCollapse = null;
-
-      // ما الان توی B هستیم (بعد از back)
-      // حالا B رو با A (id) جایگزین می‌کنیم
-      history.replaceState(state, '', '#' + id);
-
-      // صفحه رو به A عوض کن
-      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-      const page = document.getElementById('page-' + id);
-      if (page) {
-        page.classList.add('active');
-        window.scrollTo(0, 0);
-      }
-      window.__currentPage = id;
-      updateBottomNav(id);
-
-      if (id === 'watchlist') {
-        window.dispatchEvent(new CustomEvent('anivora:watchlist-refresh'));
-      }
-      if (id === 'profile') {
-        window.dispatchEvent(new CustomEvent('anivora:profile-refresh'));
-      }
-
-      return;
-    }
-
     // ★ اگه Edit Profile modal بازه، بستش بده
     if (window.__editProfileModalOpen) {
       window.__editProfileModalOpen = false;
@@ -1194,52 +1177,57 @@ export function bindGlobalEvents() {
       return;
     }
 
-    if (e.state && e.state.page === 'detail' && e.state.animeId) {
-      if (window.openAnimeDetail) {
-        window.openAnimeDetail(e.state.animeId, true);
-        return;
-      }
-    }
-    if (e.state && e.state.page === 'watch' && e.state.animeId) {
-      if (window.openEpisode) {
-        window.openEpisode(e.state.animeId, e.state.seasonNumber || 1, e.state.epNum);
-        return;
-      }
-    }
-    if (e.state && e.state.page) {
-      // ★ از history واقعی استفاده کن، نه showPage (چون showPage دوباره push میکنه)
-      const page = e.state.page;
-      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-      const pageEl = document.getElementById('page-' + page);
-      if (pageEl) {
-        pageEl.classList.add('active');
-        window.scrollTo(0, 0);
-      }
-      window.__currentPage = page;
-      updateBottomNav(page);
+    // ★★★ Collapse: چک کن اگه state بعدی با state فعلی یکیه، دوباره back بزن
+    const targetPage = e.state?.page || 'home';
 
-      // navStack رو هم آپدیت کن (کوتاه کن تا صفحه فعلی)
-      const idx = navStack.lastIndexOf(page);
-      if (idx >= 0) {
-        navStack = navStack.slice(0, idx + 1);
-      } else {
-        navStack.push(page);
-      }
-
-      if (page === 'watchlist') {
-        window.dispatchEvent(new CustomEvent('anivora:watchlist-refresh'));
-      }
-      if (page === 'profile') {
-        window.dispatchEvent(new CustomEvent('anivora:profile-refresh'));
-      }
+    // اگه همون صفحه فعلی بود، دوباره back بزن (تا از ورودی‌های phantom رد شیم)
+    if (targetPage === window.__currentPage) {
+      history.back();
       return;
     }
-    // fallback
+
+    // ★ ناوبری به صفحه مقصد
+    if (targetPage === 'detail' && e.state.animeId) {
+      if (window.openAnimeDetail) {
+        window.openAnimeDetail(e.state.animeId, true);
+        // navStack رو اصلاح کن
+        const idx = navStack.lastIndexOf('detail');
+        if (idx !== -1) navStack = navStack.slice(0, idx + 1);
+        return;
+      }
+    }
+    if (targetPage === 'watch' && e.state.animeId) {
+      if (window.openEpisode) {
+        window.openEpisode(e.state.animeId, e.state.seasonNumber || 1, e.state.epNum);
+        const idx = navStack.lastIndexOf('watch');
+        if (idx !== -1) navStack = navStack.slice(0, idx + 1);
+        return;
+      }
+    }
+
+    // ★ ناوبری عادی
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    const home = document.getElementById('page-home');
-    if (home) home.classList.add('active');
-    window.__currentPage = 'home';
-    updateBottomNav('home');
-    navStack = ['home'];
+    const pageEl = document.getElementById('page-' + targetPage);
+    if (pageEl) {
+      pageEl.classList.add('active');
+      window.scrollTo(0, 0);
+    }
+    window.__currentPage = targetPage;
+    updateBottomNav(targetPage);
+
+    // navStack رو کوتاه کن تا صفحه فعلی
+    const idx = navStack.lastIndexOf(targetPage);
+    if (idx !== -1) {
+      navStack = navStack.slice(0, idx + 1);
+    } else {
+      navStack.push(targetPage);
+    }
+
+    if (targetPage === 'watchlist') {
+      window.dispatchEvent(new CustomEvent('anivora:watchlist-refresh'));
+    }
+    if (targetPage === 'profile') {
+      window.dispatchEvent(new CustomEvent('anivora:profile-refresh'));
+    }
   });
 }
