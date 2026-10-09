@@ -1,6 +1,13 @@
 /* ============================================
    ANIVORA — CORE
+   + Cloudflare Worker Auth
 ============================================ */
+
+import {
+  apiSignup, apiLogin, apiLogout, apiGetMe,
+  apiSaveAnime, apiGetList, apiDeleteAnime, apiUpdateProfile,
+  getToken, getCachedUser, setCachedUser, clearCachedUser
+} from './api.js';
 
 /* ============================================
    PAGE LOADER
@@ -73,6 +80,7 @@ export function setLastEpisode(animeId, value) {
     store[animeId] = value;
   }
   setStore(LAST_EP_KEY, store);
+  scheduleSyncToServer(animeId);
 }
 export function getLastEpNumber(animeId) {
   const v = getLastEpisode(animeId);
@@ -94,6 +102,7 @@ export function setProgress(animeId, pct) {
   const store = getStore(PROGRESS_KEY);
   store[animeId] = Math.max(0, Math.min(100, pct));
   setStore(PROGRESS_KEY, store);
+  scheduleSyncToServer(animeId);
 }
 
 /* ---------- DROPPED ---------- */
@@ -108,6 +117,7 @@ export function setDropped(animeId, dropped) {
     arr = arr.filter(id => id !== animeId);
   }
   setStore(DROPPED_KEY, arr);
+  scheduleSyncToServer(animeId);
 }
 
 /* ============================================
@@ -137,22 +147,27 @@ export function setListStatus(animeId, status) {
 
   if (status === null) {
     delete list[animeId];
-    setProgress(animeId, 0);
-    setDropped(animeId, false);
+    const progressStore = getStore(PROGRESS_KEY);
+    delete progressStore[animeId];
+    setStore(PROGRESS_KEY, progressStore);
+
+    let dropped = getStore(DROPPED_KEY);
+    dropped = dropped.filter(id => id !== animeId);
+    setStore(DROPPED_KEY, dropped);
+
     clearLastEpisode(animeId);
   } else {
     list[animeId] = status;
   }
   setListStore(list);
 
-  // ★ فقط UI دکمه‌ها رو آپدیت کن
   document.querySelectorAll(`[data-add-btn="${animeId}"]`).forEach(b => {
     try { updateAddBtnUI(b, animeId); } catch(e) {}
   });
 
-  // ★ فقط اگه واقعاً تغییر کرده، event بفرست
+  scheduleSyncToServer(animeId);
+
   if (oldStatus !== status) {
-    // ★ فقط صفحاتی که واقعاً فعال هستن refresh می‌شن
     if (window.__currentPage === 'watchlist') {
       window.dispatchEvent(new CustomEvent('anivora:watchlist-refresh'));
     }
@@ -208,7 +223,6 @@ export function toggleLike(animeId, btn) {
   });
   if (btn) updateLikeBtnUI(btn, animeId);
 
-  // ★ فقط اگه در صفحه watchlist یا profile هستیم refresh کن
   if (window.__currentPage === 'watchlist') {
     window.dispatchEvent(new CustomEvent('anivora:watchlist-refresh'));
   }
@@ -272,81 +286,133 @@ export function toggleWatching(animeId) {
 }
 
 /* ============================================
-   AUTH SYSTEM
+   AUTH SYSTEM — Cloudflare Worker
 ============================================ */
-const USERS_KEY = 'anivora_users';
-const SESSION_KEY = 'anivora_session';
-
-export function getUsers() {
-  try { return JSON.parse(localStorage.getItem(USERS_KEY)) || []; }
-  catch(e) { return []; }
-}
-export function saveUsers(users) {
-  try { localStorage.setItem(USERS_KEY, JSON.stringify(users)); } catch(e) {}
-}
-
-export function getSession() {
-  try { return JSON.parse(localStorage.getItem(SESSION_KEY)) || null; }
-  catch(e) { return null; }
-}
-export function setSession(session) {
-  try { localStorage.setItem(SESSION_KEY, JSON.stringify(session)); } catch(e) {}
-}
-export function clearSession() {
-  try { localStorage.removeItem(SESSION_KEY); } catch(e) {}
-}
+let CURRENT_USER = null;
 
 export function getCurrentUser() {
-  const session = getSession();
-  if (!session) return null;
-  const users = getUsers();
-  return users.find(u => u.id === session.userId) || null;
+  if (CURRENT_USER) return CURRENT_USER;
+  CURRENT_USER = getCachedUser();
+  return CURRENT_USER;
 }
 
 export function isLoggedIn() {
-  return !!getCurrentUser();
+  return !!getToken() && !!getCurrentUser();
 }
 
-export function signup(email, password, username) {
-  const users = getUsers();
-  if (!email || !email.includes('@')) {
-    return { success: false, error: 'Please enter a valid email.' };
+export async function signup(email, password, username) {
+  try {
+    const user = await apiSignup(email, password, username);
+    CURRENT_USER = user;
+    return { success: true, user };
+  } catch (e) {
+    return { success: false, error: e.message };
   }
-  if (users.find(u => u.email.toLowerCase() === email.toLowerCase())) {
-    return { success: false, error: 'This email is already registered.' };
-  }
-  if (!password || password.length < 6) {
-    return { success: false, error: 'Password must be at least 6 characters.' };
-  }
-  const newUser = {
-    id: 'u_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
-    email: email.toLowerCase(),
-    password: password,
-    username: username || email.split('@')[0],
-    avatar: null,
-    createdAt: new Date().toISOString()
-  };
-  users.push(newUser);
-  saveUsers(users);
-  setSession({ userId: newUser.id, loggedInAt: new Date().toISOString() });
-  return { success: true, user: newUser };
 }
 
-export function login(email, password) {
-  if (!email || !password) {
-    return { success: false, error: 'Please enter email and password.' };
+export async function login(email, password) {
+  try {
+    const user = await apiLogin(email, password);
+    CURRENT_USER = user;
+    await syncListFromServer();
+    return { success: true, user };
+  } catch (e) {
+    return { success: false, error: e.message };
   }
-  const users = getUsers();
-  const user = users.find(u =>
-    u.email.toLowerCase() === email.toLowerCase() && u.password === password
-  );
-  if (!user) return { success: false, error: 'Invalid email or password.' };
-  setSession({ userId: user.id, loggedInAt: new Date().toISOString() });
-  return { success: true, user };
 }
 
 export function logout() {
-  clearSession();
+  apiLogout();
+  CURRENT_USER = null;
+}
+
+export async function refreshCurrentUser() {
+  if (!getToken()) return null;
+  try {
+    const user = await apiGetMe();
+    CURRENT_USER = user;
+    return user;
+  } catch (e) {
+    logout();
+    return null;
+  }
+}
+
+export async function updateUserProfile(username, avatar) {
+  try {
+    await apiUpdateProfile(username, avatar);
+    await refreshCurrentUser();
+    return { success: true };
+  } catch (e) {
+    return { success: false, error: e.message };
+  }
+}
+
+/* ============================================
+   SYNC FROM SERVER
+============================================ */
+export async function syncListFromServer() {
+  if (!isLoggedIn()) return;
+  try {
+    const list = await apiGetList();
+    if (!Array.isArray(list)) return;
+
+    const listStore = {};
+    const lastEpStore = {};
+    const progressStore = {};
+    const droppedArr = [];
+
+    for (const item of list) {
+      if (item.status) listStore[item.anime_id] = item.status;
+      if (item.last_ep) {
+        lastEpStore[item.anime_id] = {
+          seasonNumber: item.last_season || 1,
+          epNum: item.last_ep
+        };
+      }
+      if (item.progress) progressStore[item.anime_id] = item.progress;
+      if (item.dropped) droppedArr.push(item.anime_id);
+    }
+
+    localStorage.setItem(LIST_KEY, JSON.stringify(listStore));
+    localStorage.setItem(LAST_EP_KEY, JSON.stringify(lastEpStore));
+    localStorage.setItem(PROGRESS_KEY, JSON.stringify(progressStore));
+    localStorage.setItem(DROPPED_KEY, JSON.stringify(droppedArr));
+  } catch (e) {
+    console.error('syncListFromServer error:', e);
+  }
+}
+
+/* ============================================
+   SYNC TO SERVER (debounced)
+============================================ */
+let syncTimers = {};
+function scheduleSyncToServer(animeId) {
+  if (!isLoggedIn()) return;
+  if (syncTimers[animeId]) clearTimeout(syncTimers[animeId]);
+
+  syncTimers[animeId] = setTimeout(async () => {
+    try {
+      const status = getListStatus(animeId);
+      const lastEp = getLastEpisode(animeId);
+      const progress = getProgress(animeId);
+      const dropped = isDropped(animeId);
+
+      if (!status && !lastEp && !progress && !dropped) {
+        await apiDeleteAnime(animeId);
+      } else {
+        await apiSaveAnime(animeId, {
+          status: status || null,
+          progress: progress || 0,
+          lastEp: lastEp ? lastEp.epNum : 0,
+          lastSeason: lastEp ? lastEp.seasonNumber : 1,
+          dropped: dropped
+        });
+      }
+    } catch (e) {
+      console.error('syncToServer error:', e);
+    }
+  }, 500);
 }
 
 /* ============================================
@@ -745,19 +811,13 @@ export function stopVideo() {
 ============================================ */
 export function showPage(id, skipHistory) {
   const prevPage = window.__currentPage;
-
-  // ★ اگه صفحه یکسان هست و skipHistory نیست، کاری نکن
   if (prevPage === id && !skipHistory) return;
 
-  // ★ اگه از watch خارج می‌شیم، ویدیو رو متوقف کن
   if (prevPage === 'watch' && id !== 'watch') stopVideo();
-
-  // ★ redirect به login اگه لاگین نیستی
   if (id === 'profile' && !isLoggedIn()) id = 'login';
 
   triggerPageLoader();
 
-  // ★ تغییر صفحه
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   const page = document.getElementById('page-' + id);
   if (page) {
@@ -765,13 +825,11 @@ export function showPage(id, skipHistory) {
     window.scrollTo(0, 0);
   }
 
-  // ★ بستن notif panel
   const notif = document.getElementById('notifPanel');
   if (notif) notif.classList.remove('open');
 
   updateBottomNav(id);
 
-  // ★ مدیریت history
   if (!skipHistory) {
     const currentHash = location.hash.replace('#', '') || 'home';
     if (currentHash !== id) {
@@ -788,10 +846,8 @@ export function showPage(id, skipHistory) {
     }
   }
 
-  // ★ set currentPage بعد از همه کارها
   window.__currentPage = id;
 
-  // ★ refresh صفحات مربوطه فقط اگه در همون صفحه هستیم
   if (id === 'watchlist') {
     window.dispatchEvent(new CustomEvent('anivora:watchlist-refresh'));
   }
@@ -800,9 +856,6 @@ export function showPage(id, skipHistory) {
   }
 }
 
-/* ============================================
-   GO BACK
-============================================ */
 export function goBack() {
   if (history.state && history.state.page) {
     history.back();
@@ -810,7 +863,6 @@ export function goBack() {
     showPage('home');
   }
 }
-
 window.goBack = goBack;
 
 export function updateBottomNav(id) {
