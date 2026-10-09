@@ -1,7 +1,7 @@
 /* ============================================
    ANIVORA — CORE
    + Cloudflare Worker Auth
-   + Fixed back button & modal handling
+   + Smart Loader Management
 ============================================ */
 
 import {
@@ -14,6 +14,20 @@ import {
    PAGE LOADER
 ============================================ */
 let loaderTimeout = null;
+
+export function showLoader() {
+  const loader = document.getElementById('pageLoader');
+  if (!loader) return;
+  loader.classList.add('active');
+  clearTimeout(loaderTimeout);
+}
+
+export function hideLoader() {
+  const loader = document.getElementById('pageLoader');
+  if (!loader) return;
+  loader.classList.remove('active');
+  clearTimeout(loaderTimeout);
+}
 
 export function triggerPageLoader() {
   const loader = document.getElementById('pageLoader');
@@ -810,7 +824,7 @@ export function stopVideo() {
 }
 
 /* ============================================
-   ROUTER
+   ROUTER — بدون triggerPageLoader
 ============================================ */
 export function showPage(id, skipHistory) {
   const prevPage = window.__currentPage;
@@ -826,7 +840,8 @@ export function showPage(id, skipHistory) {
     id = 'login';
   }
 
-  triggerPageLoader();
+  // ★ اینجا دیگه triggerPageLoader صدا نمی‌زنیم — چون درخواست شبکه‌ای نیست
+  // triggerPageLoader();
 
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   const page = document.getElementById('page-' + id);
@@ -840,7 +855,6 @@ export function showPage(id, skipHistory) {
 
   updateBottomNav(id);
 
-  // ★ ریدایرکت بین login/signup و profile → replaceState
   const isAuthRedirect =
     (prevPage === 'login' || prevPage === 'signup') && id === 'profile';
 
@@ -970,6 +984,8 @@ export function updateHeaderAvatar() {
 window.handleDrawerAuth = handleDrawerAuth;
 window.updateDrawerAuth = updateDrawerAuth;
 window.updateHeaderAvatar = updateHeaderAvatar;
+window.showLoader = showLoader;
+window.hideLoader = hideLoader;
 
 /* ============================================
    CUSTOM BOTTOM-SHEET SELECT
@@ -1055,7 +1071,6 @@ export function bindGlobalEvents() {
       if (modal) { modal.classList.remove('show'); setTimeout(() => modal.remove(), 300); }
       document.body.style.overflow = '';
       window.__pendingAvatar = null;
-      // push state فعلی رو نگه دار تا صفحه عوض نشه
       history.pushState(e.state, '', location.href);
       return;
     }
