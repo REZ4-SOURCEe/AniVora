@@ -15,14 +15,15 @@ import {
   getLastPage, setLastPage,
   getDetailState, setDetailState, clearDetailState,
   stopVideo,
-  login, signup, logout, isLoggedIn, getCurrentUser, computeProfileStats,
-  getUsers, saveUsers, getSession
+  login, signup, logout, isLoggedIn, getCurrentUser,
+  computeProfileStats, updateUserProfile
 } from './core.js';
 import {
   renderAnimeCard, populateSection, toggleDownloadMenu,
   shareAnime, updatePlayerTime, togglePlay, toggleFullscreen,
   initQualitySelector, initSpeedSelector
 } from './components.js';
+import { apiUpdateProfile } from './api.js';
 
 /* ============================================
    HELPERS
@@ -438,7 +439,6 @@ export function openAnimeDetail(animeId, keepState = false) {
   renderDetailActions(anime);
   renderDetailEpisodes(anime, 1);
 
-  // ★ showPage فقط اگر واقعاً لازمه
   if (window.__currentPage !== 'detail') {
     showPage('detail', true);
   }
@@ -735,16 +735,12 @@ export function openEpisode(animeId, seasonNumber, epNum) {
   window.__currentSeason = seasonNumber;
 
   setLastPage({ page: 'watch', animeId, seasonNumber, epNum });
-
   addToWatching(anime.id);
-
   cleanupPlayer();
 
-  // ★ فقط اگر در صفحه watch نیستیم، showPage رو صدا بزن
   if (window.__currentPage !== 'watch') {
     showPage('watch');
   } else {
-    // مطمئن شو صفحه watch فعاله
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     const watchPage = document.getElementById('page-watch');
     if (watchPage) watchPage.classList.add('active');
@@ -1058,12 +1054,18 @@ export function renderLoginPage() {
   }, 50);
 }
 
-export function handleLogin() {
+export async function handleLogin() {
   const email = document.getElementById('loginEmail')?.value.trim();
   const password = document.getElementById('loginPassword')?.value;
   const errorEl = document.getElementById('loginError');
+  const btn = document.querySelector('#page-login .btn-primary');
 
-  const result = login(email, password);
+  if (btn) { btn.disabled = true; btn.textContent = 'Signing in...'; }
+
+  const result = await login(email, password);
+
+  if (btn) { btn.disabled = false; btn.textContent = 'Sign In'; }
+
   if (!result.success) {
     if (errorEl) { errorEl.textContent = result.error; errorEl.style.display = 'block'; }
     return;
@@ -1111,13 +1113,19 @@ export function renderSignupPage() {
   }, 50);
 }
 
-export function handleSignup() {
+export async function handleSignup() {
   const username = document.getElementById('signupUsername')?.value.trim();
   const email = document.getElementById('signupEmail')?.value.trim();
   const password = document.getElementById('signupPassword')?.value;
   const errorEl = document.getElementById('signupError');
+  const btn = document.querySelector('#page-signup .btn-primary');
 
-  const result = signup(email, password, username);
+  if (btn) { btn.disabled = true; btn.textContent = 'Creating...'; }
+
+  const result = await signup(email, password, username);
+
+  if (btn) { btn.disabled = false; btn.textContent = 'Create Account'; }
+
   if (!result.success) {
     if (errorEl) { errorEl.textContent = result.error; errorEl.style.display = 'block'; }
     return;
@@ -1130,13 +1138,7 @@ export function handleSignup() {
     'assets/avatars/avatar-10.jpg','assets/avatars/avatar-11.jpg','assets/avatars/avatar-12.jpg',
   ];
   const randomAvatar = PRESET_AVATARS[Math.floor(Math.random() * PRESET_AVATARS.length)];
-
-  const users = getUsers();
-  const userIndex = users.findIndex(u => u.id === result.user.id);
-  if (userIndex !== -1) {
-    users[userIndex].avatar = randomAvatar;
-    saveUsers(users);
-  }
+  try { await apiUpdateProfile(undefined, randomAvatar); } catch(e) {}
 
   if (window.updateDrawerAuth) window.updateDrawerAuth();
   if (window.updateHeaderAvatar) window.updateHeaderAvatar();
@@ -1569,7 +1571,7 @@ export function removeAvatar() {
   document.querySelectorAll('.preset-avatar-btn').forEach(b => b.classList.remove('selected'));
 }
 
-export function saveProfileChanges() {
+export async function saveProfileChanges() {
   const newUsername = document.getElementById('editUsername')?.value.trim();
   const errorEl = document.getElementById('editProfileError');
   if (!newUsername || newUsername.length < 2) {
@@ -1580,18 +1582,17 @@ export function saveProfileChanges() {
     if (errorEl) { errorEl.textContent = 'Username must be less than 30 characters.'; errorEl.style.display = 'block'; }
     return;
   }
-  const session = getSession();
-  if (!session) { showToast('Session expired.'); return; }
-  const users = getUsers();
-  const userIndex = users.findIndex(u => u.id === session.userId);
-  if (userIndex === -1) { showToast('User not found.'); return; }
-  users[userIndex].username = newUsername;
-  users[userIndex].avatar = window.__pendingAvatar;
-  saveUsers(users);
-  showToast('Profile updated!');
-  closeEditProfileModal();
-  initProfile();
-  if (window.updateHeaderAvatar) window.updateHeaderAvatar();
+
+  try {
+    await apiUpdateProfile(newUsername, window.__pendingAvatar);
+    showToast('Profile updated!');
+    closeEditProfileModal();
+    await refreshCurrentUser();
+    initProfile();
+    if (window.updateHeaderAvatar) window.updateHeaderAvatar();
+  } catch(e) {
+    if (errorEl) { errorEl.textContent = e.message; errorEl.style.display = 'block'; }
+  }
 }
 
 /* ============================================
@@ -1711,9 +1712,6 @@ export function restoreStateAfterRefresh() {
 
   if (targetPage !== 'watch' && targetPage !== 'detail') return false;
 
-  // ============================================
-  // RESTORE WATCH PAGE
-  // ============================================
   if (targetPage === 'watch') {
     let animeId = lastPage.animeId;
     let epNum = lastPage.epNum;
@@ -1745,7 +1743,6 @@ export function restoreStateAfterRefresh() {
     const ep = season.episodes.find(e => e.num === epNum);
     if (!ep) return false;
 
-    // ★ اول صفحه رو فعال کن
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     const pageEl = document.getElementById('page-watch');
     if (pageEl) pageEl.classList.add('active');
@@ -1753,11 +1750,7 @@ export function restoreStateAfterRefresh() {
 
     try {
       openEpisode(animeId, seasonNumber, epNum);
-      history.replaceState(
-        { page: 'watch', animeId, seasonNumber, epNum },
-        '',
-        '#watch'
-      );
+      history.replaceState({ page: 'watch', animeId, seasonNumber, epNum }, '', '#watch');
       return true;
     } catch (e) {
       console.error('[Anivora] openEpisode restore error:', e);
@@ -1765,9 +1758,6 @@ export function restoreStateAfterRefresh() {
     }
   }
 
-  // ============================================
-  // RESTORE DETAIL PAGE
-  // ============================================
   if (targetPage === 'detail') {
     let animeId = lastPage.animeId;
 
@@ -1782,7 +1772,6 @@ export function restoreStateAfterRefresh() {
     const anime = ANIME_DATA.find(a => a.id === animeId);
     if (!anime) return false;
 
-    // ★ اول صفحه رو فعال کن
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     const pageEl = document.getElementById('page-detail');
     if (pageEl) pageEl.classList.add('active');
