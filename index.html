@@ -22,8 +22,8 @@
 <link rel="stylesheet" href="css/responsive.css">
 </head>
 <body>
-<!-- PAGE LOADER -->
-<div class="page-loader" id="pageLoader">
+<!-- PAGE LOADER (اولین عنصر body) -->
+<div class="page-loader active" id="pageLoader">
   <div class="loader-spinner"></div>
 </div>
 <!-- SVG ICON DEFS (hidden) -->
@@ -161,9 +161,9 @@
 </div>
 
 <!-- ============================================
-     HOME PAGE
+     HOME PAGE (★ حذف active — دیگه پیش‌فرض نیست)
 ============================================ -->
-<div class="page active" id="page-home">
+<div class="page" id="page-home">
 
   <section class="hero">
     <div class="hero-bg" id="heroBg"></div>
@@ -316,7 +316,6 @@
         <button class="tab-btn" onclick="switchTab(this,'tab-recommended')">Recommended</button>
       </div>
 
-      <!-- ★ Episodes Tab -->
       <div class="tab-panel active" id="tab-episodes">
         <div class="season-block">
           <div class="season-header-row">
@@ -333,7 +332,6 @@
         </div>
       </div>
 
-      <!-- ★ About Tab -->
       <div class="tab-panel" id="tab-about">
         <div class="detail-about-wrap">
           <div class="detail-about-title">
@@ -344,7 +342,6 @@
         </div>
       </div>
 
-      <!-- ★ Recommended Tab -->
       <div class="tab-panel" id="tab-recommended">
         <div class="detail-recommended-wrap">
           <div class="detail-recommended-title">
@@ -415,7 +412,6 @@
           <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;position:relative;align-items:center;" id="watchActionsRow"></div>
         </div>
 
-        <!-- ★ Up Next (اپیزودهای بعدی) -->
         <div style="margin-top:20px;">
           <h3 style="font-size:15px;font-weight:700;margin-bottom:14px;">Up Next</h3>
           <div style="display:flex;gap:12px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none;" id="upNextRow"></div>
