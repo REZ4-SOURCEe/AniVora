@@ -1,6 +1,5 @@
 /* ============================================
    ANIVORA — APP
-   Entry point
 ============================================ */
 
 import {
@@ -10,7 +9,7 @@ import {
   getListStatus, setListStatus, openListStatusSheet, closeListStatusSheet,
   updateAddBtnUI, getLastPage, setLastPage, isLoggedIn,
   handleDrawerAuth, updateDrawerAuth, updateHeaderAvatar,
-  goBack
+  goBack, refreshCurrentUser, syncListFromServer
 } from './core.js';
 
 import {
@@ -37,13 +36,15 @@ import {
   handleAvatarUpload, removeAvatar, saveProfileChanges
 } from './pages.js';
 
+import { getToken } from './api.js';
+
 /* ============================================
    GLOBAL DATA
 ============================================ */
 let ANIME_DATA = [];
 
 /* ============================================
-   LOAD DATA FROM API
+   LOAD DATA
 ============================================ */
 async function loadData() {
   try {
@@ -53,18 +54,14 @@ async function loadData() {
     console.log('[Anivora] Loading data from:', API_URL);
 
     const response = await fetch(API_URL, { cache: 'no-store' });
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
     const data = await response.json();
-
     if (!Array.isArray(data) || data.length === 0) {
       throw new Error('Data is not a valid array');
     }
 
     ANIME_DATA = data;
-
     window.__animeData = {};
     ANIME_DATA.forEach(a => { window.__animeData[a.id] = a; });
     window.ANIME_DATA = ANIME_DATA;
@@ -148,7 +145,7 @@ window.removeAvatar = removeAvatar;
 window.saveProfileChanges = saveProfileChanges;
 
 /* ============================================
-   SHOW PAGE ONLY (بدون pushState)
+   SHOW PAGE ONLY
 ============================================ */
 function showPageOnly(pageId) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -161,7 +158,7 @@ function showPageOnly(pageId) {
 }
 
 /* ============================================
-   INIT: HOME SECTIONS ONLY (restore mode)
+   INIT HOME SECTIONS
 ============================================ */
 function initHomeSections() {
   try { initHome(); } catch(e) { console.error('initHome:', e); }
@@ -169,7 +166,7 @@ function initHomeSections() {
 }
 
 /* ============================================
-   INIT: ALL PAGES (normal mode)
+   INIT ALL PAGES
 ============================================ */
 function initAllPages() {
   try { initHome(); } catch(e) { console.error('initHome:', e); }
@@ -184,32 +181,34 @@ function initAllPages() {
    INIT
 ============================================ */
 async function init() {
-  // ★ اول داده‌ها را بارگذاری کن
   const dataLoaded = await loadData();
-
   if (!dataLoaded) return;
 
-  // ★ مخفی کردن loader
   const loader = document.getElementById('pageLoader');
   if (loader) loader.classList.remove('active');
 
-  // ★ مقدار اولیه currentPage
   window.__currentPage = null;
 
-  // رندر صفحات auth
   renderLoginPage();
   renderSignupPage();
 
-  // ★ تشخیص اینکه باید restore کنیم یا نه
+  // ★ اگه توکن داریم، کاربر رو از سرور بگیر
+  if (getToken()) {
+    try {
+      await refreshCurrentUser();
+      await syncListFromServer();
+    } catch(e) {
+      console.error('refreshCurrentUser error:', e);
+    }
+  }
+
   const hash = location.hash ? location.hash.replace('#', '') : 'home';
   const lastPage = getLastPage();
 
-  // ★ آیا این یه refresh روی صفحه watch یا detail هست؟
   const shouldRestore = (hash === 'watch' || hash === 'detail') && lastPage &&
                         (lastPage.page === 'watch' || lastPage.page === 'detail');
 
   if (shouldRestore) {
-    // ★ حالت restore
     let restored = false;
     try {
       restored = restoreStateAfterRefresh();
@@ -219,18 +218,14 @@ async function init() {
     }
 
     if (!restored) {
-      // ★ اگه restore شکست خورد، برو home
       setLastPage(null);
       history.replaceState({ page: 'home' }, '', '#home');
       showPageOnly('home');
     }
 
-    // ★ فقط home رو initialize کن
     initHomeSections();
   } else {
-    // ★ حالت عادی
     const validPages = ['home', 'explore', 'detail', 'watch', 'seasonal', 'watchlist', 'profile', 'calendar', 'login', 'signup'];
-
     const isFirstVisit = !sessionStorage.getItem('anivora_visited');
 
     if (isFirstVisit) {
@@ -253,11 +248,9 @@ async function init() {
       showPageOnly('home');
     }
 
-    // ★ همه صفحات رو initialize کن
     initAllPages();
   }
 
-  // ★ این‌ها همیشه باید اجرا بشن
   bindGlobalEvents();
   bindFullscreenChange();
   bindDownloadOutsideClick();
@@ -274,7 +267,6 @@ async function init() {
     try { initProfile(); } catch(e) { console.error('initProfile error:', e); }
   }
 
-  // ★ یکبار دیگه refresh buttons
   setTimeout(() => {
     refreshStoredButtons();
   }, 100);
