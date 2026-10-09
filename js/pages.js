@@ -16,7 +16,8 @@ import {
   getDetailState, setDetailState, clearDetailState,
   stopVideo,
   login, signup, logout, isLoggedIn, getCurrentUser,
-  computeProfileStats, updateUserProfile
+  computeProfileStats, updateUserProfile,
+  refreshCurrentUser
 } from './core.js';
 import {
   renderAnimeCard, populateSection, toggleDownloadMenu,
@@ -1073,7 +1074,16 @@ export async function handleLogin() {
   showToast('Welcome back, ' + result.user.username + '!');
   if (window.updateDrawerAuth) window.updateDrawerAuth();
   if (window.updateHeaderAvatar) window.updateHeaderAvatar();
-  showPage('profile');
+
+  // ★ استفاده از replaceState تا login از history حذف بشه
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const page = document.getElementById('page-profile');
+  if (page) page.classList.add('active');
+  window.scrollTo(0, 0);
+  window.__currentPage = 'profile';
+  history.replaceState({ page: 'profile' }, '', '#profile');
+
+  try { initProfile(); } catch(e) { console.error(e); }
 }
 
 export function handleLogout() {
@@ -1143,7 +1153,16 @@ export async function handleSignup() {
   if (window.updateDrawerAuth) window.updateDrawerAuth();
   if (window.updateHeaderAvatar) window.updateHeaderAvatar();
   showToast('Account created!');
-  showPage('profile');
+
+  // ★ استفاده از replaceState تا signup از history حذف بشه
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const page = document.getElementById('page-profile');
+  if (page) page.classList.add('active');
+  window.scrollTo(0, 0);
+  window.__currentPage = 'profile';
+  history.replaceState({ page: 'profile' }, '', '#profile');
+
+  try { initProfile(); } catch(e) { console.error(e); }
 }
 
 /* ============================================
@@ -1516,6 +1535,10 @@ export function openEditProfileModal(user) {
   document.body.appendChild(overlay);
   document.body.appendChild(modal);
   window.__pendingAvatar = user.avatar || null;
+  window.__editProfileModalOpen = true;
+
+  // ★ state مخصوص modal push کن
+  history.pushState({ page: window.__currentPage, modal: 'editProfile' }, '', location.hash);
 
   requestAnimationFrame(() => { overlay.classList.add('show'); modal.classList.add('show'); });
   document.body.style.overflow = 'hidden';
@@ -1534,6 +1557,7 @@ export function closeEditProfileModal() {
   if (modal) { modal.classList.remove('show'); setTimeout(() => modal.remove(), 300); }
   document.body.style.overflow = '';
   window.__pendingAvatar = null;
+  window.__editProfileModalOpen = false;
   if (window.__editProfileEscHandler) {
     document.removeEventListener('keydown', window.__editProfileEscHandler);
     window.__editProfileEscHandler = null;
