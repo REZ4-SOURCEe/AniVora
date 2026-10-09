@@ -147,7 +147,7 @@ function initContinueWatching() {
 
     let lastEpData = lastEpStore[animeId];
     let epNum = 0, seasonNumber = 1;
-    if (typeof lastEpData === 'object') {
+    if (typeof lastEpData === 'object' && lastEpData) {
       epNum = lastEpData.epNum;
       seasonNumber = lastEpData.seasonNumber || 1;
     } else {
@@ -438,7 +438,10 @@ export function openAnimeDetail(animeId, keepState = false) {
   renderDetailActions(anime);
   renderDetailEpisodes(anime, 1);
 
-  showPage('detail', true);
+  // ★ showPage فقط اگر واقعاً لازمه
+  if (window.__currentPage !== 'detail') {
+    showPage('detail', true);
+  }
 
   if (!keepState) {
     const prevStateAnimeId = history.state?.animeId;
@@ -532,7 +535,6 @@ function renderDetailActions(anime) {
     };
   }
 
-  // ★ حذف listener قدیمی و ساخت listener جدید
   if (window.__detailListListener) {
     window.removeEventListener('anivora:list-changed', window.__detailListListener);
   }
@@ -546,7 +548,6 @@ function renderDetailActions(anime) {
         const svg = btn.querySelector('svg use');
         if (svg) svg.setAttribute('href', isAdded ? '#ico-check' : '#ico-plus');
       }
-      // ★ اگر در صفحه detail هستیم، episodes رو دوباره رندر کن
       if (window.__currentPage === 'detail') {
         const currentSeason = window.__currentSeason || 1;
         renderDetailEpisodes(anime, currentSeason);
@@ -738,7 +739,17 @@ export function openEpisode(animeId, seasonNumber, epNum) {
   addToWatching(anime.id);
 
   cleanupPlayer();
-  showPage('watch');
+
+  // ★ فقط اگر در صفحه watch نیستیم، showPage رو صدا بزن
+  if (window.__currentPage !== 'watch') {
+    showPage('watch');
+  } else {
+    // مطمئن شو صفحه watch فعاله
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    const watchPage = document.getElementById('page-watch');
+    if (watchPage) watchPage.classList.add('active');
+    window.scrollTo(0, 0);
+  }
 
   setTimeout(() => {
     loadEpisodeInPlayer(anime, ep, seasonNumber);
@@ -888,11 +899,6 @@ function loadEpisodeInPlayer(anime, ep, seasonNumber) {
         } else if (currentStatus !== 'completed') {
           setListStatus(anime.id, 'watching');
         }
-      }
-
-      // ★ فقط اگر در صفحه watchlist هستیم refresh کن
-      if (window.__currentPage === 'watchlist') {
-        window.dispatchEvent(new CustomEvent('anivora:watchlist-refresh'));
       }
 
       window.dispatchEvent(new CustomEvent('anivora:episode-watched', {
@@ -1208,7 +1214,7 @@ export function initProfile() {
       totalMinutesAll += epsCount * epDuration;
 
       let watchedEps = lastEpStore[id] || 0;
-      if (typeof watchedEps === 'object') watchedEps = watchedEps.epNum || 0;
+      if (typeof watchedEps === 'object' && watchedEps) watchedEps = watchedEps.epNum || 0;
       totalMinutesWatched += Math.min(watchedEps, epsCount) * epDuration;
     });
 
@@ -1258,7 +1264,7 @@ export function initProfile() {
       const anime = ANIME_DATA.find(a => a.id === animeId);
       if (!anime) return;
       let lastEp = lastEpStore[animeId] || 0;
-      if (typeof lastEp === 'object') lastEp = lastEp.epNum || 0;
+      if (typeof lastEp === 'object' && lastEp) lastEp = lastEp.epNum || 0;
       const status = listStore[animeId];
 
       if (lastEp > 0) {
@@ -1342,7 +1348,7 @@ export function initProfile() {
       const anime = ANIME_DATA.find(a => a.id === parseInt(idStr));
       if (!anime) return;
       let lastEp = lastEpStore[anime.id] || 0;
-      if (typeof lastEp === 'object') lastEp = lastEp.epNum || 0;
+      if (typeof lastEp === 'object' && lastEp) lastEp = lastEp.epNum || 0;
       if (lastEp > 0) items.push({ anime, lastEp, status: listStore[anime.id] });
     });
     items.sort((a, b) => b.lastEp - a.lastEp);
@@ -1377,7 +1383,7 @@ export function initProfile() {
     }
     function renderAnimeListItem(a) {
       let lastEp = getStore('anivora_last_ep')[a.id] || 0;
-      if (typeof lastEp === 'object') lastEp = lastEp.epNum || 0;
+      if (typeof lastEp === 'object' && lastEp) lastEp = lastEp.epNum || 0;
       const totalEps = getTotalEpisodes(a);
       const isDroppedItem = isDropped(a.id);
       const droppedNote = isDroppedItem ? `<div style="font-size:10.5px;color:var(--danger);margin-top:4px;font-style:italic;">Dropped${lastEp ? ` at Ep ${lastEp}` : ''}</div>` : '';
@@ -1432,7 +1438,9 @@ export function initProfile() {
 }
 
 export function bindProfileEvents() {
-  window.addEventListener('anivora:profile-refresh', () => { if (isLoggedIn()) initProfile(); });
+  window.addEventListener('anivora:profile-refresh', () => {
+    if (window.__currentPage === 'profile' && isLoggedIn()) initProfile();
+  });
 }
 
 export function bindDetailEvents() {
@@ -1446,7 +1454,6 @@ export function bindDetailEvents() {
     const ANIME_DATA = window.ANIME_DATA || [];
     const anime = ANIME_DATA.find(a => a.id === animeId);
     if (!anime) return;
-    // ★ فقط اگر در صفحه detail هستیم، episodes رو دوباره رندر کن
     if (window.__currentPage === 'detail') {
       const currentSeason = window.__currentSeason || 1;
       renderDetailEpisodes(anime, currentSeason);
@@ -1612,7 +1619,7 @@ export function initWatchlist() {
     const status = listStore[a.id];
     const progressPct = getProgress(a.id);
     let lastEp = getStore('anivora_last_ep')[a.id] || 0;
-    if (typeof lastEp === 'object') lastEp = lastEp.epNum || 0;
+    if (typeof lastEp === 'object' && lastEp) lastEp = lastEp.epNum || 0;
     const totalEps = getTotalEpisodes(a);
     const airedEps = getAiredEpisodes(a);
     const dropped = isDropped(a.id);
@@ -1692,53 +1699,105 @@ export function bindWatchlistEvents() {
 ============================================ */
 export function restoreStateAfterRefresh() {
   const ANIME_DATA = window.ANIME_DATA || [];
-  const hashPage = location.hash ? location.hash.replace('#','') : null;
-  const lastPage = getLastPage();
-  let targetPage = hashPage;
-  const validRestorePages = ['detail', 'watch'];
-  if (!validRestorePages.includes(targetPage)) {
-    if (lastPage && validRestorePages.includes(lastPage.page)) targetPage = lastPage.page;
-    else return false;
-  }
+  if (!ANIME_DATA || ANIME_DATA.length === 0) return false;
 
+  const lastPage = getLastPage();
+  if (!lastPage) return false;
+
+  const hashPage = location.hash ? location.hash.replace('#','') : null;
+  const targetPage = (hashPage === 'watch' || hashPage === 'detail')
+    ? hashPage
+    : lastPage.page;
+
+  if (targetPage !== 'watch' && targetPage !== 'detail') return false;
+
+  // ============================================
+  // RESTORE WATCH PAGE
+  // ============================================
   if (targetPage === 'watch') {
-    let animeId = lastPage?.animeId;
-    let epNum = lastPage?.epNum;
-    let seasonNumber = lastPage?.seasonNumber || 1;
+    let animeId = lastPage.animeId;
+    let epNum = lastPage.epNum;
+    let seasonNumber = lastPage.seasonNumber || 1;
+
     if (!animeId || !epNum) {
       const lastEpStore = getStore('anivora_last_ep');
-      const ids = Object.keys(lastEpStore).map(id => parseInt(id));
+      const ids = Object.keys(lastEpStore).map(id => parseInt(id)).filter(id => !isNaN(id));
       if (ids.length > 0) {
         animeId = ids[ids.length - 1];
         const d = lastEpStore[animeId];
-        if (typeof d === 'object') { epNum = d.epNum; seasonNumber = d.seasonNumber || 1; }
-        else epNum = d;
+        if (typeof d === 'object' && d) {
+          epNum = d.epNum;
+          seasonNumber = d.seasonNumber || 1;
+        } else {
+          epNum = d;
+        }
       }
     }
-    if (animeId && epNum) {
-      const anime = ANIME_DATA.find(a => a.id === animeId);
-      if (anime) { openEpisode(animeId, seasonNumber, epNum); return true; }
+
+    if (!animeId || !epNum) return false;
+
+    const anime = ANIME_DATA.find(a => a.id === animeId);
+    if (!anime) return false;
+
+    const seasons = anime.seasons || [{ seasonNumber: 1, episodes: anime.episodes || [] }];
+    const season = seasons.find(s => s.seasonNumber === seasonNumber) || seasons[0];
+    if (!season) return false;
+    const ep = season.episodes.find(e => e.num === epNum);
+    if (!ep) return false;
+
+    // ★ اول صفحه رو فعال کن
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    const pageEl = document.getElementById('page-watch');
+    if (pageEl) pageEl.classList.add('active');
+    window.__currentPage = 'watch';
+
+    try {
+      openEpisode(animeId, seasonNumber, epNum);
+      history.replaceState(
+        { page: 'watch', animeId, seasonNumber, epNum },
+        '',
+        '#watch'
+      );
+      return true;
+    } catch (e) {
+      console.error('[Anivora] openEpisode restore error:', e);
+      return false;
     }
-    return false;
   }
 
+  // ============================================
+  // RESTORE DETAIL PAGE
+  // ============================================
   if (targetPage === 'detail') {
-    let animeId = lastPage?.animeId;
+    let animeId = lastPage.animeId;
+
     if (!animeId) {
       const lastEpStore = getStore('anivora_last_ep');
-      const ids = Object.keys(lastEpStore).map(id => parseInt(id));
+      const ids = Object.keys(lastEpStore).map(id => parseInt(id)).filter(id => !isNaN(id));
       if (ids.length > 0) animeId = ids[ids.length - 1];
     }
-    if (animeId) {
-      const anime = ANIME_DATA.find(a => a.id === animeId);
-      if (anime) {
-        openAnimeDetail(animeId);
-        history.replaceState({ page: 'detail', animeId }, '', '#detail');
-        return true;
-      }
+
+    if (!animeId) return false;
+
+    const anime = ANIME_DATA.find(a => a.id === animeId);
+    if (!anime) return false;
+
+    // ★ اول صفحه رو فعال کن
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    const pageEl = document.getElementById('page-detail');
+    if (pageEl) pageEl.classList.add('active');
+    window.__currentPage = 'detail';
+
+    try {
+      openAnimeDetail(animeId, false);
+      history.replaceState({ page: 'detail', animeId }, '', '#detail');
+      return true;
+    } catch (e) {
+      console.error('[Anivora] openAnimeDetail restore error:', e);
+      return false;
     }
-    return false;
   }
+
   return false;
 }
 

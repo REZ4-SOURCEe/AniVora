@@ -37,8 +37,6 @@ import {
   handleAvatarUpload, removeAvatar, saveProfileChanges
 } from './pages.js';
 
-// ★ دیگر ANIME_DATA را از data.js import نمی‌کنیم
-
 /* ============================================
    GLOBAL DATA
 ============================================ */
@@ -49,28 +47,24 @@ let ANIME_DATA = [];
 ============================================ */
 async function loadData() {
   try {
-    // ★ اگر روی GitHub Pages هستیم، از data.json استفاده کن
-    // در غیر این صورت از API
     const isGitHubPages = location.hostname.endsWith('github.io');
     const API_URL = isGitHubPages ? 'data.json' : '/api/anime';
 
-    console.log('Loading data from:', API_URL);
+    console.log('[Anivora] Loading data from:', API_URL);
 
-    const response = await fetch(API_URL);
+    const response = await fetch(API_URL, { cache: 'no-store' });
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
     const data = await response.json();
 
-    // ★ چک کن آرایه باشه
-    if (!Array.isArray(data)) {
-      throw new Error('Data is not an array');
+    if (!Array.isArray(data) || data.length === 0) {
+      throw new Error('Data is not a valid array');
     }
 
     ANIME_DATA = data;
 
-    // پر کردن متغیر سراسری برای استفاده در سایر فایل‌ها
     window.__animeData = {};
     ANIME_DATA.forEach(a => { window.__animeData[a.id] = a; });
     window.ANIME_DATA = ANIME_DATA;
@@ -83,12 +77,14 @@ async function loadData() {
     const loader = document.getElementById('pageLoader');
     if (loader) {
       loader.innerHTML = `
-        <div style="text-align:center;color:var(--danger);">
+        <div style="text-align:center;color:var(--danger);padding:20px;">
           <svg class="icon icon-xl" style="width:48px;height:48px;margin-bottom:12px;"><use href="#ico-x"/></svg>
           <div style="font-size:14px;font-weight:600;">Failed to load data</div>
           <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">Please check your connection and refresh.</div>
+          <button onclick="location.reload()" style="margin-top:16px;padding:8px 20px;background:var(--accent);color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;">Retry</button>
         </div>
       `;
+      loader.classList.add('active');
     }
     return false;
   }
@@ -118,10 +114,8 @@ window.watchAnime = watchAnime;
 window.toggleDesc = toggleDesc;
 window.switchTab = switchTab;
 window.switchProfileTab = switchProfileTab;
-
 window.switchSeason = switchSeason;
 window.toggleSeasonDropdown = toggleSeasonDropdown;
-
 window.toggleClearBtn = toggleClearBtn;
 window.clearSearch = clearSearch;
 window.addFilter = addFilter;
@@ -130,21 +124,18 @@ window.filterResults = filterResults;
 window.showCategory = showCategory;
 window.removeFromWatchingUI = removeFromWatchingUI;
 window.removeFromFavoritesUI = removeFromFavoritesUI;
-
 window.openListStatusSheet = openListStatusSheet;
 window.closeListStatusSheet = closeListStatusSheet;
 window.getListStatus = getListStatus;
 window.setListStatus = setListStatus;
-
 window.handleDrawerAuth = handleDrawerAuth;
 window.updateDrawerAuth = updateDrawerAuth;
 window.updateHeaderAvatar = updateHeaderAvatar;
-
 window.goBack = goBack;
-
 window.handleLogin = handleLogin;
 window.handleSignup = handleSignup;
 window.handleLogout = handleLogout;
+
 window.goToProfile = function() {
   if (isLoggedIn()) showPage('profile');
   else showPage('login');
@@ -157,6 +148,39 @@ window.removeAvatar = removeAvatar;
 window.saveProfileChanges = saveProfileChanges;
 
 /* ============================================
+   SHOW PAGE ONLY (بدون pushState)
+============================================ */
+function showPageOnly(pageId) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const page = document.getElementById('page-' + pageId);
+  if (page) {
+    page.classList.add('active');
+    window.scrollTo(0, 0);
+  }
+  window.__currentPage = pageId;
+}
+
+/* ============================================
+   INIT: HOME SECTIONS ONLY (restore mode)
+============================================ */
+function initHomeSections() {
+  try { initHome(); } catch(e) { console.error('initHome:', e); }
+  try { initCustomSelects(); } catch(e) { console.error('initCustomSelects:', e); }
+}
+
+/* ============================================
+   INIT: ALL PAGES (normal mode)
+============================================ */
+function initAllPages() {
+  try { initHome(); } catch(e) { console.error('initHome:', e); }
+  try { initExplore(); } catch(e) { console.error('initExplore:', e); }
+  try { initWatchlist(); } catch(e) { console.error('initWatchlist:', e); }
+  try { initWatchlistTabs(); } catch(e) { console.error('initWatchlistTabs:', e); }
+  try { initCalendar(); } catch(e) { console.error('initCalendar:', e); }
+  try { initCustomSelects(); } catch(e) { console.error('initCustomSelects:', e); }
+}
+
+/* ============================================
    INIT
 ============================================ */
 async function init() {
@@ -165,15 +189,75 @@ async function init() {
 
   if (!dataLoaded) return;
 
+  // ★ مخفی کردن loader
+  const loader = document.getElementById('pageLoader');
+  if (loader) loader.classList.remove('active');
+
+  // ★ مقدار اولیه currentPage
+  window.__currentPage = null;
+
+  // رندر صفحات auth
   renderLoginPage();
   renderSignupPage();
 
-  initHome();
-  initExplore();
-  initWatchlist();
-  initWatchlistTabs();
-  initCalendar();
-  initCustomSelects();
+  // ★ تشخیص اینکه باید restore کنیم یا نه
+  const hash = location.hash ? location.hash.replace('#', '') : 'home';
+  const lastPage = getLastPage();
+
+  // ★ آیا این یه refresh روی صفحه watch یا detail هست؟
+  const shouldRestore = (hash === 'watch' || hash === 'detail') && lastPage &&
+                        (lastPage.page === 'watch' || lastPage.page === 'detail');
+
+  if (shouldRestore) {
+    // ★ حالت restore
+    let restored = false;
+    try {
+      restored = restoreStateAfterRefresh();
+    } catch (e) {
+      console.error('[Anivora] Restore error:', e);
+      restored = false;
+    }
+
+    if (!restored) {
+      // ★ اگه restore شکست خورد، برو home
+      setLastPage(null);
+      history.replaceState({ page: 'home' }, '', '#home');
+      showPageOnly('home');
+    }
+
+    // ★ فقط home رو initialize کن
+    initHomeSections();
+  } else {
+    // ★ حالت عادی
+    const validPages = ['home', 'explore', 'detail', 'watch', 'seasonal', 'watchlist', 'profile', 'calendar', 'login', 'signup'];
+
+    const isFirstVisit = !sessionStorage.getItem('anivora_visited');
+
+    if (isFirstVisit) {
+      sessionStorage.setItem('anivora_visited', '1');
+      setLastPage(null);
+      history.replaceState({ page: 'home' }, '', '#home');
+      showPageOnly('home');
+    } else if (validPages.includes(hash) && hash !== 'home') {
+      let pageId = hash;
+      if (pageId === 'profile' && !isLoggedIn()) pageId = 'login';
+      if (pageId === 'detail' || pageId === 'watch') pageId = 'home';
+
+      if (!history.state) {
+        history.replaceState({ page: pageId }, '', '#' + pageId);
+      }
+      showPageOnly(pageId);
+    } else {
+      setLastPage(null);
+      history.replaceState({ page: 'home' }, '', '#home');
+      showPageOnly('home');
+    }
+
+    // ★ همه صفحات رو initialize کن
+    initAllPages();
+  }
+
+  // ★ این‌ها همیشه باید اجرا بشن
   bindGlobalEvents();
   bindFullscreenChange();
   bindDownloadOutsideClick();
@@ -186,63 +270,14 @@ async function init() {
   updateDrawerAuth();
   updateHeaderAvatar();
 
-  if (isLoggedIn()) initProfile();
-
-  const hash = location.hash ? location.hash.replace('#', '') : 'home';
-  const validPages = ['home', 'explore', 'detail', 'watch', 'seasonal', 'watchlist', 'profile', 'calendar', 'login', 'signup'];
-
-  const isFirstVisit = !sessionStorage.getItem('anivora_visited');
-
-  if (isFirstVisit) {
-    sessionStorage.setItem('anivora_visited', '1');
-    setLastPage(null);
-
-    if (!history.state) {
-      history.replaceState({ page: 'home' }, '', '#home');
-    }
-    window.__currentPage = 'home';
-
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    const p = document.getElementById('page-home');
-    if (p) p.classList.add('active');
-  } else {
-    const isRestoreHash = hash === 'watch' || hash === 'detail';
-
-    if (isRestoreHash) {
-      const restored = restoreStateAfterRefresh();
-      if (restored) {
-        window.__currentPage = hash;
-      } else {
-        setLastPage(null);
-        history.replaceState({ page: 'home' }, '', '#home');
-        window.__currentPage = 'home';
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        const p = document.getElementById('page-home');
-        if (p) p.classList.add('active');
-      }
-    } else if (validPages.includes(hash) && hash !== 'home') {
-      let pageId = hash;
-      if (pageId === 'profile' && !isLoggedIn()) pageId = 'login';
-
-      window.__currentPage = pageId;
-      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-      const p = document.getElementById('page-' + pageId);
-      if (p) p.classList.add('active');
-
-      if (!history.state) {
-        history.replaceState({ page: pageId }, '', '#' + pageId);
-      }
-    } else {
-      setLastPage(null);
-      history.replaceState({ page: 'home' }, '', '#home');
-      window.__currentPage = 'home';
-      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-      const p = document.getElementById('page-home');
-      if (p) p.classList.add('active');
-    }
+  if (isLoggedIn()) {
+    try { initProfile(); } catch(e) { console.error('initProfile error:', e); }
   }
 
-  refreshStoredButtons();
+  // ★ یکبار دیگه refresh buttons
+  setTimeout(() => {
+    refreshStoredButtons();
+  }, 100);
 }
 
 /* ============================================
@@ -271,4 +306,8 @@ function refreshStoredButtons() {
 /* ============================================
    START
 ============================================ */
-document.addEventListener('DOMContentLoaded', init);
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}

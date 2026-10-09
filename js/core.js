@@ -133,6 +133,8 @@ export function getListStatus(animeId) {
 
 export function setListStatus(animeId, status) {
   const list = getListStore();
+  const oldStatus = list[animeId];
+
   if (status === null) {
     delete list[animeId];
     setProgress(animeId, 0);
@@ -143,20 +145,24 @@ export function setListStatus(animeId, status) {
   }
   setListStore(list);
 
-  document.querySelectorAll(`[data-add-btn="${animeId}"]`).forEach(b => updateAddBtnUI(b, animeId));
+  // ★ فقط UI دکمه‌ها رو آپدیت کن
+  document.querySelectorAll(`[data-add-btn="${animeId}"]`).forEach(b => {
+    try { updateAddBtnUI(b, animeId); } catch(e) {}
+  });
 
-  // ★ فقط اگر در صفحه watchlist هستیم، refresh کن
-  if (window.__currentPage === 'watchlist') {
-    window.dispatchEvent(new CustomEvent('anivora:watchlist-refresh'));
+  // ★ فقط اگه واقعاً تغییر کرده، event بفرست
+  if (oldStatus !== status) {
+    // ★ فقط صفحاتی که واقعاً فعال هستن refresh می‌شن
+    if (window.__currentPage === 'watchlist') {
+      window.dispatchEvent(new CustomEvent('anivora:watchlist-refresh'));
+    }
+    if (window.__currentPage === 'profile') {
+      window.dispatchEvent(new CustomEvent('anivora:profile-refresh'));
+    }
+    window.dispatchEvent(new CustomEvent('anivora:list-changed', {
+      detail: { animeId, status }
+    }));
   }
-  // ★ فقط اگر در صفحه profile هستیم، refresh کن
-  if (window.__currentPage === 'profile') {
-    window.dispatchEvent(new CustomEvent('anivora:profile-refresh'));
-  }
-  // ★ event عمومی
-  window.dispatchEvent(new CustomEvent('anivora:list-changed', {
-    detail: { animeId, status }
-  }));
 }
 
 export function toggleList(animeId, btn) {
@@ -197,10 +203,12 @@ export function toggleLike(animeId, btn) {
   else likes.push(animeId);
   setStore(LIKES_KEY, likes);
 
-  document.querySelectorAll(`[data-like-btn="${animeId}"]`).forEach(b => updateLikeBtnUI(b, animeId));
+  document.querySelectorAll(`[data-like-btn="${animeId}"]`).forEach(b => {
+    try { updateLikeBtnUI(b, animeId); } catch(e) {}
+  });
   if (btn) updateLikeBtnUI(btn, animeId);
 
-  // ★ فقط اگر در صفحه watchlist یا profile هستیم، refresh کن
+  // ★ فقط اگه در صفحه watchlist یا profile هستیم refresh کن
   if (window.__currentPage === 'watchlist') {
     window.dispatchEvent(new CustomEvent('anivora:watchlist-refresh'));
   }
@@ -355,6 +363,8 @@ export function computeProfileStats(ANIME_DATA) {
   const genreCount = {};
   const yearCount = {};
 
+  if (!Array.isArray(ANIME_DATA)) ANIME_DATA = [];
+
   Object.keys(listStore).forEach(animeIdStr => {
     const animeId = parseInt(animeIdStr);
     const anime = ANIME_DATA.find(a => a.id === animeId);
@@ -364,7 +374,7 @@ export function computeProfileStats(ANIME_DATA) {
     const status = listStore[animeId];
 
     let watchedEps = lastEpStore[animeId] || 0;
-    if (typeof watchedEps === 'object') watchedEps = watchedEps.epNum || 0;
+    if (typeof watchedEps === 'object' && watchedEps) watchedEps = watchedEps.epNum || 0;
 
     totalEpisodes += watchedEps;
     totalMinutes += watchedEps * 24;
@@ -374,15 +384,19 @@ export function computeProfileStats(ANIME_DATA) {
     if (status === 'plan_to_watch') planToWatch++;
     if (isDropped(animeId)) dropped++;
 
-    (anime.genres || []).forEach(g => { genreCount[g] = (genreCount[g] || 0) + 1; });
-    yearCount[anime.year] = (yearCount[anime.year] || 0) + 1;
+    const genres = Array.isArray(anime.genres) ? anime.genres : [];
+    genres.forEach(g => { genreCount[g] = (genreCount[g] || 0) + 1; });
+
+    if (anime.year) {
+      yearCount[anime.year] = (yearCount[anime.year] || 0) + 1;
+    }
   });
 
   let meanScore = 0;
   const listAnimeIds = Object.keys(listStore).map(id => parseInt(id));
   const listAnimes = ANIME_DATA.filter(a => listAnimeIds.includes(a.id));
   if (listAnimes.length > 0) {
-    meanScore = listAnimes.reduce((sum, a) => sum + a.score, 0) / listAnimes.length;
+    meanScore = listAnimes.reduce((sum, a) => sum + (a.score || 0), 0) / listAnimes.length;
   }
 
   const sortedGenres = Object.entries(genreCount).sort((a, b) => b[1] - a[1]).slice(0, 5);
@@ -434,6 +448,7 @@ export function showToast(msg) {
    HELPERS
 ============================================ */
 export function shuffle(arr) {
+  if (!Array.isArray(arr)) return [];
   return [...arr].sort(() => Math.random() - 0.5);
 }
 export function formatTime(sec) {
@@ -730,13 +745,19 @@ export function stopVideo() {
 ============================================ */
 export function showPage(id, skipHistory) {
   const prevPage = window.__currentPage;
+
+  // ★ اگه صفحه یکسان هست و skipHistory نیست، کاری نکن
   if (prevPage === id && !skipHistory) return;
 
+  // ★ اگه از watch خارج می‌شیم، ویدیو رو متوقف کن
   if (prevPage === 'watch' && id !== 'watch') stopVideo();
+
+  // ★ redirect به login اگه لاگین نیستی
   if (id === 'profile' && !isLoggedIn()) id = 'login';
 
   triggerPageLoader();
 
+  // ★ تغییر صفحه
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   const page = document.getElementById('page-' + id);
   if (page) {
@@ -744,11 +765,13 @@ export function showPage(id, skipHistory) {
     window.scrollTo(0, 0);
   }
 
+  // ★ بستن notif panel
   const notif = document.getElementById('notifPanel');
   if (notif) notif.classList.remove('open');
 
   updateBottomNav(id);
 
+  // ★ مدیریت history
   if (!skipHistory) {
     const currentHash = location.hash.replace('#', '') || 'home';
     if (currentHash !== id) {
@@ -756,19 +779,29 @@ export function showPage(id, skipHistory) {
       if (id === 'detail' && window.__currentAnimeId) {
         state.animeId = window.__currentAnimeId;
       }
+      if (id === 'watch' && window.__currentAnimeId) {
+        state.animeId = window.__currentAnimeId;
+        state.seasonNumber = window.__currentSeason;
+        state.epNum = window.__currentEpNum;
+      }
       history.pushState(state, '', '#' + id);
     }
   }
 
+  // ★ set currentPage بعد از همه کارها
   window.__currentPage = id;
 
-  // ★ Refresh فقط برای صفحه‌ای که فعال شده
-  if (id === 'watchlist') window.dispatchEvent(new CustomEvent('anivora:watchlist-refresh'));
-  if (id === 'profile') window.dispatchEvent(new CustomEvent('anivora:profile-refresh'));
+  // ★ refresh صفحات مربوطه فقط اگه در همون صفحه هستیم
+  if (id === 'watchlist') {
+    window.dispatchEvent(new CustomEvent('anivora:watchlist-refresh'));
+  }
+  if (id === 'profile') {
+    window.dispatchEvent(new CustomEvent('anivora:profile-refresh'));
+  }
 }
 
 /* ============================================
-   ★ GO BACK — برگرد به صفحه قبلی
+   GO BACK
 ============================================ */
 export function goBack() {
   if (history.state && history.state.page) {
@@ -947,7 +980,12 @@ export function bindGlobalEvents() {
         return;
       }
     }
-
+    if (e.state && e.state.page === 'watch' && e.state.animeId) {
+      if (window.openEpisode) {
+        window.openEpisode(e.state.animeId, e.state.seasonNumber || 1, e.state.epNum);
+        return;
+      }
+    }
     if (e.state && e.state.page) {
       showPage(e.state.page, true);
     } else {
