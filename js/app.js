@@ -1,6 +1,6 @@
 /* ============================================
    ANIVORA — APP
-   + Smart Loader Management
+   + Smart Loader + No Flash
 ============================================ */
 
 import {
@@ -46,14 +46,18 @@ import { getToken } from './api.js';
 let ANIME_DATA = [];
 
 /* ============================================
-   LOAD DATA — با Smart Loader
+   LOAD DATA — Smart Loader
 ============================================ */
 async function loadData() {
-  // ★ نمایش loader
-  showLoader();
+  // ★ loader از قبل در HTML فعاله (class="active")
+  // فقط چک کن
+  const loader = document.getElementById('pageLoader');
+  if (loader && !loader.classList.contains('active')) {
+    loader.classList.add('active');
+  }
 
   const startTime = Date.now();
-  const MIN_LOADER_TIME = 350; // حداقل زمان نمایش loader (ms)
+  const MIN_LOADER_TIME = 150; // حداقل زمان نمایش loader (ms) — سریع
 
   try {
     const isGitHubPages = location.hostname.endsWith('github.io');
@@ -81,12 +85,11 @@ async function loadData() {
     const remaining = Math.max(0, MIN_LOADER_TIME - elapsed);
     if (remaining > 0) await new Promise(r => setTimeout(r, remaining));
 
-    hideLoader();
+    // ★ loader رو مخفی نکن اینجا — بعد از init کامل مخفی می‌کنیم
     return true;
   } catch (error) {
     console.error('❌ Failed to load anime data:', error);
 
-    const loader = document.getElementById('pageLoader');
     if (loader) {
       loader.innerHTML = `
         <div style="text-align:center;color:var(--danger);padding:20px;">
@@ -96,7 +99,6 @@ async function loadData() {
           <button onclick="location.reload()" style="margin-top:16px;padding:8px 20px;background:var(--accent);color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;">Retry</button>
         </div>
       `;
-      // ★ loader رو فعال نگه دار تا کاربر Retry بزنه
     }
     return false;
   }
@@ -197,6 +199,7 @@ function initAllPages() {
 ============================================ */
 async function init() {
   const dataLoaded = await loadData();
+
   if (!dataLoaded) return;
 
   window.__currentPage = null;
@@ -204,18 +207,14 @@ async function init() {
   renderLoginPage();
   renderSignupPage();
 
-  // ★ اگه توکن داریم، کاربر رو از سرور بگیر (با loader)
+  // ★ اگه توکن داریم، کاربر رو از سرور بگیر (loader هنوز فعاله)
   if (getToken()) {
-    showLoader();
-
     try {
       await refreshCurrentUser();
       await syncListFromServer();
     } catch(e) {
       console.error('refreshCurrentUser error:', e);
     }
-
-    hideLoader();
   }
 
   const hash = location.hash ? location.hash.replace('#', '') : 'home';
@@ -281,6 +280,14 @@ async function init() {
 
   if (isLoggedIn()) {
     try { initProfile(); } catch(e) { console.error('initProfile error:', e); }
+  }
+
+  // ★ حالا که همه چیز آماده‌ست، loader رو مخفی کن
+  const loader = document.getElementById('pageLoader');
+  if (loader) {
+    requestAnimationFrame(() => {
+      loader.classList.remove('active');
+    });
   }
 
   setTimeout(() => {
