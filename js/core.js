@@ -2,6 +2,7 @@
    ANIVORA — CORE
    + Cloudflare Worker Auth
    + Smart Loader Management
+   + Collapse History (A→B→A)
 ============================================ */
 
 import {
@@ -824,7 +825,17 @@ export function stopVideo() {
 }
 
 /* ============================================
-   ROUTER — بدون triggerPageLoader
+   NAVIGATION STACK (برای Collapse A→B→A)
+============================================ */
+let navStack = [];                    // آرایه صفحات: [home, explore, watchlist, profile, watchlist, ...]
+let pendingCollapse = null;           // { id, state } — اگه در حال Collapse هستیم
+
+export function getNavStack() {
+  return [...navStack];
+}
+
+/* ============================================
+   ROUTER
 ============================================ */
 export function showPage(id, skipHistory) {
   const prevPage = window.__currentPage;
@@ -840,9 +851,62 @@ export function showPage(id, skipHistory) {
     id = 'login';
   }
 
-  // ★ اینجا دیگه triggerPageLoader صدا نمی‌زنیم — چون درخواست شبکه‌ای نیست
-  // triggerPageLoader();
+  // ★ اگه کاربر روی Home کلیک کرد، history رو ریست کن
+  const isHomeClick = (id === 'home') && prevPage && prevPage !== 'home' && !skipHistory;
 
+  if (isHomeClick) {
+    navStack = ['home'];
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    const page = document.getElementById('page-home');
+    if (page) {
+      page.classList.add('active');
+      window.scrollTo(0, 0);
+    }
+    const notif = document.getElementById('notifPanel');
+    if (notif) notif.classList.remove('open');
+    updateBottomNav('home');
+
+    // ★ history رو کامل ریست کن
+    history.replaceState({ page: 'home' }, '', '#home');
+    window.__currentPage = 'home';
+
+    return;
+  }
+
+  // ★ Collapse check: A → B → A
+  const shouldCollapse = !skipHistory &&
+    navStack.length >= 2 &&
+    navStack[navStack.length - 2] === id &&
+    navStack[navStack.length - 1] === prevPage &&
+    prevPage !== id;
+
+  if (shouldCollapse) {
+    // user does A → B → A
+    // 1. از کاربر می‌خوایم به B برگرده (back)
+    // 2. توی popstate، B رو با A2 جایگزین می‌کنیم
+
+    pendingCollapse = {
+      id: id,
+      state: {
+        page: id,
+        ...(id === 'detail' && window.__currentAnimeId ? { animeId: window.__currentAnimeId } : {}),
+        ...(id === 'watch' && window.__currentAnimeId ? {
+          animeId: window.__currentAnimeId,
+          seasonNumber: window.__currentSeason,
+          epNum: window.__currentEpNum
+        } : {})
+      }
+    };
+
+    // navStack رو اصلاح کن: [A, B, A] → [A]
+    navStack = navStack.slice(0, navStack.length - 2);
+    navStack.push(id);
+
+    history.back();
+    return;  // popstate handle می‌کنه
+  }
+
+  // ★ ناوبری معمولی
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   const page = document.getElementById('page-' + id);
   if (page) {
@@ -875,8 +939,16 @@ export function showPage(id, skipHistory) {
         history.replaceState(state, '', '#' + id);
       } else {
         history.pushState(state, '', '#' + id);
+        // navStack رو آپدیت کن
+        if (navStack.length > 0 && navStack[navStack.length - 1] === id) {
+          // تکراری پشت سر هم نذار
+        } else {
+          navStack.push(id);
+        }
       }
     }
+  } else {
+    // skipHistory — navStack رو دست نزن
   }
 
   window.__currentPage = id;
@@ -1062,6 +1134,35 @@ export function bindGlobalEvents() {
   }, true);
 
   window.addEventListener('popstate', function(e) {
+    // ★ اگه در حال Collapse هستیم
+    if (pendingCollapse) {
+      const { id, state } = pendingCollapse;
+      pendingCollapse = null;
+
+      // ما الان توی B هستیم (بعد از back)
+      // حالا B رو با A (id) جایگزین می‌کنیم
+      history.replaceState(state, '', '#' + id);
+
+      // صفحه رو به A عوض کن
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      const page = document.getElementById('page-' + id);
+      if (page) {
+        page.classList.add('active');
+        window.scrollTo(0, 0);
+      }
+      window.__currentPage = id;
+      updateBottomNav(id);
+
+      if (id === 'watchlist') {
+        window.dispatchEvent(new CustomEvent('anivora:watchlist-refresh'));
+      }
+      if (id === 'profile') {
+        window.dispatchEvent(new CustomEvent('anivora:profile-refresh'));
+      }
+
+      return;
+    }
+
     // ★ اگه Edit Profile modal بازه، بستش بده
     if (window.__editProfileModalOpen) {
       window.__editProfileModalOpen = false;
@@ -1106,9 +1207,39 @@ export function bindGlobalEvents() {
       }
     }
     if (e.state && e.state.page) {
-      showPage(e.state.page, true);
-    } else {
-      showPage('home', true);
+      // ★ از history واقعی استفاده کن، نه showPage (چون showPage دوباره push میکنه)
+      const page = e.state.page;
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      const pageEl = document.getElementById('page-' + page);
+      if (pageEl) {
+        pageEl.classList.add('active');
+        window.scrollTo(0, 0);
+      }
+      window.__currentPage = page;
+      updateBottomNav(page);
+
+      // navStack رو هم آپدیت کن (کوتاه کن تا صفحه فعلی)
+      const idx = navStack.lastIndexOf(page);
+      if (idx >= 0) {
+        navStack = navStack.slice(0, idx + 1);
+      } else {
+        navStack.push(page);
+      }
+
+      if (page === 'watchlist') {
+        window.dispatchEvent(new CustomEvent('anivora:watchlist-refresh'));
+      }
+      if (page === 'profile') {
+        window.dispatchEvent(new CustomEvent('anivora:profile-refresh'));
+      }
+      return;
     }
+    // fallback
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    const home = document.getElementById('page-home');
+    if (home) home.classList.add('active');
+    window.__currentPage = 'home';
+    updateBottomNav('home');
+    navStack = ['home'];
   });
 }
