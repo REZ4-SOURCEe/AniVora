@@ -1,5 +1,6 @@
 /* ============================================
    ANIVORA — APP
+   + Smart Loader Management
 ============================================ */
 
 import {
@@ -9,7 +10,8 @@ import {
   getListStatus, setListStatus, openListStatusSheet, closeListStatusSheet,
   updateAddBtnUI, getLastPage, setLastPage, isLoggedIn,
   handleDrawerAuth, updateDrawerAuth, updateHeaderAvatar,
-  goBack, refreshCurrentUser, syncListFromServer
+  goBack, refreshCurrentUser, syncListFromServer,
+  showLoader, hideLoader
 } from './core.js';
 
 import {
@@ -44,9 +46,15 @@ import { getToken } from './api.js';
 let ANIME_DATA = [];
 
 /* ============================================
-   LOAD DATA
+   LOAD DATA — با Smart Loader
 ============================================ */
 async function loadData() {
+  // ★ نمایش loader
+  showLoader();
+
+  const startTime = Date.now();
+  const MIN_LOADER_TIME = 350; // حداقل زمان نمایش loader (ms)
+
   try {
     const isGitHubPages = location.hostname.endsWith('github.io');
     const API_URL = isGitHubPages ? 'data.json' : '/api/anime';
@@ -67,6 +75,13 @@ async function loadData() {
     window.ANIME_DATA = ANIME_DATA;
 
     console.log(`✅ Loaded ${ANIME_DATA.length} anime from API`);
+
+    // ★ صبر کن تا حداقل زمان loader بگذرد
+    const elapsed = Date.now() - startTime;
+    const remaining = Math.max(0, MIN_LOADER_TIME - elapsed);
+    if (remaining > 0) await new Promise(r => setTimeout(r, remaining));
+
+    hideLoader();
     return true;
   } catch (error) {
     console.error('❌ Failed to load anime data:', error);
@@ -81,7 +96,7 @@ async function loadData() {
           <button onclick="location.reload()" style="margin-top:16px;padding:8px 20px;background:var(--accent);color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;">Retry</button>
         </div>
       `;
-      loader.classList.add('active');
+      // ★ loader رو فعال نگه دار تا کاربر Retry بزنه
     }
     return false;
   }
@@ -184,22 +199,23 @@ async function init() {
   const dataLoaded = await loadData();
   if (!dataLoaded) return;
 
-  const loader = document.getElementById('pageLoader');
-  if (loader) loader.classList.remove('active');
-
   window.__currentPage = null;
 
   renderLoginPage();
   renderSignupPage();
 
-  // ★ اگه توکن داریم، کاربر رو از سرور بگیر
+  // ★ اگه توکن داریم، کاربر رو از سرور بگیر (با loader)
   if (getToken()) {
+    showLoader();
+
     try {
       await refreshCurrentUser();
       await syncListFromServer();
     } catch(e) {
       console.error('refreshCurrentUser error:', e);
     }
+
+    hideLoader();
   }
 
   const hash = location.hash ? location.hash.replace('#', '') : 'home';
