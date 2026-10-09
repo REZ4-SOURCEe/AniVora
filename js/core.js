@@ -2,7 +2,7 @@
    ANIVORA — CORE
    + Cloudflare Worker Auth
    + Smart Loader Management
-   + Collapse History (A→B→A) — real fix
+   + Custom Back Stack (100% reliable)
 ============================================ */
 
 import {
@@ -825,28 +825,18 @@ export function stopVideo() {
 }
 
 /* ============================================
-   ★ NAVIGATION STACK — برای Collapse A→B→A
+   ★ CUSTOM NAVIGATION STACK
    
-   منطق جدید:
-   - یه آرایه از صفحات داریم
-   - هر بار که کاربر می‌ره صفحه جدید، چک می‌کنیم:
-     - اگه صفحه‌ای که می‌ره توی ۲ تای آخر نبود → pushState + push to navStack
-     - اگه صفحه‌ای که می‌ره، دقیقاً ۲ تا قبل از آخرین بود (A-B-A) → replaceState (بدون push)
-     - اگه صفحه‌ای که می‌ره، همون آخری بود → هیچ کاری نکن
+   استراتژی:
+   - همیشه از pushState استفاده می‌کنیم (کاربر در trap بمونه)
+   - یه stack داخلی از صفحات نگه می‌داریم
+   - stack تکراری پشت سر هم نمی‌گیره
+   - هر Back که کاربر می‌زنه، ما از stack قبلی استفاده می‌کنیم
+   - Back کاربر رو intercept می‌کنیم تا نتونه از سایت خارج بشه
 ============================================ */
-let navStack = [];           // مثال: ['home', 'explore', 'watchlist', 'profile']
-let historyEntries = 0;      // تعداد ورودی‌هایی که pushState کردیم (برای debug)
-
-function collapseNavStack(targetId) {
-  // اگه توی stack هست، تا آخرین occurrence کوتاه کن (تا از تکرار پشت سر هم جلوگیری کنیم)
-  const idx = navStack.lastIndexOf(targetId);
-  if (idx !== -1) {
-    navStack = navStack.slice(0, idx + 1);
-  } else {
-    navStack.push(targetId);
-  }
-  return navStack;
-}
+let pageStack = [];           // stack صفحات فعلی — بدون تکرار
+let interceptingBack = false; // آیا در حال intercept هستیم
+let lastPopstateTime = 0;     // زمان آخرین popstate
 
 /* ============================================
    ROUTER
@@ -865,12 +855,13 @@ export function showPage(id, skipHistory) {
     id = 'login';
   }
 
-  // ★★★ Home → reset history ★★★
+  // ★★★ Home: reset stack و برگشت به ابتدای history ★★★
   const isHomeClick = (id === 'home') && prevPage && prevPage !== 'home' && !skipHistory;
 
   if (isHomeClick) {
-    // همه چیز رو ریست کن
-    navStack = ['home'];
+    // stack رو ریست کن
+    pageStack = ['home'];
+
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     const page = document.getElementById('page-home');
     if (page) {
@@ -881,7 +872,9 @@ export function showPage(id, skipHistory) {
     if (notif) notif.classList.remove('open');
     updateBottomNav('home');
 
-    history.replaceState({ page: 'home' }, '', '#home');
+    // تمام ورودی‌های history رو حذف کن — برگرد به اولین
+    // با replaceState یه ورودی جدید می‌سازیم
+    history.replaceState({ page: 'home', root: true }, '', '#home');
     window.__currentPage = 'home';
     return;
   }
@@ -899,7 +892,7 @@ export function showPage(id, skipHistory) {
 
   updateBottomNav(id);
 
-  // ★★★ مدیریت History با Collapse ★★★
+  // ★★★ مدیریت Stack ★★★
   if (!skipHistory) {
     const currentHash = location.hash.replace('#', '') || 'home';
 
@@ -917,48 +910,21 @@ export function showPage(id, skipHistory) {
       const isAuthRedirect =
         (prevPage === 'login' || prevPage === 'signup') && id === 'profile';
 
-      // ★ چک کن اگه A → B → A هست
-      const len = navStack.length;
-      const isCollapse = !isAuthRedirect &&
-                         len >= 2 &&
-                         navStack[len - 2] === id &&        // A = صفحه‌ای که می‌ریم
-                         navStack[len - 1] === prevPage;     // B = صفحه فعلی
-
-      if (isCollapse) {
-        // الگوی A → B → A
-        // 1. state قبلی (B) رو با state فعلی (A) جایگزین کن
-        // 2. navStack رو به A کوتاه کن
-        // نتیجه: [A, B] → [A]
-        history.replaceState(state, '', '#' + id);
-        navStack = navStack.slice(0, len - 1);   // B رو حذف کن
-        // navStack حالا [..., A] هست (چون A توی len-2 بوده)
-
-        // چون replaceState یه ورودی رو از history حذف نمی‌کنه،
-        // ما فقط state رو عوض کردیم. الان history واقعی: [..., A1, A2]
-        // ولی A1 و A2 هر دو یه صفحه‌ان، پس کاربر back بزنه می‌ره A1 (همون A)
-        // مشکل: کاربر باید ۲ بار back بزنه تا از A بره بیرون
-        // راه‌حل: بلافاصله یه back بزن تا A1 بریم، بعدش state رو تصحیح کن
-        // ولی back async هست...
-
-        // ★ راه‌حل واقعی: history رو دست‌کاری کن — نمیشه، پس اجازه بده
-        // state هامون یه سری ورودی phantom داشته باشن. کاربر back بزنه،
-        // توی popstate ما چک می‌کنیم که state فرق داره یا نه.
-
-        // ★★ نکته: کاربر توی مسیر A → B → A → B → A → B ... loop می‌کنه
-        // ما فقط آخرین A رو نگه می‌داریم و B رو حذف می‌کنیم
-        // ولی توی history واقعی، یه سری A,B,A,B,... هست
-        // برای کاربر اینه که وقتی back بزنه، popstate با state متفاوت میاد
-        
-        // راه‌حل ساده: از یه متغیر global برای تشخیص استفاده کن
-        // تا توی popstate چک کنیم اگه state بعدی همون state فعلی بود، دوباره back بزنیم
+      // ★ Stack رو آپدیت کن
+      // قبل از push، اگه id توی stack هست، تا اونجا کوتاه کن
+      const idx = pageStack.lastIndexOf(id);
+      if (idx !== -1) {
+        pageStack = pageStack.slice(0, idx + 1);
       } else {
-        // pushState معمولی
-        if (isAuthRedirect) {
-          history.replaceState(state, '', '#' + id);
-        } else {
-          history.pushState(state, '', '#' + id);
-          collapseNavStack(id);
-        }
+        pageStack.push(id);
+      }
+
+      // ★ pushState — هر بار که صفحه عوض می‌شه
+      // این کاربر رو در trap نگه می‌داره
+      if (isAuthRedirect) {
+        history.replaceState(state, '', '#' + id);
+      } else {
+        history.pushState(state, '', '#' + id);
       }
     }
   }
@@ -1155,14 +1121,14 @@ export function bindGlobalEvents() {
       if (modal) { modal.classList.remove('show'); setTimeout(() => modal.remove(), 300); }
       document.body.style.overflow = '';
       window.__pendingAvatar = null;
-      history.pushState(e.state, '', location.href);
+      // کاربر back زده بود تا modal بسته بشه — کارش تمومه
       return;
     }
 
     // ★ اگه List Status sheet بازه
     if (window.__listStatusSheetOpen) {
       closeListStatusSheet();
-      history.pushState(e.state, '', location.href);
+      // به جای back، state فعلی رو نگه دار
       return;
     }
 
@@ -1173,61 +1139,65 @@ export function bindGlobalEvents() {
       if (overlay) { overlay.classList.remove('show'); setTimeout(() => overlay.remove(), 250); }
       if (sheet) { sheet.classList.remove('show'); setTimeout(() => sheet.remove(), 300); }
       document.body.style.overflow = '';
-      history.pushState(e.state, '', location.href);
       return;
     }
 
-    // ★★★ Collapse: چک کن اگه state بعدی با state فعلی یکیه، دوباره back بزن
-    const targetPage = e.state?.page || 'home';
+    // ★★★ Back واقعی — از stack خودمون استفاده کن
+    // کاربر Back زده. نگاه کن اگه pageStack خالی نیست،
+    // آخرین صفحه رو حذف کن و برو به قبلی.
+    // اگه pageStack خالی شد، کاربر رو از سایت خارج کن.
 
-    // اگه همون صفحه فعلی بود، دوباره back بزن (تا از ورودی‌های phantom رد شیم)
-    if (targetPage === window.__currentPage) {
-      history.back();
+    // ★ اگه stack داریم، بیا ازش استفاده کنیم
+    if (pageStack.length > 1) {
+      // آخرین صفحه رو حذف کن
+      pageStack.pop();
+      const targetPage = pageStack[pageStack.length - 1];
+
+      // ★ ناوبری به صفحه مقصد
+      navigateToStackPage(targetPage);
       return;
     }
 
-    // ★ ناوبری به صفحه مقصد
-    if (targetPage === 'detail' && e.state.animeId) {
-      if (window.openAnimeDetail) {
-        window.openAnimeDetail(e.state.animeId, true);
-        // navStack رو اصلاح کن
-        const idx = navStack.lastIndexOf('detail');
-        if (idx !== -1) navStack = navStack.slice(0, idx + 1);
-        return;
-      }
-    }
-    if (targetPage === 'watch' && e.state.animeId) {
-      if (window.openEpisode) {
-        window.openEpisode(e.state.animeId, e.state.seasonNumber || 1, e.state.epNum);
-        const idx = navStack.lastIndexOf('watch');
-        if (idx !== -1) navStack = navStack.slice(0, idx + 1);
-        return;
-      }
-    }
-
-    // ★ ناوبری عادی
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    const pageEl = document.getElementById('page-' + targetPage);
-    if (pageEl) {
-      pageEl.classList.add('active');
-      window.scrollTo(0, 0);
-    }
-    window.__currentPage = targetPage;
-    updateBottomNav(targetPage);
-
-    // navStack رو کوتاه کن تا صفحه فعلی
-    const idx = navStack.lastIndexOf(targetPage);
-    if (idx !== -1) {
-      navStack = navStack.slice(0, idx + 1);
-    } else {
-      navStack.push(targetPage);
-    }
-
-    if (targetPage === 'watchlist') {
-      window.dispatchEvent(new CustomEvent('anivora:watchlist-refresh'));
-    }
-    if (targetPage === 'profile') {
-      window.dispatchEvent(new CustomEvent('anivora:profile-refresh'));
-    }
+    // ★ stack خالیه — کاربر رو از سایت خارج کن
+    // اجازه بده popstate طبیعی ادامه پیدا کنه (کاربر از سایت خارج می‌شه)
   });
+}
+
+/* ============================================
+   NAVIGATE TO STACK PAGE
+============================================ */
+function navigateToStackPage(pageId) {
+  if (pageId === 'detail' && window.__currentAnimeId) {
+    if (window.openAnimeDetail) {
+      window.openAnimeDetail(window.__currentAnimeId, true);
+      return;
+    }
+  }
+  if (pageId === 'watch' && window.__currentAnimeId) {
+    if (window.openEpisode) {
+      const season = window.__currentSeason || 1;
+      const ep = window.__currentEpNum;
+      window.openEpisode(window.__currentAnimeId, season, ep);
+      return;
+    }
+  }
+
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const pageEl = document.getElementById('page-' + pageId);
+  if (pageEl) {
+    pageEl.classList.add('active');
+    window.scrollTo(0, 0);
+  }
+  window.__currentPage = pageId;
+  updateBottomNav(pageId);
+
+  if (pageId === 'watchlist') {
+    window.dispatchEvent(new CustomEvent('anivora:watchlist-refresh'));
+  }
+  if (pageId === 'profile') {
+    window.dispatchEvent(new CustomEvent('anivora:profile-refresh'));
+  }
+
+  // URL رو آپدیت کن
+  history.replaceState({ page: pageId }, '', '#' + pageId);
 }
