@@ -2,8 +2,8 @@ name: Update data.json
 
 on:
   schedule:
-    - cron: "*/30 * * * *"   # هر ۳۰ دقیقه
-  workflow_dispatch:          # اجرای دستی
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -17,7 +17,6 @@ jobs:
       - name: Download data from Cloudflare
         run: |
           curl -fsSL "https://anivora.pages.dev/api/anime?t=$(date +%s)" -o new.json
-          # مطمئن شو فایل JSON درسته و خالی نیست
           jq -e 'type == "array" and length > 0' new.json > /dev/null
           jq . new.json > data.json
           rm new.json
