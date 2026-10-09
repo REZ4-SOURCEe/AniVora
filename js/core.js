@@ -2,7 +2,7 @@
    ANIVORA — CORE
    + Cloudflare Worker Auth
    + Smart Loader Management
-   + Custom Back Stack (100% reliable)
+   + Custom Back (intercept popstate)
 ============================================ */
 
 import {
@@ -41,7 +41,7 @@ export function triggerPageLoader() {
 }
 
 /* ============================================
-   STORE (localStorage)
+   STORE
 ============================================ */
 const LIST_KEY = 'anivora_list_v2';
 const LIKES_KEY = 'anivora_likes';
@@ -60,7 +60,6 @@ export function setStore(key, val) {
   try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) {}
 }
 
-/* ---------- LAST PAGE ---------- */
 export function getLastPage() {
   try { return JSON.parse(localStorage.getItem(LAST_PAGE_KEY)) || null; }
   catch(e) { return null; }
@@ -69,7 +68,6 @@ export function setLastPage(page) {
   try { localStorage.setItem(LAST_PAGE_KEY, JSON.stringify(page)); } catch(e) {}
 }
 
-/* ---------- DETAIL STATE ---------- */
 export function getDetailState() {
   try { return JSON.parse(sessionStorage.getItem(DETAIL_STATE_KEY)) || null; }
   catch(e) { return null; }
@@ -81,7 +79,6 @@ export function clearDetailState() {
   try { sessionStorage.removeItem(DETAIL_STATE_KEY); } catch(e) {}
 }
 
-/* ---------- LAST EPISODE ---------- */
 export function getLastEpisode(animeId) {
   const store = getStore(LAST_EP_KEY);
   const v = store[animeId];
@@ -109,7 +106,6 @@ export function clearLastEpisode(animeId) {
   setStore(LAST_EP_KEY, store);
 }
 
-/* ---------- PROGRESS ---------- */
 export function getProgress(animeId) {
   const store = getStore(PROGRESS_KEY);
   return store[animeId] || 0;
@@ -121,7 +117,6 @@ export function setProgress(animeId, pct) {
   scheduleSyncToServer(animeId);
 }
 
-/* ---------- DROPPED ---------- */
 export function isDropped(animeId) {
   return getStore(DROPPED_KEY).includes(animeId);
 }
@@ -136,9 +131,6 @@ export function setDropped(animeId, dropped) {
   scheduleSyncToServer(animeId);
 }
 
-/* ============================================
-   LIST WITH STATUS
-============================================ */
 export function getListStore() {
   try { return JSON.parse(localStorage.getItem(LIST_KEY)) || {}; }
   catch(e) { return {}; }
@@ -224,7 +216,6 @@ export function updateAddBtnUI(btn, animeId) {
   btn.classList.toggle('is-added', inList);
 }
 
-/* ---------- LIKES ---------- */
 export function isLiked(animeId) {
   return getStore(LIKES_KEY).includes(animeId);
 }
@@ -280,7 +271,6 @@ export function removeFromFavorites(animeId) {
   }));
 }
 
-/* ---------- WATCHING ---------- */
 export function isWatching(animeId) {
   return getStore(WATCHING_KEY).includes(animeId);
 }
@@ -302,7 +292,7 @@ export function toggleWatching(animeId) {
 }
 
 /* ============================================
-   AUTH SYSTEM — Cloudflare Worker
+   AUTH SYSTEM
 ============================================ */
 let CURRENT_USER = null;
 
@@ -364,9 +354,6 @@ export async function updateUserProfile(username, avatar) {
   }
 }
 
-/* ============================================
-   SYNC FROM SERVER
-============================================ */
 export async function syncListFromServer() {
   if (!isLoggedIn()) return;
   try {
@@ -399,9 +386,6 @@ export async function syncListFromServer() {
   }
 }
 
-/* ============================================
-   SYNC TO SERVER (debounced)
-============================================ */
 let syncTimers = {};
 function scheduleSyncToServer(animeId) {
   if (!isLoggedIn()) return;
@@ -431,9 +415,6 @@ function scheduleSyncToServer(animeId) {
   }, 500);
 }
 
-/* ============================================
-   PROFILE STATS
-============================================ */
 export function computeProfileStats(ANIME_DATA) {
   const listStore = getListStore();
   const likes = getStore(LIKES_KEY);
@@ -509,9 +490,6 @@ export function computeProfileStats(ANIME_DATA) {
   };
 }
 
-/* ============================================
-   TOAST
-============================================ */
 export function showToast(msg) {
   let t = document.getElementById('anivoraToast');
   if (!t) {
@@ -526,9 +504,6 @@ export function showToast(msg) {
   t.__timer = setTimeout(() => t.classList.remove('show'), 1800);
 }
 
-/* ============================================
-   HELPERS
-============================================ */
 export function shuffle(arr) {
   if (!Array.isArray(arr)) return [];
   return [...arr].sort(() => Math.random() - 0.5);
@@ -799,9 +774,6 @@ export function closeListStatusSheet() {
   window.__listStatusSheetOpen = false;
 }
 
-/* ============================================
-   STOP VIDEO
-============================================ */
 export function stopVideo() {
   const video = window.__realVideo;
   if (video) {
@@ -825,18 +797,9 @@ export function stopVideo() {
 }
 
 /* ============================================
-   ★ CUSTOM NAVIGATION STACK
-   
-   استراتژی:
-   - همیشه از pushState استفاده می‌کنیم (کاربر در trap بمونه)
-   - یه stack داخلی از صفحات نگه می‌داریم
-   - stack تکراری پشت سر هم نمی‌گیره
-   - هر Back که کاربر می‌زنه، ما از stack قبلی استفاده می‌کنیم
-   - Back کاربر رو intercept می‌کنیم تا نتونه از سایت خارج بشه
+   ★★★ NAVIGATION STACK — بدون تکرار
 ============================================ */
-let pageStack = [];           // stack صفحات فعلی — بدون تکرار
-let interceptingBack = false; // آیا در حال intercept هستیم
-let lastPopstateTime = 0;     // زمان آخرین popstate
+let pageStack = [];        // stack صفحات — بدون تکرار پشت سر هم
 
 /* ============================================
    ROUTER
@@ -847,7 +810,6 @@ export function showPage(id, skipHistory) {
 
   if (prevPage === 'watch' && id !== 'watch') stopVideo();
 
-  // ★ ریدایرکت هوشمند
   if ((id === 'login' || id === 'signup') && isLoggedIn()) {
     id = 'profile';
   }
@@ -855,11 +817,10 @@ export function showPage(id, skipHistory) {
     id = 'login';
   }
 
-  // ★★★ Home: reset stack و برگشت به ابتدای history ★★★
+  // ★ Home → ریست کامل stack و history
   const isHomeClick = (id === 'home') && prevPage && prevPage !== 'home' && !skipHistory;
 
   if (isHomeClick) {
-    // stack رو ریست کن
     pageStack = ['home'];
 
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -872,14 +833,13 @@ export function showPage(id, skipHistory) {
     if (notif) notif.classList.remove('open');
     updateBottomNav('home');
 
-    // تمام ورودی‌های history رو حذف کن — برگرد به اولین
-    // با replaceState یه ورودی جدید می‌سازیم
-    history.replaceState({ page: 'home', root: true }, '', '#home');
+    // history رو ریست کن
+    history.replaceState({ page: 'home' }, '', '#home');
     window.__currentPage = 'home';
     return;
   }
 
-  // ★★★ نمایش صفحه ★★★
+  // ★ نمایش صفحه
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   const page = document.getElementById('page-' + id);
   if (page) {
@@ -892,7 +852,7 @@ export function showPage(id, skipHistory) {
 
   updateBottomNav(id);
 
-  // ★★★ مدیریت Stack ★★★
+  // ★ مدیریت Stack
   if (!skipHistory) {
     const currentHash = location.hash.replace('#', '') || 'home';
 
@@ -910,8 +870,7 @@ export function showPage(id, skipHistory) {
       const isAuthRedirect =
         (prevPage === 'login' || prevPage === 'signup') && id === 'profile';
 
-      // ★ Stack رو آپدیت کن
-      // قبل از push، اگه id توی stack هست، تا اونجا کوتاه کن
+      // ★ Stack رو آپدیت کن: اگه id توی stack هست، تا آخرین occurrence کوتاه کن
       const idx = pageStack.lastIndexOf(id);
       if (idx !== -1) {
         pageStack = pageStack.slice(0, idx + 1);
@@ -919,8 +878,7 @@ export function showPage(id, skipHistory) {
         pageStack.push(id);
       }
 
-      // ★ pushState — هر بار که صفحه عوض می‌شه
-      // این کاربر رو در trap نگه می‌داره
+      // ★ history: pushState
       if (isAuthRedirect) {
         history.replaceState(state, '', '#' + id);
       } else {
@@ -940,13 +898,53 @@ export function showPage(id, skipHistory) {
 }
 
 export function goBack() {
-  if (history.state && history.state.page) {
-    history.back();
+  // ★ به جای history.back، از stack خودمون استفاده می‌کنیم
+  if (pageStack.length > 1) {
+    pageStack.pop();   // صفحه فعلی رو حذف کن
+    const targetPage = pageStack[pageStack.length - 1];
+    navigateToStackPage(targetPage);
   } else {
-    showPage('home');
+    // کاربر توی ریشه سایته — از سایت خارج شه
+    window.history.back();
   }
 }
 window.goBack = goBack;
+
+/* ============================================
+   NAVIGATE TO STACK PAGE
+============================================ */
+function navigateToStackPage(pageId) {
+  if (pageId === 'detail' && window.__currentAnimeId) {
+    if (window.openAnimeDetail) {
+      window.openAnimeDetail(window.__currentAnimeId, true);
+      return;
+    }
+  }
+  if (pageId === 'watch' && window.__currentAnimeId) {
+    if (window.openEpisode) {
+      const season = window.__currentSeason || 1;
+      const ep = window.__currentEpNum;
+      window.openEpisode(window.__currentAnimeId, season, ep);
+      return;
+    }
+  }
+
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const pageEl = document.getElementById('page-' + pageId);
+  if (pageEl) {
+    pageEl.classList.add('active');
+    window.scrollTo(0, 0);
+  }
+  window.__currentPage = pageId;
+  updateBottomNav(pageId);
+
+  if (pageId === 'watchlist') {
+    window.dispatchEvent(new CustomEvent('anivora:watchlist-refresh'));
+  }
+  if (pageId === 'profile') {
+    window.dispatchEvent(new CustomEvent('anivora:profile-refresh'));
+  }
+}
 
 export function updateBottomNav(id) {
   const items = document.querySelectorAll('.bottom-nav-item');
@@ -980,9 +978,6 @@ export function toggleNotif() {
   document.getElementById('notifPanel')?.classList.toggle('open');
 }
 
-/* ============================================
-   DRAWER AUTH + HEADER AVATAR
-============================================ */
 export function handleDrawerAuth() {
   if (isLoggedIn()) {
     logout();
@@ -1037,9 +1032,6 @@ window.updateHeaderAvatar = updateHeaderAvatar;
 window.showLoader = showLoader;
 window.hideLoader = hideLoader;
 
-/* ============================================
-   CUSTOM BOTTOM-SHEET SELECT
-============================================ */
 export function initCustomSelects() {
   document.querySelectorAll('select').forEach(sel => {
     sel.addEventListener('mousedown', handleCustomSelect);
@@ -1096,7 +1088,7 @@ export function closeCustomSheet() {
 }
 
 /* ============================================
-   GLOBAL EVENTS
+   ★★★ GLOBAL EVENTS — Back Interception
 ============================================ */
 export function bindGlobalEvents() {
   document.addEventListener('click', e => {
@@ -1112,7 +1104,7 @@ export function bindGlobalEvents() {
   }, true);
 
   window.addEventListener('popstate', function(e) {
-    // ★ اگه Edit Profile modal بازه، بستش بده
+    // ★ اگه Edit Profile modal بازه
     if (window.__editProfileModalOpen) {
       window.__editProfileModalOpen = false;
       const overlay = document.querySelector('.edit-profile-overlay');
@@ -1121,14 +1113,16 @@ export function bindGlobalEvents() {
       if (modal) { modal.classList.remove('show'); setTimeout(() => modal.remove(), 300); }
       document.body.style.overflow = '';
       window.__pendingAvatar = null;
-      // کاربر back زده بود تا modal بسته بشه — کارش تمومه
+      // کاربر برای بستن modal Back زده — history رو دست نزن
+      // یه ورودی جدید push کن تا کاربر در trap بمونه
+      history.pushState({ page: window.__currentPage }, '', location.hash);
       return;
     }
 
     // ★ اگه List Status sheet بازه
     if (window.__listStatusSheetOpen) {
       closeListStatusSheet();
-      // به جای back، state فعلی رو نگه دار
+      history.pushState({ page: window.__currentPage }, '', location.hash);
       return;
     }
 
@@ -1139,65 +1133,31 @@ export function bindGlobalEvents() {
       if (overlay) { overlay.classList.remove('show'); setTimeout(() => overlay.remove(), 250); }
       if (sheet) { sheet.classList.remove('show'); setTimeout(() => sheet.remove(), 300); }
       document.body.style.overflow = '';
+      history.pushState({ page: window.__currentPage }, '', location.hash);
       return;
     }
 
-    // ★★★ Back واقعی — از stack خودمون استفاده کن
-    // کاربر Back زده. نگاه کن اگه pageStack خالی نیست،
-    // آخرین صفحه رو حذف کن و برو به قبلی.
-    // اگه pageStack خالی شد، کاربر رو از سایت خارج کن.
+    // ★★★ Back کاربر: از stack خودمون استفاده کن ★★★
+    // ۱. currentPage رو نگه دار
+    // ۲. از stack آخرین رو حذف کن
+    // ۳. صفحه قبلی رو نشون بده
+    // ۴. یه pushState جدید بزن تا کاربر دوباره trap بمونه
 
-    // ★ اگه stack داریم، بیا ازش استفاده کنیم
+    const currentPage = window.__currentPage;
+
     if (pageStack.length > 1) {
-      // آخرین صفحه رو حذف کن
+      // صفحه فعلی رو از stack حذف کن
       pageStack.pop();
       const targetPage = pageStack[pageStack.length - 1];
 
-      // ★ ناوبری به صفحه مقصد
+      // صفحه رو عوض کن
       navigateToStackPage(targetPage);
-      return;
-    }
 
-    // ★ stack خالیه — کاربر رو از سایت خارج کن
-    // اجازه بده popstate طبیعی ادامه پیدا کنه (کاربر از سایت خارج می‌شه)
+      // ★ یه pushState جدید بزن تا کاربر trap بمونه
+      history.pushState({ page: targetPage }, '', '#' + targetPage);
+    } else {
+      // کاربر توی ریشه سایته — از سایت خارج شه
+      // دیگه pushState نمی‌زنیم
+    }
   });
-}
-
-/* ============================================
-   NAVIGATE TO STACK PAGE
-============================================ */
-function navigateToStackPage(pageId) {
-  if (pageId === 'detail' && window.__currentAnimeId) {
-    if (window.openAnimeDetail) {
-      window.openAnimeDetail(window.__currentAnimeId, true);
-      return;
-    }
-  }
-  if (pageId === 'watch' && window.__currentAnimeId) {
-    if (window.openEpisode) {
-      const season = window.__currentSeason || 1;
-      const ep = window.__currentEpNum;
-      window.openEpisode(window.__currentAnimeId, season, ep);
-      return;
-    }
-  }
-
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  const pageEl = document.getElementById('page-' + pageId);
-  if (pageEl) {
-    pageEl.classList.add('active');
-    window.scrollTo(0, 0);
-  }
-  window.__currentPage = pageId;
-  updateBottomNav(pageId);
-
-  if (pageId === 'watchlist') {
-    window.dispatchEvent(new CustomEvent('anivora:watchlist-refresh'));
-  }
-  if (pageId === 'profile') {
-    window.dispatchEvent(new CustomEvent('anivora:profile-refresh'));
-  }
-
-  // URL رو آپدیت کن
-  history.replaceState({ page: pageId }, '', '#' + pageId);
 }
