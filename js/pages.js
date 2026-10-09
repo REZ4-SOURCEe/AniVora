@@ -17,7 +17,8 @@ import {
   stopVideo,
   login, signup, logout, isLoggedIn, getCurrentUser,
   computeProfileStats, updateUserProfile,
-  refreshCurrentUser
+  refreshCurrentUser,
+  showLoader, hideLoader
 } from './core.js';
 import {
   renderAnimeCard, populateSection, toggleDownloadMenu,
@@ -1063,7 +1064,14 @@ export async function handleLogin() {
 
   if (btn) { btn.disabled = true; btn.textContent = 'Signing in...'; }
 
+  // ★ نمایش loader
+  const loader = document.getElementById('pageLoader');
+  if (loader) loader.classList.add('active');
+
   const result = await login(email, password);
+
+  // ★ مخفی کردن loader
+  if (loader) loader.classList.remove('active');
 
   if (btn) { btn.disabled = false; btn.textContent = 'Sign In'; }
 
@@ -1075,7 +1083,6 @@ export async function handleLogin() {
   if (window.updateDrawerAuth) window.updateDrawerAuth();
   if (window.updateHeaderAvatar) window.updateHeaderAvatar();
 
-  // ★ استفاده از replaceState تا login از history حذف بشه
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   const page = document.getElementById('page-profile');
   if (page) page.classList.add('active');
@@ -1132,11 +1139,16 @@ export async function handleSignup() {
 
   if (btn) { btn.disabled = true; btn.textContent = 'Creating...'; }
 
+  // ★ نمایش loader
+  const loader = document.getElementById('pageLoader');
+  if (loader) loader.classList.add('active');
+
   const result = await signup(email, password, username);
 
   if (btn) { btn.disabled = false; btn.textContent = 'Create Account'; }
 
   if (!result.success) {
+    if (loader) loader.classList.remove('active');
     if (errorEl) { errorEl.textContent = result.error; errorEl.style.display = 'block'; }
     return;
   }
@@ -1150,11 +1162,13 @@ export async function handleSignup() {
   const randomAvatar = PRESET_AVATARS[Math.floor(Math.random() * PRESET_AVATARS.length)];
   try { await apiUpdateProfile(undefined, randomAvatar); } catch(e) {}
 
+  // ★ مخفی کردن loader
+  if (loader) loader.classList.remove('active');
+
   if (window.updateDrawerAuth) window.updateDrawerAuth();
   if (window.updateHeaderAvatar) window.updateHeaderAvatar();
   showToast('Account created!');
 
-  // ★ استفاده از replaceState تا signup از history حذف بشه
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   const page = document.getElementById('page-profile');
   if (page) page.classList.add('active');
@@ -1537,7 +1551,6 @@ export function openEditProfileModal(user) {
   window.__pendingAvatar = user.avatar || null;
   window.__editProfileModalOpen = true;
 
-  // ★ state مخصوص modal push کن
   history.pushState({ page: window.__currentPage, modal: 'editProfile' }, '', location.hash);
 
   requestAnimationFrame(() => { overlay.classList.add('show'); modal.classList.add('show'); });
@@ -1607,6 +1620,10 @@ export async function saveProfileChanges() {
     return;
   }
 
+  // ★ نمایش loader
+  const loader = document.getElementById('pageLoader');
+  if (loader) loader.classList.add('active');
+
   try {
     await apiUpdateProfile(newUsername, window.__pendingAvatar);
     showToast('Profile updated!');
@@ -1617,6 +1634,9 @@ export async function saveProfileChanges() {
   } catch(e) {
     if (errorEl) { errorEl.textContent = e.message; errorEl.style.display = 'block'; }
   }
+
+  // ★ مخفی کردن loader
+  if (loader) loader.classList.remove('active');
 }
 
 /* ============================================
