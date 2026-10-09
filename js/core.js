@@ -1,6 +1,7 @@
 /* ============================================
    ANIVORA — CORE
    + Cloudflare Worker Auth
+   + Fixed back button & modal handling
 ============================================ */
 
 import {
@@ -765,6 +766,7 @@ export function openListStatusSheet(animeId, triggerBtn) {
 
   document.body.appendChild(overlay);
   document.body.appendChild(sheet);
+  window.__listStatusSheetOpen = true;
 
   requestAnimationFrame(() => {
     overlay.classList.add('show');
@@ -779,6 +781,7 @@ export function closeListStatusSheet() {
   if (overlay) { overlay.classList.remove('show'); setTimeout(() => overlay.remove(), 250); }
   if (sheet) { sheet.classList.remove('show'); setTimeout(() => sheet.remove(), 300); }
   document.body.style.overflow = '';
+  window.__listStatusSheetOpen = false;
 }
 
 /* ============================================
@@ -814,7 +817,14 @@ export function showPage(id, skipHistory) {
   if (prevPage === id && !skipHistory) return;
 
   if (prevPage === 'watch' && id !== 'watch') stopVideo();
-  if (id === 'profile' && !isLoggedIn()) id = 'login';
+
+  // ★ ریدایرکت هوشمند
+  if ((id === 'login' || id === 'signup') && isLoggedIn()) {
+    id = 'profile';
+  }
+  if (id === 'profile' && !isLoggedIn()) {
+    id = 'login';
+  }
 
   triggerPageLoader();
 
@@ -830,6 +840,10 @@ export function showPage(id, skipHistory) {
 
   updateBottomNav(id);
 
+  // ★ ریدایرکت بین login/signup و profile → replaceState
+  const isAuthRedirect =
+    (prevPage === 'login' || prevPage === 'signup') && id === 'profile';
+
   if (!skipHistory) {
     const currentHash = location.hash.replace('#', '') || 'home';
     if (currentHash !== id) {
@@ -842,7 +856,12 @@ export function showPage(id, skipHistory) {
         state.seasonNumber = window.__currentSeason;
         state.epNum = window.__currentEpNum;
       }
-      history.pushState(state, '', '#' + id);
+
+      if (isAuthRedirect) {
+        history.replaceState(state, '', '#' + id);
+      } else {
+        history.pushState(state, '', '#' + id);
+      }
     }
   }
 
@@ -1025,7 +1044,40 @@ export function bindGlobalEvents() {
       e.target.src = `https://picsum.photos/200/300?random=${Math.floor(Math.random()*999)+1}`;
     }
   }, true);
+
   window.addEventListener('popstate', function(e) {
+    // ★ اگه Edit Profile modal بازه، بستش بده
+    if (window.__editProfileModalOpen) {
+      window.__editProfileModalOpen = false;
+      const overlay = document.querySelector('.edit-profile-overlay');
+      const modal = document.querySelector('.edit-profile-modal');
+      if (overlay) { overlay.classList.remove('show'); setTimeout(() => overlay.remove(), 250); }
+      if (modal) { modal.classList.remove('show'); setTimeout(() => modal.remove(), 300); }
+      document.body.style.overflow = '';
+      window.__pendingAvatar = null;
+      // push state فعلی رو نگه دار تا صفحه عوض نشه
+      history.pushState(e.state, '', location.href);
+      return;
+    }
+
+    // ★ اگه List Status sheet بازه
+    if (window.__listStatusSheetOpen) {
+      closeListStatusSheet();
+      history.pushState(e.state, '', location.href);
+      return;
+    }
+
+    // ★ اگه Download sheet بازه
+    if (document.querySelector('.download-sheet-overlay')) {
+      const overlay = document.querySelector('.download-sheet-overlay');
+      const sheet = document.querySelector('.download-sheet');
+      if (overlay) { overlay.classList.remove('show'); setTimeout(() => overlay.remove(), 250); }
+      if (sheet) { sheet.classList.remove('show'); setTimeout(() => sheet.remove(), 300); }
+      document.body.style.overflow = '';
+      history.pushState(e.state, '', location.href);
+      return;
+    }
+
     if (e.state && e.state.page === 'detail' && e.state.animeId) {
       if (window.openAnimeDetail) {
         window.openAnimeDetail(e.state.animeId, true);
