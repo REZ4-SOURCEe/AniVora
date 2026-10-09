@@ -1,0 +1,11 @@
+name = "anivora-api"
+main = "worker.js"
+compatibility_date = "2025-01-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "anivora-db"
+database_id = "6d1d8027-bb61-40f8-84b9-f07885b0291a"
+
+[vars]
+JWT_SECRET = "KJ8fN2mP9qR5tW7xY3zA6bC1dE4gH0jL5nM2vB8cX1zQ4wE"
