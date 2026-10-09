@@ -1,0 +1,35 @@
+name: Update data.json
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"   # هر ۳۰ دقیقه
+  workflow_dispatch:          # اجرای دستی
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download data from Cloudflare
+        run: |
+          curl -fsSL "https://anivora.pages.dev/api/anime?t=$(date +%s)" -o new.json
+          # مطمئن شو فایل JSON درسته و خالی نیست
+          jq -e 'type == "array" and length > 0' new.json > /dev/null
+          jq . new.json > data.json
+          rm new.json
+
+      - name: Commit if changed
+        run: |
+          if [ -n "$(git status --porcelain data.json)" ]; then
+            git config user.name "github-actions"
+            git config user.email "actions@github.com"
+            git add data.json
+            git commit -m "Update data.json"
+            git push
+          else
+            echo "No changes"
+          fi
