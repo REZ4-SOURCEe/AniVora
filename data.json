@@ -19,6 +19,8 @@
     "episodesAired": 12,
     "duration": "24 min",
     "studio": "Unknown",
+    "director": "",
+    "writer": "",
     "seasons": [
       {
         "seasonNumber": 1,
@@ -26,6 +28,7 @@
         "episodesAired": 12,
         "episodes": [
           {
+            "id": 1,
             "num": 1,
             "title": "Episode 1",
             "duration": "24:00",
@@ -44,9 +47,11 @@
                 "label": "480p",
                 "url": "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Nijusseiki.Denki.Mokuroku.Eureka.Evrika/Nijusseiki.Denki.Mokuroku.Eureka.Evrika.S01E01.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 2,
             "num": 2,
             "title": "Episode 2",
             "duration": "24:00",
@@ -65,9 +70,11 @@
                 "label": "480p",
                 "url": "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Nijusseiki.Denki.Mokuroku.Eureka.Evrika/Nijusseiki.Denki.Mokuroku.Eureka.Evrika.S01E02.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 3,
             "num": 3,
             "title": "Episode 3",
             "duration": "24:00",
@@ -86,9 +93,11 @@
                 "label": "480p",
                 "url": "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Nijusseiki.Denki.Mokuroku.Eureka.Evrika/Nijusseiki.Denki.Mokuroku.Eureka.Evrika.S01E03.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 4,
             "num": 4,
             "title": "Episode 4",
             "duration": "24:00",
@@ -107,9 +116,11 @@
                 "label": "480p",
                 "url": "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Nijusseiki.Denki.Mokuroku.Eureka.Evrika/Nijusseiki.Denki.Mokuroku.Eureka.Evrika.S01E04.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 5,
             "num": 5,
             "title": "Episode 5",
             "duration": "24:00",
@@ -128,9 +139,11 @@
                 "label": "480p",
                 "url": "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Nijusseiki.Denki.Mokuroku.Eureka.Evrika/Nijusseiki.Denki.Mokuroku.Eureka.Evrika.S01E05.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 6,
             "num": 6,
             "title": "Episode 6",
             "duration": "24:00",
@@ -149,9 +162,11 @@
                 "label": "480p",
                 "url": "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Nijusseiki.Denki.Mokuroku.Eureka.Evrika/Nijusseiki.Denki.Mokuroku.Eureka.Evrika.S01E06.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 7,
             "num": 7,
             "title": "Episode 7",
             "duration": "24:00",
@@ -170,9 +185,11 @@
                 "label": "480p",
                 "url": "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Nijusseiki.Denki.Mokuroku.Eureka.Evrika/Nijusseiki.Denki.Mokuroku.Eureka.Evrika.S01E07.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 8,
             "num": 8,
             "title": "Episode 8",
             "duration": "24:00",
@@ -191,9 +208,11 @@
                 "label": "480p",
                 "url": "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Nijusseiki.Denki.Mokuroku.Eureka.Evrika/Nijusseiki.Denki.Mokuroku.Eureka.Evrika.S01E08.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 9,
             "num": 9,
             "title": "Episode 9",
             "duration": "24:00",
@@ -212,9 +231,11 @@
                 "label": "480p",
                 "url": "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Nijusseiki.Denki.Mokuroku.Eureka.Evrika/Nijusseiki.Denki.Mokuroku.Eureka.Evrika.S01E09.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 10,
             "num": 10,
             "title": "Episode 10",
             "duration": "24:00",
@@ -233,9 +254,11 @@
                 "label": "480p",
                 "url": "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Nijusseiki.Denki.Mokuroku.Eureka.Evrika/Nijusseiki.Denki.Mokuroku.Eureka.Evrika.S01E10.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 11,
             "num": 11,
             "title": "Episode 11",
             "duration": "24:00",
@@ -254,9 +277,11 @@
                 "label": "480p",
                 "url": "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Nijusseiki.Denki.Mokuroku.Eureka.Evrika/Nijusseiki.Denki.Mokuroku.Eureka.Evrika.S01E11.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 12,
             "num": 12,
             "title": "Episode 12",
             "duration": "24:00",
@@ -275,7 +300,8 @@
                 "label": "480p",
                 "url": "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Nijusseiki.Denki.Mokuroku.Eureka.Evrika/Nijusseiki.Denki.Mokuroku.Eureka.Evrika.S01E12.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           }
         ]
       }
@@ -301,6 +327,8 @@
     "episodesAired": 12,
     "duration": "24 min",
     "studio": "Unknown",
+    "director": "",
+    "writer": "",
     "seasons": [
       {
         "seasonNumber": 1,
@@ -308,6 +336,7 @@
         "episodesAired": 12,
         "episodes": [
           {
+            "id": 13,
             "num": 1,
             "title": "Episode 1",
             "duration": "24:00",
@@ -326,9 +355,11 @@
                 "label": "480p",
                 "url": "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Black.Torch/Black.Torch.S01E01.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 14,
             "num": 2,
             "title": "Episode 2",
             "duration": "24:00",
@@ -347,9 +378,11 @@
                 "label": "480p",
                 "url": "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Black.Torch/Black.Torch.S01E02.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 15,
             "num": 3,
             "title": "Episode 3",
             "duration": "24:00",
@@ -368,9 +401,11 @@
                 "label": "480p",
                 "url": "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Black.Torch/Black.Torch.S01E03.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 16,
             "num": 4,
             "title": "Episode 4",
             "duration": "24:00",
@@ -389,9 +424,11 @@
                 "label": "480p",
                 "url": "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Black.Torch/Black.Torch.S01E04.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 17,
             "num": 5,
             "title": "Episode 5",
             "duration": "24:00",
@@ -410,9 +447,11 @@
                 "label": "480p",
                 "url": "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Black.Torch/Black.Torch.S01E05.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 18,
             "num": 6,
             "title": "Episode 6",
             "duration": "24:00",
@@ -431,9 +470,11 @@
                 "label": "480p",
                 "url": "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Black.Torch/Black.Torch.S01E06.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 19,
             "num": 7,
             "title": "Episode 7",
             "duration": "24:00",
@@ -452,9 +493,11 @@
                 "label": "480p",
                 "url": "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Black.Torch/Black.Torch.S01E07.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 20,
             "num": 8,
             "title": "Episode 8",
             "duration": "24:00",
@@ -473,9 +516,11 @@
                 "label": "480p",
                 "url": "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Black.Torch/Black.Torch.S01E08.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 21,
             "num": 9,
             "title": "Episode 9",
             "duration": "24:00",
@@ -494,9 +539,11 @@
                 "label": "480p",
                 "url": "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Black.Torch/Black.Torch.S01E09.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 22,
             "num": 10,
             "title": "Episode 10",
             "duration": "24:00",
@@ -515,9 +562,11 @@
                 "label": "480p",
                 "url": "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Black.Torch/Black.Torch.S01E10.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 23,
             "num": 11,
             "title": "Episode 11",
             "duration": "24:00",
@@ -536,9 +585,11 @@
                 "label": "480p",
                 "url": "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Black.Torch/Black.Torch.S01E11.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 24,
             "num": 12,
             "title": "Episode 12",
             "duration": "24:00",
@@ -557,7 +608,8 @@
                 "label": "480p",
                 "url": "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Black.Torch/Black.Torch.S01E12.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           }
         ]
       }
@@ -583,6 +635,8 @@
     "episodesAired": 8,
     "duration": "24 min",
     "studio": "Unknown",
+    "director": "",
+    "writer": "",
     "seasons": [
       {
         "seasonNumber": 1,
@@ -590,6 +644,7 @@
         "episodesAired": 8,
         "episodes": [
           {
+            "id": 25,
             "num": 1,
             "title": "Episode 1",
             "duration": "24:00",
@@ -608,9 +663,11 @@
                 "label": "480p",
                 "url": "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Otome.Kaijuu.Carameliser/Otome.Kaijuu.Carameliser.S01E01.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 26,
             "num": 2,
             "title": "Episode 2",
             "duration": "24:00",
@@ -629,9 +686,11 @@
                 "label": "480p",
                 "url": "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Otome.Kaijuu.Carameliser/Otome.Kaijuu.Carameliser.S01E02.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 27,
             "num": 3,
             "title": "Episode 3",
             "duration": "24:00",
@@ -650,9 +709,11 @@
                 "label": "480p",
                 "url": "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Otome.Kaijuu.Carameliser/Otome.Kaijuu.Carameliser.S01E03.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 28,
             "num": 4,
             "title": "Episode 4",
             "duration": "24:00",
@@ -671,9 +732,11 @@
                 "label": "480p",
                 "url": "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Otome.Kaijuu.Carameliser/Otome.Kaijuu.Carameliser.S01E04.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 29,
             "num": 5,
             "title": "Episode 5",
             "duration": "24:00",
@@ -692,9 +755,11 @@
                 "label": "480p",
                 "url": "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Otome.Kaijuu.Carameliser/Otome.Kaijuu.Carameliser.S01E05.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 30,
             "num": 6,
             "title": "Episode 6",
             "duration": "24:00",
@@ -713,9 +778,11 @@
                 "label": "480p",
                 "url": "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Otome.Kaijuu.Carameliser/Otome.Kaijuu.Carameliser.S01E06.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 31,
             "num": 7,
             "title": "Episode 7",
             "duration": "24:00",
@@ -734,9 +801,11 @@
                 "label": "480p",
                 "url": "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Otome.Kaijuu.Carameliser/Otome.Kaijuu.Carameliser.S01E07.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 32,
             "num": 8,
             "title": "Episode 8",
             "duration": "24:00",
@@ -755,7 +824,8 @@
                 "label": "480p",
                 "url": "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Otome.Kaijuu.Carameliser/Otome.Kaijuu.Carameliser.S01E08.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           }
         ]
       }
@@ -781,6 +851,8 @@
     "episodesAired": 24,
     "duration": "24 min",
     "studio": "Unknown",
+    "director": "",
+    "writer": "",
     "seasons": [
       {
         "seasonNumber": 1,
@@ -788,6 +860,7 @@
         "episodesAired": 12,
         "episodes": [
           {
+            "id": 33,
             "num": 1,
             "title": "Episode 1",
             "duration": "24:00",
@@ -806,9 +879,11 @@
                 "label": "480p",
                 "url": "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series_03/Dandadan/S01/Dandadan.E01.480p.Farsi.Sub.Film2Media.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 34,
             "num": 2,
             "title": "Episode 2",
             "duration": "24:00",
@@ -827,9 +902,11 @@
                 "label": "480p",
                 "url": "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series_03/Dandadan/S01/Dandadan.E02.480p.Farsi.Sub.Film2Media.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 35,
             "num": 3,
             "title": "Episode 3",
             "duration": "24:00",
@@ -848,9 +925,11 @@
                 "label": "480p",
                 "url": "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series_03/Dandadan/S01/Dandadan.E03.480p.Farsi.Sub.Film2Media.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 36,
             "num": 4,
             "title": "Episode 4",
             "duration": "24:00",
@@ -869,9 +948,11 @@
                 "label": "480p",
                 "url": "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series_03/Dandadan/S01/Dandadan.E04.480p.Farsi.Sub.Film2Media.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 37,
             "num": 5,
             "title": "Episode 5",
             "duration": "24:00",
@@ -890,9 +971,11 @@
                 "label": "480p",
                 "url": "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series_03/Dandadan/S01/Dandadan.E05.480p.Farsi.Sub.Film2Media.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 38,
             "num": 6,
             "title": "Episode 6",
             "duration": "24:00",
@@ -911,9 +994,11 @@
                 "label": "480p",
                 "url": "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series_03/Dandadan/S01/Dandadan.E06.480p.Farsi.Sub.Film2Media.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 39,
             "num": 7,
             "title": "Episode 7",
             "duration": "24:00",
@@ -932,9 +1017,11 @@
                 "label": "480p",
                 "url": "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series_03/Dandadan/S01/Dandadan.E07.480p.Farsi.Sub.Film2Media.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 40,
             "num": 8,
             "title": "Episode 8",
             "duration": "24:00",
@@ -953,9 +1040,11 @@
                 "label": "480p",
                 "url": "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series_03/Dandadan/S01/Dandadan.E08.480p.Farsi.Sub.Film2Media.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 41,
             "num": 9,
             "title": "Episode 9",
             "duration": "24:00",
@@ -974,9 +1063,11 @@
                 "label": "480p",
                 "url": "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series_03/Dandadan/S01/Dandadan.E09.480p.Farsi.Sub.Film2Media.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 42,
             "num": 10,
             "title": "Episode 10",
             "duration": "24:00",
@@ -995,9 +1086,11 @@
                 "label": "480p",
                 "url": "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series_03/Dandadan/S01/Dandadan.E10.480p.Farsi.Sub.Film2Media.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 43,
             "num": 11,
             "title": "Episode 11",
             "duration": "24:00",
@@ -1016,9 +1109,11 @@
                 "label": "480p",
                 "url": "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series_03/Dandadan/S01/Dandadan.E11.480p.Farsi.Sub.Film2Media.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 44,
             "num": 12,
             "title": "Episode 12",
             "duration": "24:00",
@@ -1037,7 +1132,8 @@
                 "label": "480p",
                 "url": "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series_03/Dandadan/S01/Dandadan.E12.480p.Farsi.Sub.Film2Media.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           }
         ]
       },
@@ -1047,6 +1143,7 @@
         "episodesAired": 12,
         "episodes": [
           {
+            "id": 45,
             "num": 1,
             "title": "Episode 1",
             "duration": "24:00",
@@ -1065,9 +1162,11 @@
                 "label": "480p",
                 "url": "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series_03/Dandadan/S02/Dandadan.S02E01.480p.WEB-DL.Farsi.Sub.Film2Media.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 46,
             "num": 2,
             "title": "Episode 2",
             "duration": "24:00",
@@ -1086,9 +1185,11 @@
                 "label": "480p",
                 "url": "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series_03/Dandadan/S02/Dandadan.S02E02.480p.WEB-DL.Farsi.Sub.Film2Media.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 47,
             "num": 3,
             "title": "Episode 3",
             "duration": "24:00",
@@ -1107,9 +1208,11 @@
                 "label": "480p",
                 "url": "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series_03/Dandadan/S02/Dandadan.S02E03.480p.WEB-DL.Farsi.Sub.Film2Media.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 48,
             "num": 4,
             "title": "Episode 4",
             "duration": "24:00",
@@ -1128,9 +1231,11 @@
                 "label": "480p",
                 "url": "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series_03/Dandadan/S02/Dandadan.S02E04.480p.WEB-DL.Farsi.Sub.Film2Media.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 49,
             "num": 5,
             "title": "Episode 5",
             "duration": "24:00",
@@ -1149,9 +1254,11 @@
                 "label": "480p",
                 "url": "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series_03/Dandadan/S02/Dandadan.S02E05.480p.WEB-DL.Farsi.Sub.Film2Media.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 50,
             "num": 6,
             "title": "Episode 6",
             "duration": "24:00",
@@ -1170,9 +1277,11 @@
                 "label": "480p",
                 "url": "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series/Dandadan/S02/Dandadan.S02E06.480p.WEB-DL.Farsi.Sub.Film2Media.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 51,
             "num": 7,
             "title": "Episode 7",
             "duration": "24:00",
@@ -1191,9 +1300,11 @@
                 "label": "480p",
                 "url": "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series_03/Dandadan/S02/Dandadan.S02E07.480p.WEB-DL.Farsi.Sub.Film2Media.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 52,
             "num": 8,
             "title": "Episode 8",
             "duration": "24:00",
@@ -1212,9 +1323,11 @@
                 "label": "480p",
                 "url": "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series_03/Dandadan/S02/Dandadan.S02E08.480p.WEB-DL.Farsi.Sub.Film2Media.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 53,
             "num": 9,
             "title": "Episode 9",
             "duration": "24:00",
@@ -1233,9 +1346,11 @@
                 "label": "480p",
                 "url": "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series_03/Dandadan/S02/Dandadan.S02E09.480p.WEB-DL.Farsi.Sub.Film2Media.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 54,
             "num": 10,
             "title": "Episode 10",
             "duration": "24:00",
@@ -1254,9 +1369,11 @@
                 "label": "480p",
                 "url": "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series_03/Dandadan/S02/Dandadan.S02E10.480p.WEB-DL.Farsi.Sub.Film2Media.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 55,
             "num": 11,
             "title": "Episode 11",
             "duration": "24:00",
@@ -1275,9 +1392,11 @@
                 "label": "480p",
                 "url": "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series_03/Dandadan/S02/Dandadan.S02E11.480p.WEB-DL.Farsi.Sub.Film2Media.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 56,
             "num": 12,
             "title": "Episode 12",
             "duration": "24:00",
@@ -1296,7 +1415,8 @@
                 "label": "480p",
                 "url": "https://bvxbbajdhgxd9g87jwb463wx.abrtech.top/yA3f/Series_03/Dandadan/S02/Dandadan.S02E12.480p.WEB-DL.Farsi.Sub.Film2Media.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           }
         ]
       }
@@ -1322,6 +1442,8 @@
     "episodesAired": 12,
     "duration": "24 min",
     "studio": "Unknown",
+    "director": "",
+    "writer": "",
     "seasons": [
       {
         "seasonNumber": 1,
@@ -1329,6 +1451,7 @@
         "episodesAired": 12,
         "episodes": [
           {
+            "id": 57,
             "num": 1,
             "title": "Episode 1",
             "duration": "24:00",
@@ -1347,9 +1470,11 @@
                 "label": "480p",
                 "url": "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Toumei.na.Yoru.ni.Kakeru.Kimi/Toumei.na.Yoru.ni.Kakeru.Kimi.S01E01.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 58,
             "num": 2,
             "title": "Episode 2",
             "duration": "24:00",
@@ -1368,9 +1493,11 @@
                 "label": "480p",
                 "url": "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Toumei.na.Yoru.ni.Kakeru.Kimi/Toumei.na.Yoru.ni.Kakeru.Kimi.S01E02.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 59,
             "num": 3,
             "title": "Episode 3",
             "duration": "24:00",
@@ -1389,9 +1516,11 @@
                 "label": "480p",
                 "url": "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Toumei.na.Yoru.ni.Kakeru.Kimi/Toumei.na.Yoru.ni.Kakeru.Kimi.S01E03.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 60,
             "num": 4,
             "title": "Episode 4",
             "duration": "24:00",
@@ -1410,9 +1539,11 @@
                 "label": "480p",
                 "url": "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Toumei.na.Yoru.ni.Kakeru.Kimi/Toumei.na.Yoru.ni.Kakeru.Kimi.S01E04.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 61,
             "num": 5,
             "title": "Episode 5",
             "duration": "24:00",
@@ -1431,9 +1562,11 @@
                 "label": "480p",
                 "url": "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Toumei.na.Yoru.ni.Kakeru.Kimi/Toumei.na.Yoru.ni.Kakeru.Kimi.S01E05.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 62,
             "num": 6,
             "title": "Episode 6",
             "duration": "24:00",
@@ -1452,9 +1585,11 @@
                 "label": "480p",
                 "url": "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Toumei.na.Yoru.ni.Kakeru.Kimi/Toumei.na.Yoru.ni.Kakeru.Kimi.S01E06.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 63,
             "num": 7,
             "title": "Episode 7",
             "duration": "24:00",
@@ -1473,9 +1608,11 @@
                 "label": "480p",
                 "url": "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Toumei.na.Yoru.ni.Kakeru.Kimi/Toumei.na.Yoru.ni.Kakeru.Kimi.S01E07.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 64,
             "num": 8,
             "title": "Episode 8",
             "duration": "24:00",
@@ -1494,9 +1631,11 @@
                 "label": "480p",
                 "url": "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Toumei.na.Yoru.ni.Kakeru.Kimi/Toumei.na.Yoru.ni.Kakeru.Kimi.S01E08.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 65,
             "num": 9,
             "title": "Episode 9",
             "duration": "24:00",
@@ -1515,9 +1654,11 @@
                 "label": "480p",
                 "url": "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Toumei.na.Yoru.ni.Kakeru.Kimi/Toumei.na.Yoru.ni.Kakeru.Kimi.S01E09.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 66,
             "num": 10,
             "title": "Episode 10",
             "duration": "24:00",
@@ -1536,9 +1677,11 @@
                 "label": "480p",
                 "url": "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Toumei.na.Yoru.ni.Kakeru.Kimi/Toumei.na.Yoru.ni.Kakeru.Kimi.S01E10.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 67,
             "num": 11,
             "title": "Episode 11",
             "duration": "24:00",
@@ -1557,9 +1700,11 @@
                 "label": "480p",
                 "url": "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Toumei.na.Yoru.ni.Kakeru.Kimi/Toumei.na.Yoru.ni.Kakeru.Kimi.S01E11.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 68,
             "num": 12,
             "title": "Episode 12",
             "duration": "24:00",
@@ -1578,7 +1723,8 @@
                 "label": "480p",
                 "url": "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Toumei.na.Yoru.ni.Kakeru.Kimi/Toumei.na.Yoru.ni.Kakeru.Kimi.S01E12.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           }
         ]
       }
@@ -1604,6 +1750,8 @@
     "episodesAired": 11,
     "duration": "24 min",
     "studio": "Unknown",
+    "director": "",
+    "writer": "",
     "seasons": [
       {
         "seasonNumber": 1,
@@ -1611,6 +1759,7 @@
         "episodesAired": 11,
         "episodes": [
           {
+            "id": 69,
             "num": 1,
             "title": "Episode 1",
             "duration": "24:00",
@@ -1629,9 +1778,11 @@
                 "label": "480p",
                 "url": "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Dogulwang/Dogulwang.S01E01.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 70,
             "num": 2,
             "title": "Episode 2",
             "duration": "24:00",
@@ -1650,9 +1801,11 @@
                 "label": "480p",
                 "url": "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Dogulwang/Dogulwang.S01E02.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 71,
             "num": 3,
             "title": "Episode 3",
             "duration": "24:00",
@@ -1671,9 +1824,11 @@
                 "label": "480p",
                 "url": "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Dogulwang/Dogulwang.S01E03.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 72,
             "num": 4,
             "title": "Episode 4",
             "duration": "24:00",
@@ -1692,9 +1847,11 @@
                 "label": "480p",
                 "url": "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Dogulwang/Dogulwang.S01E04.New.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 73,
             "num": 5,
             "title": "Episode 5",
             "duration": "24:00",
@@ -1713,9 +1870,11 @@
                 "label": "480p",
                 "url": "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Dogulwang/Dogulwang.S01E05.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 74,
             "num": 6,
             "title": "Episode 6",
             "duration": "24:00",
@@ -1734,9 +1893,11 @@
                 "label": "480p",
                 "url": "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Dogulwang/Dogulwang.S01E06.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 75,
             "num": 7,
             "title": "Episode 7",
             "duration": "24:00",
@@ -1755,9 +1916,11 @@
                 "label": "480p",
                 "url": "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Dogulwang/Dogulwang.S01E07.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 76,
             "num": 8,
             "title": "Episode 8",
             "duration": "24:00",
@@ -1776,9 +1939,11 @@
                 "label": "480p",
                 "url": "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Dogulwang/Dogulwang.S01E08.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 77,
             "num": 9,
             "title": "Episode 9",
             "duration": "24:00",
@@ -1797,9 +1962,11 @@
                 "label": "480p",
                 "url": "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Dogulwang/Dogulwang.S01E09.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 78,
             "num": 10,
             "title": "Episode 10",
             "duration": "24:00",
@@ -1818,9 +1985,11 @@
                 "label": "480p",
                 "url": "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Dogulwang/Dogulwang.S01E10.mkv"
               }
-            ]
+            ],
+            "subtitles": []
           },
           {
+            "id": 79,
             "num": 11,
             "title": "Episode 11",
             "duration": "24:00",
@@ -1838,6 +2007,62 @@
               {
                 "label": "480p",
                 "url": "https://bnrhd3fvb374s4bkwzxm54xf.abrtech.top/pnot/Series/Dogulwang/Dogulwang.S01E11.mkv"
+              }
+            ],
+            "subtitles": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 7,
+    "title": "The Apothecary Diaries",
+    "jp": "Kusuriya no Hitorigoto",
+    "description": "خاطرات داروساز؛ چند ماهی است که در دربار امپراتوری باستان چین، دختر ۱۷ ساله‌ای به نام مائومائو ربوده شده و مجبور به کار به عنوان خدمتکار پایین‌رتبه در کاخ امپراتور شده است. با این‌حال، او موفق شده روح کنجکاو و عمل‌گرای خود را حفظ کند و قصد دارد تا پایان سال‌های بردگی‌اش کار کند. اما یک روز، از این موضوع باخبر می‌شود که دو نوزاد امپراتور به‌شدت بیمار شده‌اند. او تصمیم می‌گیرد مخفیانه اقدام کند و از تجربه‌اش به عنوان یک داروساز که در محله فقیر فاحشه‌خانه‌ها بزرگ شده، استفاده کند. با وجود تلاش مائومائو برای ناشناس ماندن، او به‌زودی توجه جین‌شی، خواجه‌سرای نفوذی را جلب می‌کند که استعداد او را تشخیص می‌دهد. مائومائو به‌زودی خود را در دربار درونی امپراتور می‌یابد، جایی که به‌تدریج با به‌کارگیری دانش و شخصیت غریب خود موفق می‌شود نامی برای خود بسازد و رازهای پزشکی گوناگونی را حل کند.",
+    "img": "https://www.f2mc.top/wp-content/uploads/2025/08/2p6biowIL0kGP3ZlJqDoKvOYcidU-360x480.jpg",
+    "backdrop": "https://www.f2mc.top/wp-content/uploads/2025/01/lJuQBW4w1x6NgD514xDPqZ2Lbpz-scaled.jpg",
+    "score": 8.6,
+    "year": 2023,
+    "status": "Airing",
+    "type": "TV",
+    "genres": [
+      "Mystery",
+      "Medical",
+      "Historical",
+      "Drama,"
+    ],
+    "eps": 1,
+    "episodesAired": 1,
+    "duration": "24 min",
+    "studio": "OLM, TOHO animation STUDIO",
+    "director": "natsu hyuga",
+    "writer": "",
+    "seasons": [
+      {
+        "seasonNumber": 1,
+        "title": "Season 1",
+        "episodesAired": 1,
+        "episodes": [
+          {
+            "id": 105,
+            "num": 1,
+            "title": "Episode 1",
+            "duration": "24:00",
+            "img": null,
+            "videoUrl": "https://hls.dramahot.top/p/scxqicy/v35slycw4f/k0zx814d9s/furmsoyv5gj4b6/1080/index.m3u8",
+            "qualities": [
+              {
+                "label": "1080p",
+                "url": "https://hls.dramahot.top/p/scxqicy/v35slycw4f/k0zx814d9s/furmsoyv5gj4b6/1080/index.m3u8"
+              }
+            ],
+            "subtitles": [
+              {
+                "id": 3,
+                "label": "فارسی",
+                "lang": "fa",
+                "url": "https://anivora.pages.dev/api/subtitle/3.vtt"
               }
             ]
           }
