@@ -246,15 +246,17 @@ async function editorView(id) {
           <button class="btn primary sm" id="addEp">+ افزودن قسمت</button>
           <button class="btn sm" id="addMany">افزودن چند قسمت با هم</button>
           <button class="btn sm" id="repl">جایگزینی گروهی لینک‌ها</button>
+          <button class="btn sm" id="bulkSub">آپلود گروهی زیرنویس</button>
           <div class="spacer"></div>
           <button class="btn sm danger" id="delSeason">حذف فصل ${season}</button></div>
-        <table><thead><tr><th>#</th><th>تصویر</th><th>عنوان</th><th>مدت</th><th>لینک‌ها</th><th></th></tr></thead><tbody>
+        <table><thead><tr><th>#</th><th>تصویر</th><th>عنوان</th><th>مدت</th><th>لینک‌ها</th><th>زیرنویس</th><th></th></tr></thead><tbody>
           ${eps.map((e) => `<tr>
             <td class="n">${e.num}</td>
             <td>${e.img ? `<img class="thumb" src="${esc(e.img)}" alt="" onerror="this.style.visibility='hidden'">` : ''}</td>
             <td>${esc(e.title)}</td><td>${esc(e.duration)}</td>
             <td><div class="links">${e.qualities.length ? e.qualities.map((q) => `<span class="badge acc" title="${esc(q.url)}">${esc(q.label)}</span>`).join('') : '<span class="badge">بدون لینک</span>'}</div></td>
-            <td class="a"><button class="btn sm" data-edit="${e.id}">ویرایش</button><button class="btn sm danger" data-rm="${e.id}">حذف</button></td></tr>`).join('')}
+            <td><div class="links">${(e.subtitles || []).length ? e.subtitles.map((s) => `<span class="badge ok">${esc(s.label)}</span>`).join('') : '<span class="badge">ندارد</span>'}</div></td>
+            <td class="a"><button class="btn sm" data-sub="${e.id}">زیرنویس</button><button class="btn sm" data-edit="${e.id}">ویرایش</button><button class="btn sm danger" data-rm="${e.id}">حذف</button></td></tr>`).join('')}
         </tbody></table>` : '<div class="empty">این انیمه هنوز قسمتی ندارد. «فصل جدید» را بزنید.</div>'}
       </div>`;
 
@@ -263,12 +265,14 @@ async function editorView(id) {
     $('#addEp')?.addEventListener('click', () => episodeModal({ season, num: (eps[eps.length - 1]?.num || 0) + 1, title: '', duration: '24:00', img: '', qualities: [{ label: '1080p', url: '' }] }));
     $('#addMany')?.addEventListener('click', () => bulkModal(season));
     $('#repl')?.addEventListener('click', replaceModal);
+    $('#bulkSub')?.addEventListener('click', () => bulkSubModal(eps));
     $('#delSeason')?.addEventListener('click', async () => {
       if (!(await confirmBox(`کل فصل ${season} (${eps.length} قسمت) حذف شود؟`))) return;
       try { await api(`/anime/${a.id}/seasons/${season}`, 'DELETE'); toast('فصل حذف شد'); await reload(); } catch (e) { toast(e.message, 'bad'); }
     });
     $('#pane').onclick = async (e) => {
-      const ed = e.target.dataset.edit, rm = e.target.dataset.rm;
+      const ed = e.target.dataset.edit, rm = e.target.dataset.rm, sb = e.target.dataset.sub;
+      if (sb) subtitleModal(a.episodes.find((x) => x.id == sb));
       if (ed) episodeModal(a.episodes.find((x) => x.id == ed));
       if (rm) {
         const ep = a.episodes.find((x) => x.id == rm);
@@ -388,6 +392,104 @@ async function editorView(id) {
           await api(`/anime/${a.id}/episodes`, 'POST', { episodes });
           close(); season = s; toast(`${count} قسمت اضافه شد`); await reload();
         } catch (err) { toast(err.message, 'bad'); }
+      };
+    });
+  }
+
+
+  /* --- subtitles: single episode --- */
+  const readFile = async (file) => {
+    const text = await file.text();
+    if ((text.match(/�/g) || []).length > 5) throw new Error(`فایل «${file.name}» UTF-8 نیست؛ آن را با ذخیره‌ی UTF-8 دوباره بسازید`);
+    return text;
+  };
+
+  function subtitleModal(ep) {
+    modal(`<h3>زیرنویس قسمت ${ep.num} فصل ${ep.season}</h3>
+      <div id="sl"></div>
+      <div class="card" style="margin:14px 0 0;background:var(--bg2)">
+        <h2 style="font-size:13.5px">افزودن زیرنویس</h2>
+        <label class="f"><span>فایل زیرنویس (ass، ssa، srt یا vtt)</span><input class="input" type="file" id="sf" accept=".ass,.ssa,.srt,.vtt"></label>
+        <div class="grid2">
+          <label class="f"><span>نام نمایشی در پلیر</span><input class="input" id="sl_label" value="فارسی"></label>
+          <label class="f"><span>کد زبان</span><input class="input ltr" id="sl_lang" value="fa"></label>
+        </div>
+        <div class="hint">اگر زیرنویسی با همین نام و زبان وجود داشته باشد جایگزین می‌شود.</div>
+        <button class="btn primary" id="up">آپلود</button>
+      </div>
+      <div class="foot"><button class="btn" id="cl">بستن</button></div>`,
+    (m, close) => {
+      const draw = () => {
+        const cur = a.episodes.find((x) => x.id === ep.id);
+        m.querySelector('#sl').innerHTML = (cur.subtitles || []).length
+          ? cur.subtitles.map((s) => `<div class="row" style="padding:8px 12px;margin-bottom:8px"><div class="meta"><b>${esc(s.label)}</b> <span class="badge">${esc(s.lang)}</span></div>
+              <a class="btn sm" target="_blank" href="${API}/api/subtitle/${s.id}.vtt">مشاهده</a>
+              <button class="btn sm danger" data-ds="${s.id}">حذف</button></div>`).join('')
+          : '<div class="hint" style="margin:0">هنوز زیرنویسی برای این قسمت نیست.</div>';
+      };
+      draw();
+      m.querySelector('#cl').onclick = close;
+      m.addEventListener('click', async (e) => {
+        const id = e.target.dataset.ds;
+        if (!id) return;
+        try { await api('/subtitles/' + id, 'DELETE'); toast('زیرنویس حذف شد'); await reload(); draw(); } catch (err) { toast(err.message, 'bad'); }
+      });
+      m.querySelector('#up').onclick = async () => {
+        const f = m.querySelector('#sf').files[0];
+        if (!f) return toast('فایل را انتخاب کنید', 'bad');
+        const btn = m.querySelector('#up'); btn.disabled = true;
+        try {
+          const r = await api(`/episodes/${ep.id}/subtitles`, 'POST', { content: await readFile(f), label: m.querySelector('#sl_label').value, lang: m.querySelector('#sl_lang').value });
+          toast(`زیرنویس اضافه شد (${r.cues} خط، فرمت ${r.format})`); m.querySelector('#sf').value = '';
+          await reload(); draw();
+        } catch (err) { toast(err.message, 'bad'); }
+        btn.disabled = false;
+      };
+    });
+  }
+
+  /* --- subtitles: bulk by episode number --- */
+  function bulkSubModal(eps) {
+    const guess = (name) => {
+      const n = name.replace(/\.[^.]+$/, '');
+      let m = n.match(/S\d+\s*[._-]?\s*E(\d+)/i) || n.match(/(?:^|[^a-z])E(?:p|pisode)?[ ._-]?(\d{1,3})(?!\d)/i) || n.match(/(\d{1,3})(?!.*\d)/);
+      return m ? +m[1] : null;
+    };
+    let files = [];
+    modal(`<h3>آپلود گروهی زیرنویس — فصل ${season}</h3>
+      <div class="hint" style="margin-top:0">چند فایل را با هم انتخاب کنید. شماره‌ی قسمت از نام فایل تشخیص داده می‌شود (مثلاً <code>Show.S01E05.ass</code> یا <code>05.srt</code>).</div>
+      <label class="f"><span>فایل‌های زیرنویس</span><input class="input" type="file" id="bf" multiple accept=".ass,.ssa,.srt,.vtt"></label>
+      <div class="grid2">
+        <label class="f"><span>نام نمایشی در پلیر</span><input class="input" id="bl_label" value="فارسی"></label>
+        <label class="f"><span>کد زبان</span><input class="input ltr" id="bl_lang" value="fa"></label>
+      </div>
+      <div id="bp"></div>
+      <div class="foot"><button class="btn primary" id="go" disabled>آپلود همه</button><button class="btn" id="cl">انصراف</button></div>`,
+    (m, close) => {
+      const byNum = new Map(eps.map((e) => [e.num, e]));
+      const drawPrev = () => {
+        m.querySelector('#bp').innerHTML = files.length ? `<table><thead><tr><th>فایل</th><th>قسمت</th></tr></thead><tbody>${files.map((f) =>
+          `<tr><td class="ltr">${esc(f.file.name)}</td><td>${f.ep ? `قسمت ${f.ep.num}` : '<span class="badge" style="color:#ff8585">قسمت پیدا نشد</span>'}</td></tr>`).join('')}</tbody></table>` : '';
+        m.querySelector('#go').disabled = !files.some((f) => f.ep);
+      };
+      m.querySelector('#cl').onclick = close;
+      m.querySelector('#bf').onchange = (e) => {
+        files = [...e.target.files].map((file) => ({ file, ep: byNum.get(guess(file.name)) })).sort((x, y) => (x.ep?.num ?? 999) - (y.ep?.num ?? 999));
+        drawPrev();
+      };
+      m.querySelector('#go').onclick = async () => {
+        const todo = files.filter((f) => f.ep);
+        m.querySelector('#go').disabled = true;
+        let ok = 0; const bad = [];
+        for (const f of todo) {
+          try {
+            await api(`/episodes/${f.ep.id}/subtitles`, 'POST', { content: await readFile(f.file), label: m.querySelector('#bl_label').value, lang: m.querySelector('#bl_lang').value });
+            ok++;
+          } catch (err) { bad.push(`${f.file.name}: ${err.message}`); }
+        }
+        close(); toast(`${ok} زیرنویس آپلود شد` + (bad.length ? ` — ${bad.length} خطا` : ''), bad.length ? 'bad' : 'ok');
+        if (bad.length) alert(bad.join('\n'));
+        await reload();
       };
     });
   }

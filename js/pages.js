@@ -23,7 +23,7 @@ import {
 import {
   renderAnimeCard, populateSection, toggleDownloadMenu,
   shareAnime, updatePlayerTime, togglePlay, toggleFullscreen,
-  initQualitySelector, initSpeedSelector
+  initQualitySelector, initSpeedSelector, initSubtitleSelector
 } from './components.js';
 import { apiUpdateProfile } from './api.js';
 
@@ -909,6 +909,7 @@ function loadEpisodeInPlayer(anime, ep, seasonNumber) {
 
   initQualitySelector(ep, defaultQuality);
   initSpeedSelector();
+  initSubtitleSelector(ep);
 
   window.__playerIsPlaying = false;
 }

@@ -639,6 +639,95 @@ export function initQualitySelector(ep, defaultQuality) {
 }
 
 /* ============================================
+   SUBTITLE SELECTOR
+   زیرنویس‌ها از /api/subtitle/:id.vtt خوانده و به‌صورت TextTrack
+   روی ویدیو اضافه می‌شوند (بدون نیاز به CORS روی خود ویدیو).
+============================================ */
+const SUB_KEY = 'anivora_sub_lang';
+const subCache = new Map();
+
+function parseVtt(text) {
+  const tm = (s) => {
+    const p = s.trim().split(':').map(parseFloat);
+    return p.length === 3 ? p[0] * 3600 + p[1] * 60 + p[2] : p[0] * 60 + p[1];
+  };
+  const cues = [];
+  for (const block of text.replace(/\r/g, '').split(/\n\n+/)) {
+    const lines = block.split('\n');
+    const i = lines.findIndex((l) => l.includes('-->'));
+    if (i < 0) continue;
+    const [a, rest] = lines[i].split('-->');
+    const [b, ...settings] = rest.trim().split(/\s+/);
+    const body = lines.slice(i + 1).join('\n');
+    if (!body.trim()) continue;
+    const cue = { start: tm(a), end: tm(b), text: body };
+    const lm = settings.join(' ').match(/line:(\d+)%/);
+    if (lm) cue.line = +lm[1];
+    cues.push(cue);
+  }
+  return cues;
+}
+
+export function initSubtitleSelector(ep) {
+  const sel = document.querySelector('select[title="Subtitles"]');
+  if (!sel) return;
+  const subs = ep.subtitles || [];
+  if (!subs.length) {
+    sel.innerHTML = '<option value="">No subtitles</option>';
+    sel.disabled = true;
+    sel.onchange = null;
+    return;
+  }
+  sel.disabled = false;
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  sel.innerHTML = '<option value="off">Subtitles: Off</option>' +
+    subs.map((s) => `<option value="${s.id}">${esc(s.label)}</option>`).join('');
+
+  const tracks = new Map();
+  const apply = async (val) => {
+    const video = window.__realVideo;
+    if (!video) return;
+    for (const t of tracks.values()) t.mode = 'disabled';
+    if (val === 'off') return;
+    const s = subs.find((x) => String(x.id) === val);
+    if (!s) return;
+    if (!tracks.has(val)) {
+      let cues = subCache.get(s.url);
+      if (!cues) {
+        try {
+          const r = await fetch(s.url);
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          cues = parseVtt(await r.text());
+          subCache.set(s.url, cues);
+        } catch (e) { console.warn('[Anivora] subtitle load failed', e); return; }
+      }
+      if (window.__realVideo !== video || sel.value !== val) return; // کاربر عوض کرده
+      const track = video.addTextTrack('subtitles', s.label, s.lang);
+      for (const c of cues) {
+        const cue = new VTTCue(c.start, c.end, c.text);
+        if (c.line != null) { cue.snapToLines = false; cue.line = c.line; } else { cue.line = -5; }
+        track.addCue(cue);
+      }
+      tracks.set(val, track);
+    }
+    for (const [k, t] of tracks) t.mode = k === val ? 'showing' : 'disabled';
+  };
+
+  sel.onchange = () => {
+    const chosen = subs.find((x) => String(x.id) === sel.value);
+    try { localStorage.setItem(SUB_KEY, chosen ? chosen.lang : 'off'); } catch (e) {}
+    apply(sel.value);
+  };
+
+  // انتخاب قبلی کاربر (بر اساس زبان) برای قسمت‌های بعدی هم اعمال می‌شود
+  let stored = null;
+  try { stored = localStorage.getItem(SUB_KEY); } catch (e) {}
+  const pre = stored && stored !== 'off' ? subs.find((s) => s.lang === stored) : null;
+  sel.value = pre ? String(pre.id) : 'off';
+  if (pre) apply(sel.value);
+}
+
+/* ============================================
    SPEED SELECTOR
 ============================================ */
 export function initSpeedSelector() {

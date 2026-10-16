@@ -702,3 +702,10 @@
     height: 14px;
   }
 }
+/* Subtitles (native TextTrack cues) */
+#realVideo::cue {
+  background: rgba(0,0,0,0.65);
+  color: #fff;
+  font-family: Vazirmatn, Tahoma, 'Segoe UI', sans-serif;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.9);
+}

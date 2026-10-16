@@ -19,6 +19,7 @@ export async function onRequestPut({ request, env, params }) {
 }
 
 export async function onRequestDelete({ env, params }) {
+  try { await env.DB.prepare('DELETE FROM subtitles WHERE episode_id = ?').bind(params.id).run(); } catch {}
   await env.DB.prepare('DELETE FROM episodes WHERE id = ?').bind(params.id).run();
   return json({ ok: true });
 }

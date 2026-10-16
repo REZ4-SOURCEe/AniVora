@@ -1,4 +1,4 @@
-export async function onRequestGet({ env }) {
+export async function onRequestGet({ env, request }) {
   try {
     const { results: animeList } = await env.DB.prepare(
       'SELECT * FROM anime ORDER BY id'
@@ -7,6 +7,14 @@ export async function onRequestGet({ env }) {
     const { results: allEpisodes } = await env.DB.prepare(
       'SELECT * FROM episodes ORDER BY anime_id, season, number'
     ).all();
+
+    // زیرنویس‌ها (بدون متن؛ فقط آدرس). اگر جدول هنوز ساخته نشده، نادیده گرفته می‌شود.
+    const origin = new URL(request.url).origin;
+    const subsByEp = {};
+    try {
+      const { results: subs } = await env.DB.prepare('SELECT id, episode_id, label, lang FROM subtitles ORDER BY id').all();
+      for (const s of subs) (subsByEp[s.episode_id] ||= []).push({ id: s.id, label: s.label, lang: s.lang, url: `${origin}/api/subtitle/${s.id}.vtt` });
+    } catch (e) {}
 
     // گروه‌بندی قسمت‌ها بر اساس anime_id و season
     const episodesByAnime = {};
@@ -21,12 +29,14 @@ export async function onRequestGet({ env }) {
       }
 
       episodesByAnime[ep.anime_id][ep.season].push({
+        id: ep.id,
         num: ep.number,
         title: ep.title,
         duration: ep.duration,
         img: ep.thumb,
         videoUrl: ep.video_url,
-        qualities: qualities
+        qualities: qualities,
+        subtitles: subsByEp[ep.id] || []
       });
     }
 
