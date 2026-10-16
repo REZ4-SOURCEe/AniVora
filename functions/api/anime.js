@@ -60,7 +60,9 @@ export async function onRequestGet({ env }) {
         eps: seasons.reduce((sum, s) => sum + s.episodes.length, 0),
         episodesAired: seasons.reduce((sum, s) => sum + s.episodesAired, 0),
         duration: '24 min',
-        studio: 'Unknown',
+        studio: anime.studio || 'Unknown',
+        director: anime.director || '',
+        writer: anime.writer || '',
         seasons: seasons
       };
     });

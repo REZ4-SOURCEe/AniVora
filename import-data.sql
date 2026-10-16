@@ -16,7 +16,10 @@ CREATE TABLE anime (
   year INTEGER,
   status TEXT,
   type TEXT,
-  genres TEXT
+  genres TEXT,
+  studio TEXT,
+  director TEXT,
+  writer TEXT
 );
 
 CREATE TABLE episodes (

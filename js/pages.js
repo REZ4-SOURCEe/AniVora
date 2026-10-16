@@ -433,6 +433,8 @@ export function openAnimeDetail(animeId, keepState = false) {
     <div class="detail-stat"><span class="detail-stat-label">Year</span><span class="detail-stat-value">${anime.year}</span></div>
     <div class="detail-stat"><span class="detail-stat-label">Episodes</span><span class="detail-stat-value">${anime.eps}</span></div>
     <div class="detail-stat"><span class="detail-stat-label">Studio</span><span class="detail-stat-value">${anime.studio || '-'}</span></div>
+    ${anime.director ? `<div class="detail-stat"><span class="detail-stat-label">Director</span><span class="detail-stat-value">${anime.director}</span></div>` : ''}
+    ${anime.writer ? `<div class="detail-stat"><span class="detail-stat-label">Writer</span><span class="detail-stat-value">${anime.writer}</span></div>` : ''}
   `;
 
   const backdrop = document.querySelector('.detail-backdrop img');
