@@ -722,3 +722,14 @@
     padding: 1px 5px;
   }
 }
+
+/* Studio: اسم بلند با ... کوتاه می‌شود */
+.detail-stat-studio { min-width: 0; flex-shrink: 1 !important; }
+.detail-stat-studio .detail-stat-value {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.detail-stat-studio { max-width: 240px; }

@@ -671,11 +671,19 @@ function parseVtt(text) {
 export function initSubtitleSelector(ep) {
   const sel = document.querySelector('select[title="Subtitles"]');
   if (!sel) return;
+  const wrap = sel.closest('.player-icon-select');
+  const syncIcon = () => {
+    if (!wrap) return;
+    wrap.classList.toggle('disabled', sel.disabled);
+    wrap.classList.toggle('active', !sel.disabled && sel.value && sel.value !== 'off');
+  };
+  sel.addEventListener('change', syncIcon);
   const subs = ep.subtitles || [];
   if (!subs.length) {
     sel.innerHTML = '<option value="">No subtitles</option>';
     sel.disabled = true;
     sel.onchange = null;
+    syncIcon();
     return;
   }
   sel.disabled = false;
@@ -725,6 +733,7 @@ export function initSubtitleSelector(ep) {
   const pre = stored && stored !== 'off' ? subs.find((s) => s.lang === stored) : null;
   sel.value = pre ? String(pre.id) : 'off';
   if (pre) apply(sel.value);
+  syncIcon();
 }
 
 /* ============================================

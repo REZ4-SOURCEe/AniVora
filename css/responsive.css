@@ -320,3 +320,14 @@
   .player-ctrl-select { padding: 3px 5px; font-size: 10.5px; }
   .player-time { display: none; }
 }
+@media (max-width: 768px) {
+.player-ctrl-select[title="Playback speed"] { padding: 4px 8px; min-width: 36px; }
+.player-icon-select { width: 34px; height: 34px; }
+}
+
+/* موبایل: Director / Writer پنهان، Studio با ... کوتاه */
+@media (max-width: 768px) {
+  .detail-stat-extra { display: none !important; }
+  .detail-stats-row { overflow: hidden; }
+  .detail-stat-studio { max-width: none; flex: 0 1 auto; min-width: 0; }
+}

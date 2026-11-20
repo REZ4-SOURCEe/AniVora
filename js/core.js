@@ -1039,9 +1039,6 @@ export function initCustomSelects() {
   });
 }
 function handleCustomSelect(e) {
-  if (e.currentTarget.matches('select[title="Quality"]')) return;
-  if (e.currentTarget.matches('select[title="Playback speed"]')) return;
-  if (e.currentTarget.classList.contains('player-ctrl-select')) return;
   if (e.cancelable) e.preventDefault();
   const sel = e.currentTarget;
   const existing = document.querySelector('.custom-select-sheet');
@@ -1052,19 +1049,29 @@ function handleCustomSelect(e) {
 function openCustomSheet(sel) {
   const options = Array.from(sel.options);
   const currentIndex = sel.selectedIndex;
+  // داخل فول‌اسکرین فقط عناصر داخل خود المنت دیده می‌شوند
+  const host = document.fullscreenElement || document.webkitFullscreenElement || document.body;
   const overlay = document.createElement('div');
   overlay.className = 'custom-select-overlay';
-  overlay.onclick = () => closeCustomSheet();
+  overlay.onclick = (ev) => { ev.stopPropagation(); closeCustomSheet(); };
   const sheet = document.createElement('div');
   sheet.className = 'custom-select-sheet';
+  sheet.onclick = (ev) => ev.stopPropagation();
   sheet.innerHTML = '<div class="custom-select-handle"></div>';
+  if (sel.title) {
+    const t = document.createElement('div');
+    t.className = 'custom-select-title';
+    t.textContent = sel.title;
+    sheet.appendChild(t);
+  }
   const list = document.createElement('div');
   list.className = 'custom-select-list';
+  const checkSvg = '<svg class="custom-select-check" viewBox="0 0 24 24" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>';
   options.forEach((opt, i) => {
     const item = document.createElement('button');
     item.type = 'button';
     item.className = 'custom-select-item' + (i === currentIndex ? ' selected' : '');
-    item.innerHTML = `<span class="custom-select-radio"></span><span class="custom-select-label">${opt.textContent}</span>`;
+    item.innerHTML = `<span class="custom-select-radio"></span><span class="custom-select-label">${opt.textContent}</span>${checkSvg}`;
     item.onclick = (ev) => {
       ev.stopPropagation();
       sel.selectedIndex = i;
@@ -1074,8 +1081,8 @@ function openCustomSheet(sel) {
     list.appendChild(item);
   });
   sheet.appendChild(list);
-  document.body.appendChild(overlay);
-  document.body.appendChild(sheet);
+  host.appendChild(overlay);
+  host.appendChild(sheet);
   requestAnimationFrame(() => { overlay.classList.add('show'); sheet.classList.add('show'); });
   document.body.style.overflow = 'hidden';
 }

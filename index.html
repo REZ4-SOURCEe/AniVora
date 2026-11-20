@@ -389,12 +389,15 @@
             <span class="player-time">00:00 / 00:00</span>
           </div>
           <div class="player-right">
+            <div class="player-icon-select" id="subtitleIconWrap">
+              <svg class="icon icon-md" viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="3.5"/><path d="M6.5 11.2h3.2M12.2 11.2h5.3M6.5 14.8h5.3M14.3 14.8h3.2"/></svg>
+              <select class="player-ctrl-select" title="Subtitles" aria-label="Subtitles" onclick="event.stopPropagation()">
+                <option value="">No subtitles</option>
+              </select>
+            </div>
             <select class="player-ctrl-select" title="Playback speed">
               <option>0.5×</option><option>0.75×</option><option selected>1×</option>
               <option>1.25×</option><option>1.5×</option><option>2×</option>
-            </select>
-            <select class="player-ctrl-select" title="Subtitles" onclick="event.stopPropagation()">
-              <option value="">No subtitles</option>
             </select>
             <select class="player-ctrl-select" title="Quality">
               <option>Auto</option><option>1080p</option><option>720p</option>
