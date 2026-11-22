@@ -1,0 +1,16 @@
+/* ============================================
+   فونت وزیرمتن
+   فقط فایل Bold در دسترس بود؛ برای همهٔ وزن‌ها (۱۰۰ تا ۹۰۰) از همان استفاده می‌شود.
+   برای داشتن وزن‌های سبک‌تر، فایل‌های Vazirmatn-Regular.ttf و Vazirmatn-Medium.ttf را
+   در assets/fonts بگذارید و این دو بلوک را فعال کنید (و وزن بلوک پایینی را به 600 900 تغییر دهید):
+
+   @font-face { font-family:'Vazirmatn'; src:url('../assets/fonts/Vazirmatn-Regular.ttf') format('truetype'); font-weight:100 499; font-display:swap; }
+   @font-face { font-family:'Vazirmatn'; src:url('../assets/fonts/Vazirmatn-Medium.ttf')  format('truetype'); font-weight:500 599; font-display:swap; }
+============================================ */
+@font-face {
+  font-family: 'Vazirmatn';
+  src: url('../assets/fonts/Vazirmatn-Bold.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}

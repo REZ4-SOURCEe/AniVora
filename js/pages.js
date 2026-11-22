@@ -26,6 +26,10 @@ import {
   initQualitySelector, initSpeedSelector, initSubtitleSelector
 } from './components.js';
 import { apiUpdateProfile } from './api.js';
+import {
+  fa, esc, bdi, tGenre, tStatus, tType, tListStatus, tDuration, tStudio,
+  epTitle, seasonTitle, fmtMinutes, faTime, WEEK_ORDER, WEEKDAYS_FA, todayName
+} from './i18n.js';
 
 /* ============================================
    HELPERS
@@ -81,31 +85,31 @@ function initHero() {
   const badges = document.getElementById('heroBadges');
   if (badges) {
     const statusBadge = heroAnime.status === 'Airing'
-      ? `<span class="badge badge-airing"><span class="airing-dot"></span>Airing</span>`
-      : `<span class="badge badge-genre">${heroAnime.status}</span>`;
+      ? `<span class="badge badge-airing"><span class="airing-dot"></span>در حال پخش</span>`
+      : `<span class="badge badge-genre">${tStatus(heroAnime.status)}</span>`;
     const genreBadges = (heroAnime.genres || []).slice(0, 3).map(g =>
-      `<span class="badge badge-genre">${g}</span>`
+      `<span class="badge badge-genre">${tGenre(g)}</span>`
     ).join('');
     badges.innerHTML = statusBadge + genreBadges;
   }
 
   const title = document.getElementById('heroTitle');
-  if (title) title.textContent = heroAnime.title;
+  if (title) title.innerHTML = bdi(heroAnime.title);
 
   const subtitle = document.getElementById('heroSubtitle');
-  if (subtitle) subtitle.textContent = heroAnime.jp || '';
+  if (subtitle) subtitle.innerHTML = bdi(heroAnime.jp || '');
 
   const meta = document.getElementById('heroMeta');
   if (meta) {
     meta.innerHTML = `
       <div class="hero-rating">
         <svg class="icon icon-sm" style="fill:var(--gold);stroke:none;"><use href="#ico-star"/></svg>
-        ${heroAnime.score}
+        ${fa(heroAnime.score)}
       </div>
       <span style="color:var(--text-muted);font-size:12px;">·</span>
-      <div class="hero-meta-item"><svg class="icon icon-sm"><use href="#ico-calendar"/></svg> ${heroAnime.year}</div>
-      <div class="hero-meta-item"><svg class="icon icon-sm"><use href="#ico-tv"/></svg> ${heroAnime.eps} Episodes</div>
-      <div class="hero-meta-item"><svg class="icon icon-sm"><use href="#ico-clock"/></svg> ${heroAnime.duration || '24 min'}</div>
+      <div class="hero-meta-item"><svg class="icon icon-sm"><use href="#ico-calendar"/></svg> ${fa(heroAnime.year)}</div>
+      <div class="hero-meta-item"><svg class="icon icon-sm"><use href="#ico-tv"/></svg> ${fa(heroAnime.eps)} قسمت</div>
+      <div class="hero-meta-item"><svg class="icon icon-sm"><use href="#ico-clock"/></svg> ${tDuration(heroAnime.duration || '24 min')}</div>
     `;
   }
 
@@ -116,16 +120,13 @@ function initHero() {
   if (actions) {
     const status = getListStatus(heroAnime.id);
     const added = !!status;
-    let addLabel = 'Add to List';
-    if (status === 'watching')      addLabel = 'Watching';
-    if (status === 'completed')     addLabel = 'Completed';
-    if (status === 'plan_to_watch') addLabel = 'Plan to Watch';
-    if (status === 'not_watched')   addLabel = 'Not Watched';
+    let addLabel = 'افزودن به لیست';
+    if (status) addLabel = tListStatus(status) || addLabel;
 
     actions.innerHTML = `
       <button class="btn btn-primary" onclick="openAnimeDetail(${heroAnime.id})">
         <svg class="icon icon-sm" style="fill:#fff;stroke:none;"><use href="#ico-play"/></svg>
-        Watch Now
+        تماشا کنید
       </button>
       <button class="btn btn-ghost ${added ? 'is-added' : ''}" data-add-btn="${heroAnime.id}" onclick="toggleList(${heroAnime.id}, this)">
         <svg class="icon icon-sm"><use href="#${added ? 'ico-check' : 'ico-plus'}"/></svg>
@@ -169,7 +170,7 @@ function initContinueWatching() {
       seasonNumber,
       epNum,
       title: anime.title,
-      ep: `S${seasonNumber} E${String(epNum).padStart(2, '0')}`,
+      ep: `فصل ${fa(seasonNumber)} · قسمت ${fa(String(epNum).padStart(2, '0'))}`,
       progress: progress || 0,
       timeLeft: ep.duration || '24 min',
       img: ep.img || anime.img
@@ -179,7 +180,7 @@ function initContinueWatching() {
   const displayItems = items.slice(0, 6);
 
   if (displayItems.length === 0) {
-    row.innerHTML = '<div style="color:var(--text-muted);padding:12px;font-size:13px;">No continue watching items.</div>';
+    row.innerHTML = '<div style="color:var(--text-muted);padding:12px;font-size:13px;">موردی برای ادامهٔ تماشا وجود ندارد.</div>';
     return;
   }
 
@@ -196,8 +197,8 @@ function initContinueWatching() {
         <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${d.progress}%;"></div></div>
       </div>
       <div class="continue-body">
-        <div class="continue-title">${d.title}</div>
-        <div class="continue-time-left">${d.timeLeft} remaining</div>
+        <div class="continue-title">${bdi(d.title)}</div>
+        <div class="continue-time-left">${tDuration(d.timeLeft)} باقی‌مانده</div>
       </div>
     </div>
   `).join('');
@@ -230,26 +231,26 @@ function initWeeklyPick() {
   wrap.innerHTML = `
     <div class="weekly-pick">
       <div class="weekly-pick-banner" onclick="openAnimeDetail(${anime.id})">
-        <img src="${anime.backdrop || anime.img}" alt="${anime.title}" loading="lazy">
+        <img src="${anime.backdrop || anime.img}" alt="${esc(anime.title)}" loading="lazy">
         <div class="weekly-pick-overlay"></div>
         <div class="weekly-pick-content">
           <div class="weekly-pick-genres">
             ${(anime.genres || []).slice(0, 3).map(g =>
-              `<span class="tag ${genreColors[g] || 'badge-genre'}">${g}</span>`
+              `<span class="tag ${genreColors[g] || 'badge-genre'}">${tGenre(g)}</span>`
             ).join('')}
           </div>
-          <div class="weekly-pick-title">${anime.title}</div>
-          <div class="weekly-pick-jp">${anime.jp || ''}</div>
+          <div class="weekly-pick-title">${bdi(anime.title)}</div>
+          <div class="weekly-pick-jp">${bdi(anime.jp || '')}</div>
           <div class="weekly-pick-meta">
             <span class="weekly-pick-score">
               <svg style="width:13px;height:13px;fill:var(--gold);stroke:none;"><use href="#ico-star"/></svg>
-              ${anime.score}
+              ${fa(anime.score)}
             </span>
             <span class="weekly-pick-meta-item">
-              <svg class="icon icon-sm"><use href="#ico-calendar"/></svg> ${anime.year}
+              <svg class="icon icon-sm"><use href="#ico-calendar"/></svg> ${fa(anime.year)}
             </span>
             <span class="weekly-pick-meta-item">
-              <svg class="icon icon-sm"><use href="#ico-tv"/></svg> ${anime.eps} Episodes
+              <svg class="icon icon-sm"><use href="#ico-tv"/></svg> ${fa(anime.eps)} قسمت
             </span>
           </div>
         </div>
@@ -257,18 +258,18 @@ function initWeeklyPick() {
       <div class="weekly-pick-actions">
         <button class="btn-watch" onclick="openAnimeDetail(${anime.id})">
           <svg class="icon icon-sm" style="fill:#fff;stroke:none;"><use href="#ico-play"/></svg>
-          Watch Now
+          تماشا کنید
         </button>
         <button class="btn-icon-square ${added ? 'is-added' : ''}"
                 data-add-btn="${anime.id}"
                 onclick="toggleList(${anime.id}, this)"
-                title="Add to List">
+                title="افزودن به لیست" aria-label="افزودن به لیست">
           <svg class="icon icon-md"><use href="#${added ? 'ico-check' : 'ico-plus'}"/></svg>
         </button>
         <button class="btn-icon-square ${liked ? 'is-liked' : ''}"
                 data-like-btn="${anime.id}"
                 onclick="toggleLike(${anime.id}, this)"
-                title="Like">
+                title="پسندیدن" aria-label="پسندیدن">
           <svg class="icon icon-md"><use href="#${liked ? 'ico-heart-fill' : 'ico-heart'}"/></svg>
         </button>
       </div>
@@ -298,11 +299,27 @@ export function clearSearch() {
   filterResults();
 }
 
+const FILTER_TYPE_LABELS = { Genre: 'ژانر', Type: 'نوع', Status: 'وضعیت', Year: 'سال' };
+
+function filterValueLabel(type, val) {
+  if (type === 'Genre')  return tGenre(val);
+  if (type === 'Type')   return tType(val);
+  if (type === 'Status') return tStatus(val);
+  if (type === 'Year') {
+    const m = String(val).match(/^(\d{4})-(\d{4})$/);
+    return m ? `${fa(m[1])} تا ${fa(m[2])}` : fa(val);
+  }
+  return val;
+}
+
 export function addFilter(val, type) {
   if (!val) return;
   const key = `${type}: ${val}`;
   if (!activeFilters.find(f => f.key === key)) {
-    activeFilters.push({ key, type, val });
+    activeFilters.push({
+      key, type, val,
+      label: `${FILTER_TYPE_LABELS[type] || type}: ${filterValueLabel(type, val)}`
+    });
     renderActiveFilters();
     filterResults();
   }
@@ -312,7 +329,7 @@ export function renderActiveFilters() {
   const el = document.getElementById('activeFilters');
   if (!el) return;
   el.innerHTML = activeFilters.map((f, i) => `
-    <span class="active-filter-tag">${f.key}
+    <span class="active-filter-tag">${esc(f.label || f.key)}
       <span class="active-filter-remove" onclick="removeFilter(${i})">
         <svg style="width:11px;height:11px;"><use href="#ico-x"/></svg>
       </span>
@@ -327,24 +344,46 @@ export function removeFilter(idx) {
 
 export function filterResults() {
   const ANIME_DATA = window.ANIME_DATA || [];
-  const q = (document.getElementById('mainSearchInput')?.value || '').toLowerCase();
+  const q = (document.getElementById('mainSearchInput')?.value || '').trim().toLowerCase();
   let res = [...ANIME_DATA];
-  if (q) res = res.filter(a => a.title.toLowerCase().includes(q) || (a.jp || '').toLowerCase().includes(q));
+
+  if (q) {
+    res = res.filter(a => {
+      const genres = a.genres || [];
+      const hay = [a.title, a.jp, a.studio, a.director, a.writer, ...genres, ...genres.map(tGenre)]
+        .filter(Boolean).join(' ').toLowerCase();
+      return hay.includes(q);
+    });
+  }
 
   activeFilters.forEach(f => {
     if (f.type === 'Type') res = res.filter(a => a.type === f.val);
     if (f.type === 'Status') res = res.filter(a => a.status === f.val);
     if (f.type === 'Genre') res = res.filter(a => (a.genres || []).includes(f.val));
+    if (f.type === 'Year') {
+      const m = String(f.val).match(/^(\d{4})-(\d{4})$/);
+      res = res.filter(a => m
+        ? (a.year >= +m[1] && a.year <= +m[2])
+        : String(a.year) === String(f.val));
+    }
   });
 
-  if (activeFilters.find(f => f.type === 'sort' && f.val === 'score')) {
+  const sortValue = document.getElementById('sortSelect')?.value || 'relevance';
+  const forcedScoreSort = activeFilters.find(f => f.type === 'sort' && f.val === 'score');
+  if (sortValue === 'rating' || forcedScoreSort) {
     res.sort((a, b) => b.score - a.score);
+  } else if (sortValue === 'newest') {
+    res.sort((a, b) => (b.year - a.year) || (b.id - a.id));
   }
 
   const grid = document.getElementById('resultsGrid');
   const cnt = document.getElementById('resultCount');
-  if (grid) grid.innerHTML = res.map(a => renderAnimeCard(a)).join('');
-  if (cnt) cnt.textContent = res.length;
+  if (grid) {
+    grid.innerHTML = res.length
+      ? res.map(a => renderAnimeCard(a)).join('')
+      : '<p style="color:var(--text-muted);font-size:13px;padding:24px 16px;grid-column:1/-1;text-align:center;">نتیجه‌ای پیدا نشد.</p>';
+  }
+  if (cnt) cnt.textContent = fa(res.length);
 }
 
 export function showCategory(category) {
@@ -353,6 +392,8 @@ export function showCategory(category) {
 
   const searchInput = document.getElementById('mainSearchInput');
   if (searchInput) searchInput.value = '';
+  const sortSel = document.getElementById('sortSelect');
+  if (sortSel) sortSel.value = 'relevance';
   toggleClearBtn();
 
   if (category === 'continue-watching') {
@@ -363,13 +404,13 @@ export function showCategory(category) {
   showPage('explore');
 
   if (category === 'trending') {
-    activeFilters.push({ key: 'Trending Now', type: 'sort', val: 'score' });
+    activeFilters.push({ key: 'Trending Now', label: 'پرطرفدارها', type: 'sort', val: 'score' });
   } else if (category === 'new-episodes') {
-    activeFilters.push({ key: 'Status: Airing', type: 'Status', val: 'Airing' });
+    activeFilters.push({ key: 'Status: Airing', label: 'وضعیت: در حال پخش', type: 'Status', val: 'Airing' });
   } else if (category === 'highest-rated') {
-    activeFilters.push({ key: 'Sort: Highest Rated', type: 'sort', val: 'score' });
+    activeFilters.push({ key: 'Sort: Highest Rated', label: 'مرتب‌سازی: بالاترین امتیاز', type: 'sort', val: 'score' });
   } else if (category === 'popular') {
-    activeFilters.push({ key: 'Sort: Popular', type: 'sort', val: 'score' });
+    activeFilters.push({ key: 'Sort: Popular', label: 'مرتب‌سازی: محبوب‌ترین', type: 'sort', val: 'score' });
   }
 
   renderActiveFilters();
@@ -388,10 +429,7 @@ export function openAnimeDetail(animeId, keepState = false) {
   const prevAnimeId = window.__currentAnimeId;
 
   if (!keepState && prevAnimeId && currentActiveTab && prevAnimeId !== animeId) {
-    const tabText = currentActiveTab.textContent.trim();
-    let tabKey = 'episodes';
-    if (tabText === 'About') tabKey = 'about';
-    if (tabText === 'Recommended') tabKey = 'recommended';
+    const tabKey = currentActiveTab.dataset.tab || 'episodes';
 
     if (tabKey !== 'episodes') {
       setDetailState({
@@ -417,24 +455,25 @@ export function openAnimeDetail(animeId, keepState = false) {
   };
   document.querySelector('.detail-genres-row').innerHTML = (anime.genres || []).map(g => {
     const cls = genreColors[g] || 'badge-genre';
-    return `<span class="tag ${cls}">${g}</span>`;
+    return `<span class="tag ${cls}">${tGenre(g)}</span>`;
   }).join('');
 
-  document.querySelector('.detail-title').textContent = anime.title;
-  document.querySelector('.detail-jp-title').textContent = anime.jp || '';
+  document.querySelector('.detail-title').innerHTML = bdi(anime.title);
+  document.querySelector('.detail-jp-title').innerHTML = bdi(anime.jp || '');
 
+  const studioName = tStudio(anime.studio);
   document.querySelector('.detail-stats-row').innerHTML = `
     <div class="detail-stat">
-      <span class="detail-stat-label">Score</span>
+      <span class="detail-stat-label">امتیاز</span>
       <span class="detail-stat-value" style="color:var(--gold);display:flex;align-items:center;gap:4px;">
-        <svg class="icon icon-sm" style="fill:var(--gold);stroke:none;"><use href="#ico-star"/></svg> ${anime.score}
+        <svg class="icon icon-sm" style="fill:var(--gold);stroke:none;"><use href="#ico-star"/></svg> ${fa(anime.score)}
       </span>
     </div>
-    <div class="detail-stat"><span class="detail-stat-label">Year</span><span class="detail-stat-value">${anime.year}</span></div>
-    <div class="detail-stat"><span class="detail-stat-label">Episodes</span><span class="detail-stat-value">${anime.eps}</span></div>
-    <div class="detail-stat detail-stat-studio"><span class="detail-stat-label">Studio</span><span class="detail-stat-value" title="${String(anime.studio || '').replace(/"/g, '&quot;')}">${anime.studio || '-'}</span></div>
-    ${anime.director ? `<div class="detail-stat detail-stat-extra"><span class="detail-stat-label">Director</span><span class="detail-stat-value">${anime.director}</span></div>` : ''}
-    ${anime.writer ? `<div class="detail-stat detail-stat-extra"><span class="detail-stat-label">Writer</span><span class="detail-stat-value">${anime.writer}</span></div>` : ''}
+    <div class="detail-stat"><span class="detail-stat-label">سال</span><span class="detail-stat-value">${fa(anime.year)}</span></div>
+    <div class="detail-stat"><span class="detail-stat-label">قسمت‌ها</span><span class="detail-stat-value">${fa(anime.eps)}</span></div>
+    <div class="detail-stat detail-stat-studio"><span class="detail-stat-label">استودیو</span><span class="detail-stat-value" title="${esc(studioName)}">${bdi(studioName)}</span></div>
+    ${anime.director ? `<div class="detail-stat detail-stat-extra"><span class="detail-stat-label">کارگردان</span><span class="detail-stat-value">${bdi(anime.director)}</span></div>` : ''}
+    ${anime.writer ? `<div class="detail-stat detail-stat-extra"><span class="detail-stat-label">نویسنده</span><span class="detail-stat-value">${bdi(anime.writer)}</span></div>` : ''}
   `;
 
   const backdrop = document.querySelector('.detail-backdrop img');
@@ -512,18 +551,18 @@ function renderDetailActions(anime) {
 
   row.innerHTML = `
     <button class="btn btn-primary" onclick="watchAnime(${anime.id})">
-      <svg class="icon icon-sm" style="fill:#fff;stroke:none;"><use href="#ico-play"/></svg>Watch Now
+      <svg class="icon icon-sm" style="fill:#fff;stroke:none;"><use href="#ico-play"/></svg>تماشا کنید
     </button>
 
     <button class="btn btn-ghost" onclick="toggleDownloadMenu(event, ${anime.id}, 1)">
-      <svg class="icon icon-sm"><use href="#ico-download"/></svg> Download
+      <svg class="icon icon-sm"><use href="#ico-download"/></svg> دانلود
     </button>
 
-    <button class="btn btn-ghost btn-icon ${added ? 'is-added' : ''}" id="detailAddBtn" title="Add to List">
+    <button class="btn btn-ghost btn-icon ${added ? 'is-added' : ''}" id="detailAddBtn" title="افزودن به لیست" aria-label="افزودن به لیست">
       <svg class="icon icon-md"><use href="#${added ? 'ico-check' : 'ico-plus'}"/></svg>
     </button>
 
-    <button class="btn btn-ghost btn-icon ${liked ? 'is-liked' : ''}" data-like-btn="${anime.id}" onclick="toggleLike(${anime.id}, this)" title="Like">
+    <button class="btn btn-ghost btn-icon ${liked ? 'is-liked' : ''}" data-like-btn="${anime.id}" onclick="toggleLike(${anime.id}, this)" title="پسندیدن" aria-label="پسندیدن">
       <svg class="icon icon-md"><use href="#${liked ? 'ico-heart-fill' : 'ico-heart'}"/></svg>
     </button>
 
@@ -566,7 +605,7 @@ export function renderDetailEpisodes(anime, seasonNumber) {
 
   const seasons = anime.seasons || [{
     seasonNumber: 1,
-    title: "Season 1",
+    title: "فصل ۱",
     episodes: anime.episodes || [],
     episodesAired: anime.episodesAired || (anime.episodes?.length || 0)
   }];
@@ -580,26 +619,26 @@ export function renderDetailEpisodes(anime, seasonNumber) {
       <button class="season-dropdown-item ${s.seasonNumber === window.__currentSeason ? 'active' : ''}"
               type="button"
               onclick="switchSeason(${anime.id}, ${s.seasonNumber})">
-        <span>${s.title || `Season ${s.seasonNumber}`}</span>
-        <span class="season-ep-count">${s.episodes.length} EP</span>
+        <span>${seasonTitle(s)}</span>
+        <span class="season-ep-count">${fa(s.episodes.length)} قسمت</span>
       </button>
     `).join('');
   }
 
   const labelEl = document.getElementById('seasonDropdownLabel');
   if (labelEl) {
-    labelEl.textContent = currentSeasonData.title || `Season ${window.__currentSeason}`;
+    labelEl.textContent = seasonTitle(currentSeasonData);
   }
 
   const countEl = document.getElementById('seasonCountBadge');
   if (countEl) {
-    countEl.textContent = currentEpisodes.length;
-    countEl.title = `${currentEpisodes.length} Episodes`;
+    countEl.textContent = fa(currentEpisodes.length);
+    countEl.title = `${fa(currentEpisodes.length)} قسمت`;
   }
 
   const aboutDescEl = document.getElementById('tabAboutDesc');
   if (aboutDescEl) {
-    aboutDescEl.textContent = anime.description || 'No description available.';
+    aboutDescEl.textContent = anime.description || 'توضیحاتی موجود نیست.';
   }
 
   const recommendedGrid = document.getElementById('tabRecommendedGrid');
@@ -623,7 +662,7 @@ export function renderDetailEpisodes(anime, seasonNumber) {
       .slice(0, maxCards);
 
     if (scored.length === 0) {
-      recommendedGrid.innerHTML = '<p style="color:var(--text-muted);font-size:13px;">No recommendations available.</p>';
+      recommendedGrid.innerHTML = '<p style="color:var(--text-muted);font-size:13px;">پیشنهادی موجود نیست.</p>';
     } else {
       recommendedGrid.innerHTML = scored.map(item => renderAnimeCard(item.anime)).join('');
     }
@@ -654,11 +693,11 @@ export function renderDetailEpisodes(anime, seasonNumber) {
       </div>
       <div class="ep-info">
         <div class="ep-number">
-          Episode ${ep.num}
-          ${isWatched ? '<span class="ep-watched" title="Watched">✓</span>' : ''}
+          قسمت ${fa(ep.num)}
+          ${isWatched ? '<span class="ep-watched" title="دیده‌شده">✓</span>' : ''}
         </div>
-        <div class="ep-title">${ep.title}</div>
-        <div class="ep-duration">${ep.duration}</div>
+        <div class="ep-title">${bdi(epTitle(ep))}</div>
+        <div class="ep-duration">${tDuration(ep.duration)}</div>
       </div>
     </div>`;
   }).join('');
@@ -787,14 +826,17 @@ export function watchAnime(animeId) {
 }
 
 function loadEpisodeInPlayer(anime, ep, seasonNumber) {
-  const seasonLabel = seasonNumber > 1 ? ` · Season ${seasonNumber}` : ' · Season 1';
-  document.querySelector('.watch-ep-title').textContent = `Episode ${ep.num}: "${ep.title}"`;
-  document.querySelector('.watch-ep-label').textContent = `${anime.title}${seasonLabel}`;
+  const seasonLabel = ` · فصل ${fa(seasonNumber)}`;
+  const genericTitle = !ep.title || /^(episode|ep\.?)\s*\d+$/i.test(String(ep.title).trim());
+  document.querySelector('.watch-ep-title').innerHTML = genericTitle
+    ? `قسمت ${fa(ep.num)}`
+    : `قسمت ${fa(ep.num)}: «${bdi(ep.title)}»`;
+  document.querySelector('.watch-ep-label').innerHTML = `${bdi(anime.title)}${seasonLabel}`;
 
   const progressFill = document.getElementById('playerProgress');
   if (progressFill) progressFill.style.width = '0%';
   const timeEl = document.querySelector('.player-time');
-  if (timeEl) timeEl.textContent = '00:00 / 00:00';
+  if (timeEl) timeEl.textContent = '۰۰:۰۰ / ۰۰:۰۰';
 
   const playerWrap = document.querySelector('.player-wrap');
   if (!playerWrap) return;
@@ -810,7 +852,7 @@ function loadEpisodeInPlayer(anime, ep, seasonNumber) {
 
   const defaultQuality = ep.qualities && ep.qualities.length > 0
     ? ep.qualities[ep.qualities.length - 1]
-    : { url: ep.videoUrl, label: 'Auto' };
+    : { url: ep.videoUrl, label: 'خودکار' };
 
   const video = document.createElement('video');
   video.id = 'realVideo';
@@ -837,7 +879,7 @@ function loadEpisodeInPlayer(anime, ep, seasonNumber) {
   const vBtn = document.getElementById('volumeBtn');
   if (vBtn) {
     vBtn.innerHTML = `<svg class="icon icon-md"><use href="#ico-volume"/></svg>`;
-    vBtn.setAttribute('title', 'Mute');
+    vBtn.setAttribute('title', 'قطع صدا');
   }
 
   video.addEventListener('loadedmetadata', () => {
@@ -845,7 +887,7 @@ function loadEpisodeInPlayer(anime, ep, seasonNumber) {
     if (pf) pf.style.width = '0%';
     const tEl = document.querySelector('.player-time');
     if (tEl && video.duration && !isNaN(video.duration)) {
-      tEl.textContent = `00:00 / ${formatTime(video.duration)}`;
+      tEl.textContent = `۰۰:۰۰ / ${faTime(formatTime(video.duration))}`;
     }
   });
 
@@ -888,10 +930,10 @@ function loadEpisodeInPlayer(anime, ep, seasonNumber) {
       if (isFirstTime) {
         if (globalEpNum >= airedEps && airedEps >= totalEps) {
           setListStatus(anime.id, 'completed');
-          showToast('Marked as Completed');
+          showToast('به‌عنوان تکمیل‌شده ثبت شد');
         } else {
           setListStatus(anime.id, 'watching');
-          showToast('Added to Watching');
+          showToast('به لیست «در حال تماشا» اضافه شد');
         }
       } else {
         if (globalEpNum >= airedEps && airedEps >= totalEps) {
@@ -924,19 +966,19 @@ function renderWatchActions(anime, ep, seasonNumber) {
   wrap.innerHTML = `
     <button class="btn btn-ghost btn-sm btn-action-wide" onclick="window.__scrollToEpisodes = true; openAnimeDetail(${anime.id})">
       <svg class="icon icon-sm"><use href="#ico-info"/></svg>
-      <span>Details</span>
+      <span>جزئیات</span>
     </button>
 
     <button class="btn btn-ghost btn-sm btn-action-wide" onclick="toggleDownloadMenu(event, ${anime.id}, ${ep.num})">
       <svg class="icon icon-sm"><use href="#ico-download"/></svg>
-      <span>Download</span>
+      <span>دانلود</span>
     </button>
 
-    <button class="btn btn-ghost btn-sm btn-action-icon ${added ? 'is-added' : ''}" data-add-btn="${anime.id}" onclick="toggleList(${anime.id}, this)" title="Add to List">
+    <button class="btn btn-ghost btn-sm btn-action-icon ${added ? 'is-added' : ''}" data-add-btn="${anime.id}" onclick="toggleList(${anime.id}, this)" title="افزودن به لیست" aria-label="افزودن به لیست">
       <svg class="icon icon-sm"><use href="#${added ? 'ico-check' : 'ico-plus'}"/></svg>
     </button>
 
-    <button class="btn btn-ghost btn-sm btn-action-icon ${liked ? 'is-liked' : ''}" data-like-btn="${anime.id}" onclick="toggleLike(${anime.id}, this)" title="Like">
+    <button class="btn btn-ghost btn-sm btn-action-icon ${liked ? 'is-liked' : ''}" data-like-btn="${anime.id}" onclick="toggleLike(${anime.id}, this)" title="پسندیدن" aria-label="پسندیدن">
       <svg class="icon icon-sm"><use href="#${liked ? 'ico-heart-fill' : 'ico-heart'}"/></svg>
     </button>
 
@@ -962,9 +1004,9 @@ function renderWatchSidebar(anime, seasonNumber, currentEpNum) {
     <div class="sidebar-ep-item ${ep.num === currentEpNum ? 'active' : ''}" onclick="openEpisode(${anime.id}, ${seasonNumber}, ${ep.num})">
       <div class="sidebar-ep-thumb"><svg class="icon icon-sm"><use href="#ico-play"/></svg></div>
       <div class="sidebar-ep-info">
-        <div class="sidebar-ep-num">Ep ${ep.num} ${isWatched ? '✓' : ''}</div>
-        <div class="sidebar-ep-name">${ep.title}</div>
-        <div class="sidebar-ep-dur">${ep.duration}</div>
+        <div class="sidebar-ep-num">قسمت ${fa(ep.num)} ${isWatched ? '✓' : ''}</div>
+        <div class="sidebar-ep-name">${bdi(epTitle(ep))}</div>
+        <div class="sidebar-ep-dur">${tDuration(ep.duration)}</div>
       </div>
     </div>`;
   }).join('');
@@ -990,7 +1032,7 @@ function renderUpNext(anime, seasonNumber, currentEpNum) {
   }
 
   if (nextEps.length === 0) {
-    row.innerHTML = '<div style="color:var(--text-muted);padding:12px;font-size:13px;">No more episodes.</div>';
+    row.innerHTML = '<div style="color:var(--text-muted);padding:12px;font-size:13px;">قسمت دیگری وجود ندارد.</div>';
     return;
   }
 
@@ -1003,8 +1045,8 @@ function renderUpNext(anime, seasonNumber, currentEpNum) {
         </div>
       </div>
       <div class="up-next-body">
-        <div class="up-next-ep">S${ep.seasonNumber} · Episode ${ep.num}</div>
-        <div class="up-next-title">${ep.title}</div>
+        <div class="up-next-ep">فصل ${fa(ep.seasonNumber)} · قسمت ${fa(ep.num)}</div>
+        <div class="up-next-title">${bdi(epTitle(ep))}</div>
       </div>
     </div>
   `).join('');
@@ -1022,10 +1064,10 @@ export function renderLoginPage() {
       <div class="auth-page">
         <div class="auth-card">
           <div class="auth-logo" style="gap:0;">Ani<span>vora</span></div>
-          <div class="auth-title">You're already signed in</div>
-          <div class="auth-subtitle">Go to your profile</div>
-          <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="showPage('profile')">Go to Profile</button>
-          <button class="btn btn-ghost" style="width:100%;justify-content:center;margin-top:10px;" onclick="handleLogout()">Sign Out</button>
+          <div class="auth-title">شما قبلاً وارد شده‌اید</div>
+          <div class="auth-subtitle">به پروفایل خود بروید</div>
+          <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="showPage('profile')">رفتن به پروفایل</button>
+          <button class="btn btn-ghost" style="width:100%;justify-content:center;margin-top:10px;" onclick="handleLogout()">خروج از حساب</button>
         </div>
       </div>`;
     return;
@@ -1035,15 +1077,15 @@ export function renderLoginPage() {
     <div class="auth-page">
       <div class="auth-card">
         <div class="auth-logo" style="gap:0;">Ani<span>vora</span></div>
-        <div class="auth-title">Welcome Back</div>
-        <div class="auth-subtitle">Sign in to your account</div>
-        <div class="form-group"><label class="form-label">Email</label>
+        <div class="auth-title">خوش برگشتید</div>
+        <div class="auth-subtitle">وارد حساب کاربری خود شوید</div>
+        <div class="form-group"><label class="form-label">ایمیل</label>
           <input type="email" id="loginEmail" class="form-input" placeholder="you@example.com"></div>
-        <div class="form-group"><label class="form-label">Password</label>
+        <div class="form-group"><label class="form-label">رمز عبور</label>
           <input type="password" id="loginPassword" class="form-input" placeholder="••••••••"></div>
         <div id="loginError" class="auth-error" style="display:none;"></div>
-        <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="handleLogin()">Sign In</button>
-        <div class="auth-switch">Don't have an account? <a onclick="showPage('signup')">Create one</a></div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="handleLogin()">ورود</button>
+        <div class="auth-switch">حساب کاربری ندارید؟ <a onclick="showPage('signup')">ثبت‌نام کنید</a></div>
       </div>
     </div>`;
 
@@ -1065,7 +1107,7 @@ export async function handleLogin() {
   const errorEl = document.getElementById('loginError');
   const btn = document.querySelector('#page-login .btn-primary');
 
-  if (btn) { btn.disabled = true; btn.textContent = 'Signing in...'; }
+  if (btn) { btn.disabled = true; btn.textContent = 'در حال ورود...'; }
 
   // ★ نمایش loader
   const loader = document.getElementById('pageLoader');
@@ -1076,13 +1118,13 @@ export async function handleLogin() {
   // ★ مخفی کردن loader
   if (loader) loader.classList.remove('active');
 
-  if (btn) { btn.disabled = false; btn.textContent = 'Sign In'; }
+  if (btn) { btn.disabled = false; btn.textContent = 'ورود'; }
 
   if (!result.success) {
     if (errorEl) { errorEl.textContent = result.error; errorEl.style.display = 'block'; }
     return;
   }
-  showToast('Welcome back, ' + result.user.username + '!');
+  showToast('خوش آمدید، ' + result.user.username + '!');
   if (window.updateDrawerAuth) window.updateDrawerAuth();
   if (window.updateHeaderAvatar) window.updateHeaderAvatar();
 
@@ -1098,7 +1140,7 @@ export async function handleLogin() {
 
 export function handleLogout() {
   logout();
-  showToast('Signed out');
+  showToast('از حساب خارج شدید');
   renderLoginPage();
   if (window.updateDrawerAuth) window.updateDrawerAuth();
   if (window.updateHeaderAvatar) window.updateHeaderAvatar();
@@ -1113,17 +1155,17 @@ export function renderSignupPage() {
     <div class="auth-page">
       <div class="auth-card">
         <div class="auth-logo" style="gap:0;">Ani<span>vora</span></div>
-        <div class="auth-title">Create Account</div>
-        <div class="auth-subtitle">Join Anivora today</div>
-        <div class="form-group"><label class="form-label">Username</label>
-          <input type="text" id="signupUsername" class="form-input" placeholder="YourName"></div>
-        <div class="form-group"><label class="form-label">Email</label>
+        <div class="auth-title">ایجاد حساب کاربری</div>
+        <div class="auth-subtitle">همین امروز به <bdi>Anivora</bdi> بپیوندید</div>
+        <div class="form-group"><label class="form-label">نام کاربری</label>
+          <input type="text" id="signupUsername" class="form-input" placeholder="نام شما"></div>
+        <div class="form-group"><label class="form-label">ایمیل</label>
           <input type="email" id="signupEmail" class="form-input" placeholder="you@example.com"></div>
-        <div class="form-group"><label class="form-label">Password</label>
-          <input type="password" id="signupPassword" class="form-input" placeholder="Min 6 characters"></div>
+        <div class="form-group"><label class="form-label">رمز عبور</label>
+          <input type="password" id="signupPassword" class="form-input" placeholder="حداقل ۶ کاراکتر"></div>
         <div id="signupError" class="auth-error" style="display:none;"></div>
-        <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="handleSignup()">Create Account</button>
-        <div class="auth-switch">Already have an account? <a onclick="showPage('login')">Sign in</a></div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="handleSignup()">ایجاد حساب</button>
+        <div class="auth-switch">قبلاً ثبت‌نام کرده‌اید؟ <a onclick="showPage('login')">وارد شوید</a></div>
       </div>
     </div>`;
 
@@ -1140,7 +1182,7 @@ export async function handleSignup() {
   const errorEl = document.getElementById('signupError');
   const btn = document.querySelector('#page-signup .btn-primary');
 
-  if (btn) { btn.disabled = true; btn.textContent = 'Creating...'; }
+  if (btn) { btn.disabled = true; btn.textContent = 'در حال ایجاد...'; }
 
   // ★ نمایش loader
   const loader = document.getElementById('pageLoader');
@@ -1148,7 +1190,7 @@ export async function handleSignup() {
 
   const result = await signup(email, password, username);
 
-  if (btn) { btn.disabled = false; btn.textContent = 'Create Account'; }
+  if (btn) { btn.disabled = false; btn.textContent = 'ایجاد حساب'; }
 
   if (!result.success) {
     if (loader) loader.classList.remove('active');
@@ -1170,7 +1212,7 @@ export async function handleSignup() {
 
   if (window.updateDrawerAuth) window.updateDrawerAuth();
   if (window.updateHeaderAvatar) window.updateHeaderAvatar();
-  showToast('Account created!');
+  showToast('حساب کاربری ساخته شد!');
 
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   const page = document.getElementById('page-profile');
@@ -1215,8 +1257,9 @@ export function initProfile() {
   const sinceEl = document.querySelector('.profile-since');
   if (sinceEl) {
     const date = new Date(user.createdAt);
-    const monthYear = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-    sinceEl.textContent = `Member since ${monthYear}`;
+    let monthYear = '';
+    try { monthYear = date.toLocaleDateString('fa-IR', { month: 'long', year: 'numeric' }); } catch (e) {}
+    sinceEl.textContent = monthYear && !/Invalid/i.test(monthYear) ? `عضو از ${monthYear}` : '';
   }
 
   const editBtn = document.querySelector('.profile-edit-btn');
@@ -1225,11 +1268,11 @@ export function initProfile() {
   const statsStrip = document.querySelector('.profile-stats-strip');
   if (statsStrip) {
     statsStrip.innerHTML = `
-      <div class="profile-stat"><span class="profile-stat-val">${stats.totalAnime}</span><span class="profile-stat-label">Anime</span></div>
-      <div class="profile-stat"><span class="profile-stat-val">${stats.totalEpisodes}</span><span class="profile-stat-label">Episodes</span></div>
-      <div class="profile-stat"><span class="profile-stat-val">${stats.watchTimeDisplay}</span><span class="profile-stat-label">Watch Time</span></div>
-      <div class="profile-stat"><span class="profile-stat-val">${stats.completed}</span><span class="profile-stat-label">Completed</span></div>
-      <div class="profile-stat"><span class="profile-stat-val">${stats.favorites}</span><span class="profile-stat-label">Favorites</span></div>
+      <div class="profile-stat"><span class="profile-stat-val">${fa(stats.totalAnime)}</span><span class="profile-stat-label">انیمه</span></div>
+      <div class="profile-stat"><span class="profile-stat-val">${fa(stats.totalEpisodes)}</span><span class="profile-stat-label">قسمت</span></div>
+      <div class="profile-stat"><span class="profile-stat-val">${stats.watchTimeDisplay}</span><span class="profile-stat-label">زمان تماشا</span></div>
+      <div class="profile-stat"><span class="profile-stat-val">${fa(stats.completed)}</span><span class="profile-stat-label">تکمیل‌شده</span></div>
+      <div class="profile-stat"><span class="profile-stat-val">${fa(stats.favorites)}</span><span class="profile-stat-label">علاقه‌مندی</span></div>
     `;
   }
 
@@ -1256,16 +1299,7 @@ export function initProfile() {
       totalMinutesWatched += Math.min(watchedEps, epsCount) * epDuration;
     });
 
-    function formatWatchTime(minutes) {
-      if (!minutes || minutes <= 0 || isNaN(minutes)) return '0m';
-      const h = Math.floor(minutes / 60);
-      const m = minutes % 60;
-      if (h === 0) return `${m}m`;
-      if (m === 0) return `${h}h`;
-      return `${h}h ${m}m`;
-    }
-
-    const watchedFormatted = formatWatchTime(Math.round(totalMinutesWatched));
+    const watchedFormatted = fmtMinutes(Math.round(totalMinutesWatched));
     const progressPct = totalMinutesAll > 0 ? Math.min(100, Math.round((totalMinutesWatched / totalMinutesAll) * 100)) : 0;
     const dashArray = 2 * Math.PI * 45;
     const dashOffset = dashArray * (1 - progressPct / 100);
@@ -1273,10 +1307,10 @@ export function initProfile() {
     overviewStats.innerHTML = `
       <div class="profile-stats-new">
         <div class="profile-stats-fields">
-          <div class="profile-stat-field field-completed"><div class="profile-stat-field-value">${stats.completed}</div><div class="profile-stat-field-label">Completed</div></div>
-          <div class="profile-stat-field field-episodes"><div class="profile-stat-field-value">${stats.totalEpisodes}</div><div class="profile-stat-field-label">Episodes</div></div>
-          <div class="profile-stat-field field-favorites"><div class="profile-stat-field-value">${stats.favorites}</div><div class="profile-stat-field-label">Favorites</div></div>
-          <div class="profile-stat-field field-total"><div class="profile-stat-field-value">${totalAnime}</div><div class="profile-stat-field-label">Total Anime</div></div>
+          <div class="profile-stat-field field-completed"><div class="profile-stat-field-value">${fa(stats.completed)}</div><div class="profile-stat-field-label">تکمیل‌شده</div></div>
+          <div class="profile-stat-field field-episodes"><div class="profile-stat-field-value">${fa(stats.totalEpisodes)}</div><div class="profile-stat-field-label">قسمت</div></div>
+          <div class="profile-stat-field field-favorites"><div class="profile-stat-field-value">${fa(stats.favorites)}</div><div class="profile-stat-field-label">علاقه‌مندی</div></div>
+          <div class="profile-stat-field field-total"><div class="profile-stat-field-value">${fa(totalAnime)}</div><div class="profile-stat-field-label">کل انیمه‌ها</div></div>
         </div>
         <div class="profile-watch-time-circle">
           <svg viewBox="0 0 100 100" class="profile-circle-svg">
@@ -1287,7 +1321,7 @@ export function initProfile() {
         </div>
       </div>
       <button class="profile-view-stats-btn" onclick="switchProfileTab(document.querySelector('.profile-tabs .tab-btn:last-child'), 'ptab-stats')">
-        View Full Statistics <svg class="icon icon-sm"><use href="#ico-chevron-r"/></svg>
+        مشاهده آمار کامل <svg class="icon icon-sm"><use href="#ico-arrow-fwd"/></svg>
       </button>
     `;
   }
@@ -1306,37 +1340,37 @@ export function initProfile() {
       const status = listStore[animeId];
 
       if (lastEp > 0) {
-        activities.push({ title: anime.title, desc: `Watched Episode ${lastEp}`, time: status === 'completed' ? 'Completed' : 'In progress', img: anime.img, ts: animeId });
+        activities.push({ title: anime.title, desc: `قسمت ${fa(lastEp)} را دیده‌اید`, time: status === 'completed' ? 'تکمیل‌شده' : 'در حال تماشا', img: anime.img, ts: animeId });
       } else if (status) {
-        activities.push({ title: anime.title, desc: `Added to list (${status.replace('_', ' ')})`, time: 'Recently', img: anime.img, ts: animeId });
+        activities.push({ title: anime.title, desc: `به لیست اضافه شد (${tListStatus(status)})`, time: 'به‌تازگی', img: anime.img, ts: animeId });
       }
     });
     activities.sort((a, b) => b.ts - a.ts);
     const top = activities.slice(0, 5);
-    if (top.length === 0) recentActivity.innerHTML = '<p style="color:var(--text-muted);font-size:13px;padding:12px;">No activity yet.</p>';
+    if (top.length === 0) recentActivity.innerHTML = '<p style="color:var(--text-muted);font-size:13px;padding:12px;">هنوز فعالیتی ثبت نشده است.</p>';
     else recentActivity.innerHTML = top.map(a => `
         <div class="recent-activity-item" onclick="openAnimeDetail(${a.ts})" style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);margin-bottom:8px;cursor:pointer;transition:var(--transition);">
           <img src="${a.img}" style="width:44px;height:44px;border-radius:8px;object-fit:cover;flex-shrink:0;" alt="">
-          <div style="flex:1;"><div style="font-size:13.5px;font-weight:600;">${a.title}</div><div style="font-size:12px;color:var(--text-muted);margin-top:2px;">${a.desc} · ${a.time}</div></div>
-          <svg class="icon icon-sm" style="color:var(--text-muted);"><use href="#ico-chevron-r"/></svg>
+          <div style="flex:1;"><div style="font-size:13.5px;font-weight:600;">${bdi(a.title)}</div><div style="font-size:12px;color:var(--text-muted);margin-top:2px;">${a.desc} · ${a.time}</div></div>
+          <svg class="icon icon-sm" style="color:var(--text-muted);"><use href="#ico-arrow-fwd"/></svg>
         </div>`).join('');
   }
 
   const genreProgress = document.getElementById('genreProgress');
   if (genreProgress) {
-    if (stats.favoriteGenres.length === 0) genreProgress.innerHTML = '<p style="color:var(--text-muted);font-size:13px;">No data yet.</p>';
+    if (stats.favoriteGenres.length === 0) genreProgress.innerHTML = '<p style="color:var(--text-muted);font-size:13px;">هنوز داده‌ای وجود ندارد.</p>';
     else genreProgress.innerHTML = stats.favoriteGenres.map(g => `
-        <div><div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:4px;"><span style="color:var(--text-secondary);">${g.name}</span><span style="color:var(--text-primary);font-weight:600;">${g.pct}%</span></div>
+        <div><div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:4px;"><span style="color:var(--text-secondary);">${tGenre(g.name)}</span><span style="color:var(--text-primary);font-weight:600;">${fa(g.pct)}٪</span></div>
         <div style="height:4px;background:var(--bg-elevated);border-radius:2px;"><div style="height:100%;background:var(--accent);border-radius:2px;width:${g.pct}%;"></div></div></div>`).join('');
   }
 
   const topGenres = document.getElementById('topGenres');
   if (topGenres) {
-    if (stats.favoriteGenres.length === 0) topGenres.innerHTML = '<p style="color:var(--text-muted);font-size:13px;">No data.</p>';
+    if (stats.favoriteGenres.length === 0) topGenres.innerHTML = '<p style="color:var(--text-muted);font-size:13px;">داده‌ای وجود ندارد.</p>';
     else {
       const maxN = stats.favoriteGenres[0].count;
       topGenres.innerHTML = stats.favoriteGenres.map(g => `
-        <div style="margin-bottom:10px;"><div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:3px;"><span style="color:var(--text-secondary);">${g.name}</span><span style="color:var(--text-primary);font-weight:600;">${g.count}</span></div>
+        <div style="margin-bottom:10px;"><div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:3px;"><span style="color:var(--text-secondary);">${tGenre(g.name)}</span><span style="color:var(--text-primary);font-weight:600;">${fa(g.count)}</span></div>
         <div style="height:3px;background:var(--bg-elevated);border-radius:2px;"><div style="height:100%;background:var(--accent);border-radius:2px;width:${(g.count / maxN) * 100}%;"></div></div></div>`).join('');
     }
   }
@@ -1355,17 +1389,17 @@ export function initProfile() {
     const maxCount = Math.max(...Object.values(scores), 1);
     scoreDist.innerHTML = [10,9,8,7,6,5,4].map(s => `
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-        <span style="font-size:11.5px;color:var(--text-muted);width:24px;text-align:right;">${s}</span>
+        <span style="font-size:11.5px;color:var(--text-muted);width:24px;text-align:end;">${fa(s)}</span>
         <div style="flex:1;height:14px;background:var(--bg-elevated);border-radius:3px;overflow:hidden;"><div style="height:100%;background:var(--accent);border-radius:3px;width:${(scores[s] / maxCount) * 100}%;opacity:0.85;"></div></div>
-        <span style="font-size:11px;color:var(--text-muted);width:20px;">${scores[s]}</span>
+        <span style="font-size:11px;color:var(--text-muted);width:20px;">${fa(scores[s])}</span>
       </div>`).join('');
   }
 
   const watchByYear = document.getElementById('watchByYear');
   if (watchByYear) {
-    if (stats.watchByYear.length === 0) watchByYear.innerHTML = '<p style="color:var(--text-muted);font-size:13px;">No data.</p>';
+    if (stats.watchByYear.length === 0) watchByYear.innerHTML = '<p style="color:var(--text-muted);font-size:13px;">داده‌ای وجود ندارد.</p>';
     else watchByYear.innerHTML = stats.watchByYear.map(y => `
-        <div style="margin-bottom:10px;"><div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:3px;"><span style="color:var(--text-secondary);">${y.year}</span><span style="color:var(--text-primary);font-weight:600;">${y.count} anime</span></div>
+        <div style="margin-bottom:10px;"><div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:3px;"><span style="color:var(--text-secondary);">${fa(y.year)}</span><span style="color:var(--text-primary);font-weight:600;">${fa(y.count)} انیمه</span></div>
         <div style="height:3px;background:var(--bg-elevated);border-radius:2px;"><div style="height:100%;background:var(--accent);border-radius:2px;width:${y.pct}%;"></div></div></div>`).join('');
   }
 
@@ -1373,7 +1407,7 @@ export function initProfile() {
   if (favGrid) {
     const favIds = getStore('anivora_likes');
     const favAnimes = ANIME_DATA.filter(a => favIds.includes(a.id));
-    if (favAnimes.length === 0) favGrid.innerHTML = '<p style="color:var(--text-muted);font-size:13px;padding:12px;">No favorites yet.</p>';
+    if (favAnimes.length === 0) favGrid.innerHTML = '<p style="color:var(--text-muted);font-size:13px;padding:12px;">هنوز انیمه‌ای به علاقه‌مندی‌ها اضافه نکرده‌اید.</p>';
     else favGrid.innerHTML = favAnimes.map(a => renderAnimeCard(a)).join('');
   }
 
@@ -1390,14 +1424,14 @@ export function initProfile() {
       if (lastEp > 0) items.push({ anime, lastEp, status: listStore[anime.id] });
     });
     items.sort((a, b) => b.lastEp - a.lastEp);
-    if (items.length === 0) historyList.innerHTML = '<p style="color:var(--text-muted);font-size:13px;padding:12px;">No history yet.</p>';
+    if (items.length === 0) historyList.innerHTML = '<p style="color:var(--text-muted);font-size:13px;padding:12px;">هنوز تاریخچه‌ای وجود ندارد.</p>';
     else historyList.innerHTML = items.map(item => `
         <div class="watchlist-item" onclick="openAnimeDetail(${item.anime.id})" style="cursor:pointer;">
           <div class="wl-main-row">
             <img src="${item.anime.img}" alt="">
             <div class="watchlist-item-info">
-              <div class="watchlist-item-title">${item.anime.title}</div>
-              <div class="watchlist-item-meta">Watched up to Episode ${item.lastEp}</div>
+              <div class="watchlist-item-title">${bdi(item.anime.title)}</div>
+              <div class="watchlist-item-meta">تا قسمت ${fa(item.lastEp)} دیده‌اید</div>
             </div>
           </div>
         </div>`).join('');
@@ -1424,12 +1458,12 @@ export function initProfile() {
       if (typeof lastEp === 'object' && lastEp) lastEp = lastEp.epNum || 0;
       const totalEps = getTotalEpisodes(a);
       const isDroppedItem = isDropped(a.id);
-      const droppedNote = isDroppedItem ? `<div style="font-size:10.5px;color:var(--danger);margin-top:4px;font-style:italic;">Dropped${lastEp ? ` at Ep ${lastEp}` : ''}</div>` : '';
-      let sub = (lastEp && lastEp > 0) ? `Watched up to Ep ${lastEp} / ${totalEps}` : `${a.type} · ${a.year} · ${a.eps} eps`;
+      const droppedNote = isDroppedItem ? `<div style="font-size:10.5px;color:var(--danger);margin-top:4px;font-style:italic;">رها شده${lastEp ? ` در قسمت ${fa(lastEp)}` : ''}</div>` : '';
+      let sub = (lastEp && lastEp > 0) ? `تا قسمت ${fa(lastEp)} از ${fa(totalEps)}` : `${tType(a.type)} · ${fa(a.year)} · ${fa(a.eps)} قسمت`;
       return `
         <div class="watchlist-item" onclick="openAnimeDetail(${a.id})" style="cursor:pointer;margin-bottom:0;">
           <div class="wl-main-row"><img src="${a.img}" alt="">
-            <div class="watchlist-item-info"><div class="watchlist-item-title">${a.title}</div><div class="watchlist-item-meta">${sub}</div>${droppedNote}</div>
+            <div class="watchlist-item-info"><div class="watchlist-item-title">${bdi(a.title)}</div><div class="watchlist-item-meta">${sub}</div>${droppedNote}</div>
           </div></div>`;
     }
     function renderOverview(notWatched, planToWatch, dropped) {
@@ -1437,22 +1471,22 @@ export function initProfile() {
         if (items.length === 0) return `
             <div style="margin-bottom:22px;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
               <span style="width:3px;height:16px;background:${color};border-radius:2px;"></span><span style="font-size:14px;font-weight:700;">${title}</span>
-              <span style="font-size:11px;color:var(--text-muted);background:var(--bg-elevated);padding:2px 8px;border-radius:20px;">0</span></div>
-              <p style="font-size:12.5px;color:var(--text-muted);padding:8px 12px;">No anime in this list.</p></div>`;
+              <span style="font-size:11px;color:var(--text-muted);background:var(--bg-elevated);padding:2px 8px;border-radius:20px;">۰</span></div>
+              <p style="font-size:12.5px;color:var(--text-muted);padding:8px 12px;">انیمه‌ای در این لیست نیست.</p></div>`;
         return `
           <div style="margin-bottom:24px;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
             <span style="width:3px;height:16px;background:${color};border-radius:2px;"></span>
             <span style="font-size:14px;font-weight:700;">${title}</span>
-            <span style="font-size:11px;color:var(--text-muted);background:var(--bg-elevated);padding:2px 8px;border-radius:20px;">${items.length}</span>
+            <span style="font-size:11px;color:var(--text-muted);background:var(--bg-elevated);padding:2px 8px;border-radius:20px;">${fa(items.length)}</span>
             <button onclick="document.getElementById('otherListOverview').style.display='none'; document.getElementById('otherListDetail_${key}').style.display='block';"
-              style="margin-left:auto;background:transparent;border:1px solid var(--border-hover);color:var(--accent);font-size:11.5px;font-weight:600;padding:5px 12px;border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;">
-              See All <svg class="icon icon-sm" style="width:13px;height:13px;"><use href="#ico-chevron-r"/></svg></button>
+              style="margin-inline-start:auto;background:transparent;border:1px solid var(--border-hover);color:var(--accent);font-size:11.5px;font-weight:600;padding:5px 12px;border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;font-family:inherit;">
+              مشاهده همه <svg class="icon icon-sm" style="width:13px;height:13px;"><use href="#ico-arrow-fwd"/></svg></button>
           </div>
           <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;">${items.slice(0, 3).map(renderAnimeListItem).join('')}</div></div>`;
       }
-      return `${section('Not Watched', notWatched, 'var(--text-muted)', 'notWatched')}
-              ${section('Plan to Watch', planToWatch, '#40c4ff', 'planToWatch')}
-              ${section('Dropped', dropped, 'var(--danger)', 'dropped')}`;
+      return `${section('تماشا نشده', notWatched, 'var(--text-muted)', 'notWatched')}
+              ${section('برنامه برای تماشا', planToWatch, '#40c4ff', 'planToWatch')}
+              ${section('رها شده', dropped, 'var(--danger)', 'dropped')}`;
     }
     function renderDetailView(title, items, key) {
       return `
@@ -1460,8 +1494,8 @@ export function initProfile() {
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
             <button onclick="document.getElementById('otherListDetail_${key}').style.display='none'; document.getElementById('otherListOverview').style.display='block';"
               style="width:36px;height:36px;border-radius:50%;background:var(--bg-elevated);color:var(--text-primary);display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;flex-shrink:0;">
-              <svg class="icon icon-md" style="width:18px;height:18px;"><use href="#ico-chevron-l"/></svg></button>
-            <div><div style="font-size:16px;font-weight:800;">${title}</div><div style="font-size:12px;color:var(--text-muted);">${items.length} anime</div></div>
+              <svg class="icon icon-md" style="width:18px;height:18px;"><use href="#ico-arrow-back"/></svg></button>
+            <div><div style="font-size:16px;font-weight:800;">${title}</div><div style="font-size:12px;color:var(--text-muted);">${fa(items.length)} انیمه</div></div>
           </div>
           <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;">${items.map(renderAnimeListItem).join('')}</div>
         </div>`;
@@ -1469,9 +1503,9 @@ export function initProfile() {
     const { notWatched, planToWatch, dropped } = collectLists();
     otherListContent.innerHTML = `
       <div id="otherListOverview">${renderOverview(notWatched, planToWatch, dropped)}</div>
-      ${renderDetailView('Not Watched', notWatched, 'notWatched')}
-      ${renderDetailView('Plan to Watch', planToWatch, 'planToWatch')}
-      ${renderDetailView('Dropped', dropped, 'dropped')}`;
+      ${renderDetailView('تماشا نشده', notWatched, 'notWatched')}
+      ${renderDetailView('برنامه برای تماشا', planToWatch, 'planToWatch')}
+      ${renderDetailView('رها شده', dropped, 'dropped')}`;
   }
 }
 
@@ -1523,30 +1557,30 @@ export function openEditProfileModal(user) {
   const avatarHTML = user.avatar ? `<img src="${user.avatar}" alt="">` : `<svg class="icon icon-xl" style="color:rgba(255,255,255,0.5);"><use href="#ico-user"/></svg>`;
   const avatarsGridHTML = PRESET_AVATARS.map(url => `
     <button type="button" class="preset-avatar-btn ${user.avatar === url ? 'selected' : ''}" data-avatar-url="${url}" onclick="selectPresetAvatar(this, '${url}')">
-      <img src="${url}" alt="Avatar" loading="lazy">
+      <img src="${url}" alt="آواتار" loading="lazy">
     </button>`).join('');
 
   modal.innerHTML = `
-    <div class="edit-profile-header"><h3>Edit Profile</h3>
+    <div class="edit-profile-header"><h3>ویرایش پروفایل</h3>
       <button class="edit-profile-close" onclick="closeEditProfileModal()" type="button"><svg class="icon icon-md"><use href="#ico-x"/></svg></button></div>
     <div class="edit-profile-body">
       <div class="edit-avatar-section">
         <div class="edit-avatar-preview" id="editAvatarPreview">${avatarHTML}</div>
-        <div style="font-size:12px;color:var(--text-muted);text-align:center;margin-top:4px;">Choose an avatar</div>
+        <div style="font-size:12px;color:var(--text-muted);text-align:center;margin-top:4px;">یک آواتار انتخاب کنید</div>
         <div class="preset-avatars-grid" id="presetAvatarsGrid">${avatarsGridHTML}</div>
         <div class="edit-avatar-actions" style="margin-top:10px;">
-          <button class="btn btn-ghost btn-sm" onclick="removeAvatar()" type="button"><svg class="icon icon-sm"><use href="#ico-trash"/></svg> Remove Avatar</button>
+          <button class="btn btn-ghost btn-sm" onclick="removeAvatar()" type="button"><svg class="icon icon-sm"><use href="#ico-trash"/></svg> حذف آواتار</button>
         </div>
       </div>
-      <div class="form-group"><label class="form-label">Username</label>
-        <input type="text" id="editUsername" class="form-input" value="${user.username}" maxlength="30" placeholder="Your username"></div>
-      <div class="form-group"><label class="form-label">Email</label>
+      <div class="form-group"><label class="form-label">نام کاربری</label>
+        <input type="text" id="editUsername" class="form-input" value="${esc(user.username)}" maxlength="30" placeholder="نام کاربری شما"></div>
+      <div class="form-group"><label class="form-label">ایمیل</label>
         <input type="email" class="form-input" value="${user.email}" disabled style="opacity:0.6;cursor:not-allowed;"></div>
       <div id="editProfileError" class="auth-error" style="display:none;"></div>
     </div>
     <div class="edit-profile-footer">
-      <button class="btn btn-ghost" onclick="closeEditProfileModal()" type="button">Cancel</button>
-      <button class="btn btn-primary" onclick="saveProfileChanges()" type="button">Save Changes</button>
+      <button class="btn btn-ghost" onclick="closeEditProfileModal()" type="button">انصراف</button>
+      <button class="btn btn-primary" onclick="saveProfileChanges()" type="button">ذخیره تغییرات</button>
     </div>`;
 
   document.body.appendChild(overlay);
@@ -1615,11 +1649,11 @@ export async function saveProfileChanges() {
   const newUsername = document.getElementById('editUsername')?.value.trim();
   const errorEl = document.getElementById('editProfileError');
   if (!newUsername || newUsername.length < 2) {
-    if (errorEl) { errorEl.textContent = 'Username must be at least 2 characters.'; errorEl.style.display = 'block'; }
+    if (errorEl) { errorEl.textContent = 'نام کاربری باید حداقل ۲ کاراکتر باشد.'; errorEl.style.display = 'block'; }
     return;
   }
   if (newUsername.length > 30) {
-    if (errorEl) { errorEl.textContent = 'Username must be less than 30 characters.'; errorEl.style.display = 'block'; }
+    if (errorEl) { errorEl.textContent = 'نام کاربری باید کمتر از ۳۰ کاراکتر باشد.'; errorEl.style.display = 'block'; }
     return;
   }
 
@@ -1629,7 +1663,7 @@ export async function saveProfileChanges() {
 
   try {
     await apiUpdateProfile(newUsername, window.__pendingAvatar);
-    showToast('Profile updated!');
+    showToast('پروفایل به‌روزرسانی شد!');
     closeEditProfileModal();
     await refreshCurrentUser();
     initProfile();
@@ -1658,7 +1692,7 @@ export function initWatchlist() {
   else if (watchlistFilter === 'favorites') items = ANIME_DATA.filter(a => favoriteIds.includes(a.id));
 
   if (items.length === 0) {
-    const emptyMsg = { 'all': 'Your list is empty.', 'watching': "You're not watching any anime yet.", 'completed': 'No completed anime yet.', 'favorites': "You haven't liked any anime yet!" }[watchlistFilter] || 'No anime in this list yet.';
+    const emptyMsg = { 'all': 'لیست شما خالی است.', 'watching': 'هنوز هیچ انیمه‌ای را در حال تماشا نیستید.', 'completed': 'هنوز انیمه‌ای را تکمیل نکرده‌اید.', 'favorites': 'هنوز هیچ انیمه‌ای را نپسندیده‌اید!' }[watchlistFilter] || 'هنوز انیمه‌ای در این لیست نیست.';
     el.innerHTML = `<div class="watchlist-empty"><svg class="icon icon-xl" style="width:48px;height:48px;"><use href="#ico-bookmark"/></svg>${emptyMsg}</div>`;
     return;
   }
@@ -1676,20 +1710,20 @@ export function initWatchlist() {
 
     let topActions = '';
     if (watchlistFilter === 'favorites') {
-      topActions = `<button class="wl-action-btn" onclick="event.stopPropagation();removeFromFavoritesUI(${a.id}, this)" title="Remove" type="button"><svg class="icon icon-sm"><use href="#ico-x"/></svg></button>`;
+      topActions = `<button class="wl-action-btn" onclick="event.stopPropagation();removeFromFavoritesUI(${a.id}, this)" title="حذف" aria-label="حذف" type="button"><svg class="icon icon-sm"><use href="#ico-x"/></svg></button>`;
     } else {
-      topActions = `<button class="wl-action-btn" onclick="event.stopPropagation();openListStatusSheet(${a.id}, this)" title="Change status" type="button"><svg class="icon icon-sm"><use href="#ico-edit"/></svg><span>Change Status</span></button>`;
+      topActions = `<button class="wl-action-btn" onclick="event.stopPropagation();openListStatusSheet(${a.id}, this)" title="تغییر وضعیت" type="button"><svg class="icon icon-sm"><use href="#ico-edit"/></svg><span>تغییر وضعیت</span></button>`;
     }
 
     let statusBadge = '';
-    if (status === 'watching') statusBadge = '<span class="wl-badge wl-badge-watching">Watching</span>';
-    if (status === 'completed') statusBadge = '<span class="wl-badge wl-badge-completed">Completed</span>';
-    if (status === 'plan_to_watch') statusBadge = '<span class="wl-badge wl-badge-plan">Plan to Watch</span>';
-    if (status === 'not_watched') statusBadge = '<span class="wl-badge wl-badge-not">Not Watched</span>';
-    if (watchlistFilter === 'favorites') statusBadge = '<span class="wl-badge wl-badge-fav">❤ Favorite</span>';
+    if (status === 'watching') statusBadge = '<span class="wl-badge wl-badge-watching">در حال تماشا</span>';
+    if (status === 'completed') statusBadge = '<span class="wl-badge wl-badge-completed">تکمیل‌شده</span>';
+    if (status === 'plan_to_watch') statusBadge = '<span class="wl-badge wl-badge-plan">برنامه برای تماشا</span>';
+    if (status === 'not_watched') statusBadge = '<span class="wl-badge wl-badge-not">تماشا نشده</span>';
+    if (watchlistFilter === 'favorites') statusBadge = '<span class="wl-badge wl-badge-fav">❤ علاقه‌مندی</span>';
 
-    const lastEpText = lastEp ? `Ep ${lastEp} / ${airedEps}` : `0 / ${airedEps}`;
-    const droppedText = dropped ? '<div class="wl-dropped-text">Dropped — won\'t continue</div>' : '';
+    const lastEpText = lastEp ? `قسمت ${fa(lastEp)} / ${fa(airedEps)}` : `${fa(0)} / ${fa(airedEps)}`;
+    const droppedText = dropped ? '<div class="wl-dropped-text">رها شده — ادامه نمی‌دهم</div>' : '';
 
     return `
     <div class="watchlist-item">
@@ -1697,12 +1731,12 @@ export function initWatchlist() {
       <div class="wl-main-row" onclick="openAnimeDetail(${a.id})">
         <img src="${a.img}" alt="">
         <div class="watchlist-item-info">
-          <div class="watchlist-item-title">${a.title}</div>
-          <div class="watchlist-item-meta">${a.type} · ${a.year} · ${totalEps} eps</div>
+          <div class="watchlist-item-title">${bdi(a.title)}</div>
+          <div class="watchlist-item-meta">${tType(a.type)} · ${fa(a.year)} · ${fa(totalEps)} قسمت</div>
           <div class="wl-badges">${statusBadge}</div>
           ${showProgress ? `
             <div class="wl-progress-wrap">
-              <div class="wl-progress-info"><span class="wl-progress-ep">${lastEpText}</span><span class="wl-progress-pct">${Math.round(progressPct)}%</span></div>
+              <div class="wl-progress-info"><span class="wl-progress-ep">${lastEpText}</span><span class="wl-progress-pct">${fa(Math.round(progressPct))}٪</span></div>
               <div class="wl-progress-bar"><div class="wl-progress-fill ${isComplete ? 'is-complete' : ''}" style="width:${progressPct}%;"></div></div>
               ${droppedText}
             </div>` : ''}
@@ -1714,13 +1748,13 @@ export function initWatchlist() {
 
 export function removeFromWatchingUI(animeId, btn) {
   setListStatus(animeId, null);
-  showToast('Removed from list');
+  showToast('از لیست حذف شد');
   initWatchlist();
 }
 
 export function removeFromFavoritesUI(animeId, btn) {
   removeFromFavorites(animeId);
-  showToast('Removed from favorites');
+  showToast('از علاقه‌مندی‌ها حذف شد');
   initWatchlist();
 }
 
@@ -1844,25 +1878,25 @@ export function initCalendar() {
   const grid = document.getElementById('calendarGrid');
   if (!grid) return;
 
+  // داده‌ی نمونه (اسم انیمه‌ها ترجمه نمی‌شوند)
   const CALENDAR_DATA = {
-    "Monday":    [{title:"Sparks of Tomorrow", ep:"Ep 1"}],
-    "Tuesday":   [{title:"Black Torch", ep:"Ep 1"}],
-    "Wednesday": [{title:"Kaiju Girl Caramelise", ep:"Ep 1"}],
-    "Thursday":  [{title:"Black Torch", ep:"Ep 4"}],
-    "Friday":    [{title:"Sparks of Tomorrow", ep:"Ep 5"}],
-    "Saturday":  [{title:"Kaiju Girl Caramelise", ep:"Ep 6"}],
-    "Sunday":    [{title:"Dandadan", ep:"Ep 7"}]
+    "Monday":    [{title:"Sparks of Tomorrow", ep:1}],
+    "Tuesday":   [{title:"Black Torch", ep:1}],
+    "Wednesday": [{title:"Kaiju Girl Caramelise", ep:1}],
+    "Thursday":  [{title:"Black Torch", ep:4}],
+    "Friday":    [{title:"Sparks of Tomorrow", ep:5}],
+    "Saturday":  [{title:"Kaiju Girl Caramelise", ep:6}],
+    "Sunday":    [{title:"Dandadan", ep:7}]
   };
 
-  const days = Object.keys(CALENDAR_DATA);
-  const today = "Saturday";
-  grid.innerHTML = days.map(day => `
+  const today = todayName();
+  grid.innerHTML = WEEK_ORDER.map(day => `
     <div class="cal-day ${day === today ? 'today' : ''}">
-      <div class="cal-day-header">${day.slice(0, 3)}</div>
-      ${CALENDAR_DATA[day].map(show => `
+      <div class="cal-day-header">${WEEKDAYS_FA[day]}</div>
+      ${(CALENDAR_DATA[day] || []).map(show => `
         <div class="cal-anime-item"><div class="cal-anime-info">
-          <div class="cal-anime-name">${show.title}</div>
-          <div class="cal-anime-ep">${show.ep}</div>
+          <div class="cal-anime-name">${bdi(show.title)}</div>
+          <div class="cal-anime-ep">قسمت ${fa(show.ep)}</div>
         </div></div>`).join('')}
     </div>`).join('');
 }

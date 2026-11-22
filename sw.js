@@ -1,9 +1,9 @@
 // Anivora service worker
-const VERSION = 'anivora-v1';
+const VERSION = 'anivora-v2';
 const SHELL = [
   './', './index.html', './manifest.json',
   './css/base.css', './css/components.css', './css/home.css', './css/explore.css',
-  './css/detail.css', './css/watch.css', './css/profile.css', './css/responsive.css',
+  './css/detail.css', './css/watch.css', './css/profile.css', './css/responsive.css', './css/fonts.css', './css/rtl.css', './assets/fonts/Vazirmatn-Bold.ttf', './js/i18n.js',
   './js/app.js', './js/core.js', './js/components.js', './js/data.js', './js/pages.js',
   './assets/avatars/logo.png'
 ];

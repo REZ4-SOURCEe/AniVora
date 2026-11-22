@@ -1,5 +1,5 @@
 {
-  "name": "Anivora — Premium Anime Streaming",
+  "name": "Anivora | پخش آنلاین انیمه",
   "short_name": "Anivora",
   "description": "تماشا و دانلود انیمه",
   "id": "./",
@@ -16,5 +16,7 @@
       "type": "image/png",
       "purpose": "any"
     }
-  ]
+  ],
+  "lang": "fa",
+  "dir": "rtl"
 }

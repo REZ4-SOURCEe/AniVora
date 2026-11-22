@@ -1,0 +1,43 @@
+/* ============================================
+   ANIVORA — RTL / فارسی
+   این فایل آخر از همه لود می‌شود.
+============================================ */
+
+html { direction: rtl; }
+body { text-align: start; }
+
+/* حروف فارسی به هم می‌چسبند؛ letter-spacing باعث جدا شدن حروف می‌شود */
+*, *::before, *::after { letter-spacing: normal !important; }
+
+/* متن لاتین/ژاپنی (نام انیمه و ...) داخل متن راست‌چین */
+bdi { unicode-bidi: isolate; }
+
+/* لوگو لاتین است؛ در راست‌چین ترتیب «Ani» و «vora» نباید برعکس شود */
+.logo, .auth-logo { direction: ltr; }
+
+/* پلیر ویدیو مثل همهٔ پلیرها چپ‌به‌راست می‌ماند (نوار زمان، دابل‌تپ برای جلو/عقب) */
+.player-wrap { direction: ltr; }
+.player-time { direction: ltr; unicode-bidi: isolate; }
+
+/* در حالت تمام‌صفحه، منوها داخل خود پلیر ساخته می‌شوند و باید راست‌چین بمانند */
+.custom-select-overlay,
+.custom-select-sheet { direction: rtl; }
+
+/* اسلایدر پیشرفت (درصد از چپ حساب می‌شود) */
+.list-status-slider-wrap,
+.list-status-progress-count { direction: ltr; }
+
+/* ایمیل و رمز عبور لاتین تایپ می‌شوند */
+.form-input[type="email"],
+.form-input[type="password"] { direction: ltr; text-align: right; }
+.form-input[type="email"]::placeholder,
+.form-input[type="password"]::placeholder { text-align: right; }
+
+/* ارقام و زمان‌ها */
+.card-score, .card-type, .detail-stat-value, .ep-duration, .sidebar-ep-dur { unicode-bidi: isolate; }
+
+/* ترتیب فلش‌های ثابت */
+.season-chevron { transform: rotate(90deg); }
+.season-dropdown.open .season-chevron { transform: rotate(-90deg); }
+
+/* توست و عناصر وسط‌چین فیزیکی نیازی به تغییر ندارند */

@@ -24,7 +24,7 @@
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(to right,
+    linear-gradient(to left,
       rgba(10,10,15,0.96) 0%,
       rgba(10,10,15,0.72) 40%,
       rgba(10,10,15,0.1) 72%,
@@ -148,7 +148,7 @@
 }
 .continue-ep-badge {
   position: absolute;
-  bottom: 8px; left: 8px;
+  bottom: 8px; right: 8px;
   background: rgba(10,10,15,0.85);
   border-radius: 4px;
   padding: 2px 8px;
@@ -234,7 +234,7 @@
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(to right,
+    linear-gradient(to left,
       rgba(10,10,15,0.92) 0%,
       rgba(10,10,15,0.65) 35%,
       rgba(10,10,15,0.15) 65%,
@@ -247,7 +247,7 @@
 
 .weekly-pick-content {
   position: absolute;
-  left: 0;
+  right: 0;
   top: 0;
   bottom: 0;
   z-index: 2;
@@ -417,7 +417,7 @@
 
   .weekly-pick-actions {
     position: static;
-    left: auto;
+    right: auto;
     bottom: auto;
     padding: 10px;
     gap: 6px;
@@ -492,7 +492,7 @@
     position: absolute;
     inset: 0;
     background:
-      linear-gradient(to right,
+      linear-gradient(to left,
         rgba(10,10,15,0.96) 0%,
         rgba(10,10,15,0.72) 40%,
         rgba(10,10,15,0.1) 72%,
@@ -578,7 +578,7 @@
 
   .weekly-pick-actions {
     position: absolute;
-    left: 52px;
+    right: 52px;
     bottom: 40px;
     z-index: 3;
     display: flex;

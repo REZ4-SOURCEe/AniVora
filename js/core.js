@@ -5,6 +5,7 @@
    + Custom Back (intercept popstate)
 ============================================ */
 
+import { fa, tListStatus, fmtDays } from './i18n.js';
 import {
   apiSignup, apiLogin, apiLogout, apiGetMe,
   apiSaveAnime, apiGetList, apiDeleteAnime, apiUpdateProfile,
@@ -198,11 +199,8 @@ export function updateAddBtnUI(btn, animeId) {
   const inList = !!status;
   const icon = inList ? 'ico-check' : 'ico-plus';
 
-  let label = 'Add to List';
-  if (status === 'watching')      label = 'Watching';
-  if (status === 'completed')     label = 'Completed';
-  if (status === 'plan_to_watch') label = 'Plan to Watch';
-  if (status === 'not_watched')   label = 'Not Watched';
+  let label = 'افزودن به لیست';
+  if (status) label = tListStatus(status) || label;
 
   const labelEl = btn.querySelector('.add-label');
   if (labelEl) {
@@ -248,7 +246,7 @@ export function updateLikeBtnUI(btn, animeId) {
   const svg = btn.querySelector('svg use');
   if (svg) svg.setAttribute('href', liked ? '#ico-heart-fill' : '#ico-heart');
   const label = btn.querySelector('.like-label');
-  if (label) label.textContent = liked ? 'Liked' : 'Like';
+  if (label) label.textContent = liked ? 'پسندیده شد' : 'پسندیدن';
 }
 export function getFavorites() {
   return getStore(LIKES_KEY);
@@ -477,9 +475,7 @@ export function computeProfileStats(ANIME_DATA) {
   }));
 
   const totalHours = Math.floor(totalMinutes / 60);
-  const watchTimeDisplay = totalHours > 24
-    ? `${Math.floor(totalHours / 24)}d ${totalHours % 24}h`
-    : `${totalHours}h`;
+  const watchTimeDisplay = fmtDays(totalHours);
 
   return {
     totalAnime, totalEpisodes, totalMinutes, watchTimeDisplay,
@@ -562,41 +558,41 @@ export function openListStatusSheet(animeId, triggerBtn) {
 
   sheet.innerHTML = `
     <div class="list-status-handle"></div>
-    <div class="list-status-title">WATCH STATUS</div>
+    <div class="list-status-title">وضعیت تماشا</div>
 
     <button class="list-status-item ${selectedStatus === 'not_watched' ? 'selected' : ''}" data-status="not_watched">
       <span class="list-status-radio"></span>
-      <span class="list-status-name">Not Watched</span>
+      <span class="list-status-name">تماشا نشده</span>
     </button>
 
     <button class="list-status-item ${selectedStatus === 'plan_to_watch' ? 'selected' : ''}" data-status="plan_to_watch">
       <span class="list-status-radio"></span>
-      <span class="list-status-name">Plan to Watch</span>
+      <span class="list-status-name">برنامه برای تماشا</span>
     </button>
 
     <button class="list-status-item ${selectedStatus === 'completed' ? 'selected' : ''}" data-status="completed">
       <span class="list-status-radio"></span>
-      <span class="list-status-name">Completed</span>
+      <span class="list-status-name">تکمیل‌شده</span>
     </button>
 
     <div class="list-status-item list-status-watching ${selectedStatus === 'watching' ? 'selected' : ''}" data-status="watching">
       <span class="list-status-radio"></span>
-      <span class="list-status-name">Watching</span>
+      <span class="list-status-name">در حال تماشا</span>
       <div class="list-status-watching-body">
         <div class="list-status-progress-row">
-          <span class="list-status-progress-count" id="progressCount">${lastEp}/${airedEps}</span>
+          <span class="list-status-progress-count" id="progressCount">${fa(lastEp)}/${fa(airedEps)}</span>
           <div class="list-status-slider-wrap" id="sliderWrap">
             <div class="list-status-slider-track">
               <div class="list-status-slider-fill" id="sliderFill" style="width:${progressPctInitial}%;"></div>
             </div>
             <div class="list-status-slider-thumb" id="sliderThumb" style="left:${progressPctInitial}%;">
-              ${lastEp}
+              ${fa(lastEp)}
             </div>
           </div>
         </div>
         <label class="list-status-checkbox-row" onclick="event.stopPropagation();">
           <input type="checkbox" id="dropCheckbox" ${dropped ? 'checked' : ''}>
-          <span>I don't plan to continue this series</span>
+          <span>قصد ادامهٔ این سریال را ندارم</span>
         </label>
       </div>
     </div>
@@ -604,10 +600,10 @@ export function openListStatusSheet(animeId, triggerBtn) {
     <div class="list-status-actions-row">
       ${inList ? `
       <button class="list-status-item list-status-item-danger" data-status="remove">
-        <span class="list-status-name">Delete</span>
+        <span class="list-status-name">حذف</span>
       </button>` : ''}
       <button class="list-status-item list-status-item-save" id="listStatusSaveBtn">
-        <span class="list-status-name">Save</span>
+        <span class="list-status-name">ذخیره</span>
       </button>
     </div>
   `;
@@ -621,8 +617,8 @@ export function openListStatusSheet(animeId, triggerBtn) {
     const thumb = sheet.querySelector('#sliderThumb');
     const count = sheet.querySelector('#progressCount');
     if (fill)  fill.style.width = pct + '%';
-    if (thumb) { thumb.style.left = pct + '%'; thumb.textContent = currentEp; }
-    if (count) count.textContent = `${currentEp}/${airedEps}`;
+    if (thumb) { thumb.style.left = pct + '%'; thumb.textContent = fa(currentEp); }
+    if (count) count.textContent = `${fa(currentEp)}/${fa(airedEps)}`;
     if (selectedStatus !== 'watching') {
       selectedStatus = 'watching';
       sheet.querySelectorAll('.list-status-item').forEach(b => b.classList.remove('selected'));
@@ -701,7 +697,7 @@ export function openListStatusSheet(animeId, triggerBtn) {
       const status = btn.dataset.status;
       if (status === 'remove') {
         setListStatus(animeId, null);
-        showToast('Removed from list');
+        showToast('از لیست حذف شد');
         document.removeEventListener('keydown', escHandler);
         closeListStatusSheet();
         return;
@@ -723,25 +719,25 @@ export function openListStatusSheet(animeId, triggerBtn) {
         setDropped(animeId, dropped);
         if (currentEp >= airedEps && airedEps >= totalEps) {
           setListStatus(animeId, 'completed');
-          showToast('Marked as Completed');
+          showToast('به‌عنوان تکمیل‌شده ثبت شد');
         } else {
           setListStatus(animeId, 'watching');
-          showToast('Added to Watching');
+          showToast('به لیست «در حال تماشا» اضافه شد');
         }
       } else if (selectedStatus === 'completed') {
         setListStatus(animeId, 'completed');
         setProgress(animeId, 100);
         setLastEpisode(animeId, { seasonNumber: 1, epNum: totalEps });
         setDropped(animeId, false);
-        showToast('Marked as Completed');
+        showToast('به‌عنوان تکمیل‌شده ثبت شد');
       } else if (selectedStatus === 'plan_to_watch') {
         setListStatus(animeId, 'plan_to_watch');
         setDropped(animeId, false);
-        showToast('Added to Plan to Watch');
+        showToast('به لیست «برنامه برای تماشا» اضافه شد');
       } else if (selectedStatus === 'not_watched') {
         setListStatus(animeId, 'not_watched');
         setDropped(animeId, false);
-        showToast('Marked as Not Watched');
+        showToast('به‌عنوان «تماشا نشده» ثبت شد');
       }
       document.removeEventListener('keydown', escHandler);
       closeListStatusSheet();
@@ -981,7 +977,7 @@ export function toggleNotif() {
 export function handleDrawerAuth() {
   if (isLoggedIn()) {
     logout();
-    showToast('Signed out');
+    showToast('از حساب خارج شدید');
     closeDrawer();
     setTimeout(() => {
       showPage('home');
@@ -1000,10 +996,10 @@ export function updateDrawerAuth() {
   if (label && btn) {
     const svg = btn.querySelector('svg use');
     if (isLoggedIn()) {
-      label.textContent = 'Sign Out';
+      label.textContent = 'خروج از حساب';
       if (svg) svg.setAttribute('href', '#ico-logout');
     } else {
-      label.textContent = 'Login';
+      label.textContent = 'ورود';
       if (svg) svg.setAttribute('href', '#ico-login');
     }
   }

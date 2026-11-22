@@ -4,6 +4,7 @@
 ============================================ */
 
 import { isInList, toggleList, formatTime, showToast } from './core.js';
+import { fa, esc, bdi, tGenre, tStatus, tType, tDuration, epTitle, seasonTitle, tSubLabel, faTime } from './i18n.js';
 
 /* ============================================
    HELPERS (جایگزین توابع data.js)
@@ -38,22 +39,22 @@ export function renderAnimeCard(a, options = {}) {
   return `
     <div class="anime-card" onclick="openAnimeDetail(${a.id})">
       <div class="card-poster">
-        <img src="${a.img}" alt="${a.title}" loading="lazy">
+        <img src="${a.img}" alt="${esc(a.title)}" loading="lazy">
         <div class="card-score">
           <svg style="width:10px;height:10px;fill:var(--gold);stroke:none;"><use href="#ico-star"/></svg>
-          ${a.score}
+          ${fa(a.score)}
         </div>
-        <div class="card-type">${a.type}</div>
+        <div class="card-type">${tType(a.type)}</div>
         ${a.status === 'Airing' ? '<div class="card-airing-dot"></div>' : ''}
       </div>
       <div class="card-body">
-        <div class="${titleClass}">${a.title}</div>
+        <div class="${titleClass}">${bdi(a.title)}</div>
         <div class="card-meta">
-          <span class="card-meta-item">${a.year}</span>
-          <span class="status-badge ${sc}" style="font-size:9px;padding:1px 5px;">${a.status}</span>
+          <span class="card-meta-item">${fa(a.year)}</span>
+          <span class="status-badge ${sc}" style="font-size:9px;padding:1px 5px;">${tStatus(a.status)}</span>
         </div>
-        <div class="card-meta" style="margin-top:2px;"><span class="card-meta-item">${totalEps} eps</span></div>
-        <div class="card-genres">${genres.slice(0,2).map(g => `<span class="card-genre-tag">${g}</span>`).join('')}</div>
+        <div class="card-meta" style="margin-top:2px;"><span class="card-meta-item">${fa(totalEps)} قسمت</span></div>
+        <div class="card-genres">${genres.slice(0,2).map(g => `<span class="card-genre-tag">${tGenre(g)}</span>`).join('')}</div>
       </div>
     </div>`;
 }
@@ -97,10 +98,10 @@ function openDownloadSheet(anime) {
     <div class="download-sheet-header">
       <div class="download-sheet-header-left">
         <button class="download-sheet-back" id="dlSheetBack" style="display:none;">
-          <svg class="icon icon-md"><use href="#ico-chevron-l"/></svg>
+          <svg class="icon icon-md"><use href="#ico-arrow-back"/></svg>
         </button>
       </div>
-      <div class="download-sheet-title" id="dlSheetTitle">${anime.title}</div>
+      <div class="download-sheet-title" id="dlSheetTitle">${bdi(anime.title)}</div>
       <div class="download-sheet-header-right">
         <button class="download-sheet-close" id="dlSheetClose">
           <svg class="icon icon-md"><use href="#ico-x"/></svg>
@@ -119,7 +120,7 @@ function openDownloadSheet(anime) {
 
   const seasons = anime.seasons || [{
     seasonNumber: 1,
-    title: 'Season 1',
+    title: 'فصل ۱',
     episodes: anime.episodes || []
   }];
   const hasMultipleSeasons = seasons.length > 1;
@@ -128,27 +129,27 @@ function openDownloadSheet(anime) {
 
   function renderSeasons() {
     backBtn.style.display = 'none';
-    titleEl.textContent = anime.title;
+    titleEl.innerHTML = bdi(anime.title);
 
     body.innerHTML = `
       <div class="dl-loading">
         <div class="dl-loading-spinner"></div>
-        <div class="dl-loading-text">Loading seasons...</div>
+        <div class="dl-loading-text">در حال بارگذاری فصل‌ها...</div>
       </div>
     `;
 
     setTimeout(() => {
       body.innerHTML = `
-        <div class="download-sheet-subtitle">Select Season</div>
+        <div class="download-sheet-subtitle">انتخاب فصل</div>
         <div class="download-ep-list">
           ${seasons.map(s => `
             <button class="download-ep-item" data-season="${s.seasonNumber}">
-              <div class="download-ep-num">S${s.seasonNumber}</div>
+              <div class="download-ep-num">فصل ${fa(s.seasonNumber)}</div>
               <div class="download-ep-info">
-                <div class="download-ep-name">${s.title || `Season ${s.seasonNumber}`}</div>
-                <div class="download-ep-dur">${s.episodes.length} Episodes</div>
+                <div class="download-ep-name">${seasonTitle(s)}</div>
+                <div class="download-ep-dur">${fa(s.episodes.length)} قسمت</div>
               </div>
-              <svg class="icon icon-md download-ep-arrow"><use href="#ico-chevron-r"/></svg>
+              <svg class="icon icon-md download-ep-arrow"><use href="#ico-arrow-fwd"/></svg>
             </button>
           `).join('')}
         </div>
@@ -174,29 +175,29 @@ function openDownloadSheet(anime) {
       if (hasMultipleSeasons) renderSeasons();
     };
 
-    titleEl.textContent = hasMultipleSeasons
-      ? (currentSeason.title || `Season ${currentSeason.seasonNumber}`)
-      : anime.title;
+    titleEl.innerHTML = hasMultipleSeasons
+      ? seasonTitle(currentSeason)
+      : bdi(anime.title);
 
     body.innerHTML = `
       <div class="dl-loading">
         <div class="dl-loading-spinner"></div>
-        <div class="dl-loading-text">Loading episodes...</div>
+        <div class="dl-loading-text">در حال بارگذاری قسمت‌ها...</div>
       </div>
     `;
 
     setTimeout(() => {
       body.innerHTML = `
-        <div class="download-sheet-subtitle">Select Episode</div>
+        <div class="download-sheet-subtitle">انتخاب قسمت</div>
         <div class="download-ep-list">
           ${currentSeason.episodes.map(ep => `
             <button class="download-ep-item" data-ep="${ep.num}">
-              <div class="download-ep-num">EP ${String(ep.num).padStart(2,'0')}</div>
+              <div class="download-ep-num">قسمت ${fa(String(ep.num).padStart(2,'0'))}</div>
               <div class="download-ep-info">
-                <div class="download-ep-name">${ep.title}</div>
-                <div class="download-ep-dur">${ep.duration || '24:00'}</div>
+                <div class="download-ep-name">${bdi(epTitle(ep))}</div>
+                <div class="download-ep-dur">${tDuration(ep.duration || '24:00')}</div>
               </div>
-              <svg class="icon icon-md download-ep-arrow"><use href="#ico-chevron-r"/></svg>
+              <svg class="icon icon-md download-ep-arrow"><use href="#ico-arrow-fwd"/></svg>
             </button>
           `).join('')}
         </div>
@@ -221,14 +222,14 @@ function openDownloadSheet(anime) {
     };
 
     const titleText = hasMultipleSeasons
-      ? `S${currentSeason.seasonNumber} · Episode ${ep.num}`
-      : `Episode ${ep.num}`;
+      ? `فصل ${fa(currentSeason.seasonNumber)} · قسمت ${fa(ep.num)}`
+      : `قسمت ${fa(ep.num)}`;
     titleEl.textContent = titleText;
 
     body.innerHTML = `
       <div class="dl-loading">
         <div class="dl-loading-spinner"></div>
-        <div class="dl-loading-text">Loading qualities...</div>
+        <div class="dl-loading-text">در حال بارگذاری کیفیت‌ها...</div>
       </div>
     `;
 
@@ -238,7 +239,7 @@ function openDownloadSheet(anime) {
 
     setTimeout(() => {
       body.innerHTML = `
-        <div class="download-sheet-subtitle">Select Quality</div>
+        <div class="download-sheet-subtitle">انتخاب کیفیت</div>
         <div class="download-quality-list">
           ${qualities.map((q) => `
             <div class="download-quality-item">
@@ -248,11 +249,11 @@ function openDownloadSheet(anime) {
                 </div>
                 <div class="download-quality-info">
                   <div class="download-quality-label">${q.label}</div>
-                  <div class="download-quality-desc">MKV · Video File</div>
+                  <div class="download-quality-desc"><bdi>MKV</bdi> · فایل ویدیویی</div>
                 </div>
-                <svg class="icon icon-md download-quality-arrow"><use href="#ico-chevron-r"/></svg>
+                <svg class="icon icon-md download-quality-arrow"><use href="#ico-arrow-fwd"/></svg>
               </a>
-              <button class="download-quality-copy" type="button" title="Copy link" data-url="${q.url}">
+              <button class="download-quality-copy" type="button" title="کپی لینک" aria-label="کپی لینک" data-url="${q.url}">
                 <svg class="icon icon-sm"><use href="#ico-copy"/></svg>
               </button>
             </div>
@@ -296,10 +297,10 @@ function openDownloadSheet(anime) {
                 btn.innerHTML = originalHTML;
                 btn.classList.remove('copied');
               }, 1200);
-              if (window.showToast) window.showToast('Download link copied!');
+              if (window.showToast) window.showToast('لینک دانلود کپی شد!');
             })
             .catch(() => {
-              if (window.showToast) window.showToast('Failed to copy link');
+              if (window.showToast) window.showToast('کپی لینک ناموفق بود');
             });
         };
       });
@@ -349,7 +350,7 @@ export function shareAnime(animeId) {
   if (navigator.share) {
     navigator.share({ title: 'Anivora', url }).catch(() => {});
   } else {
-    navigator.clipboard.writeText(url).then(() => showToast('Link copied!')).catch(() => {});
+    navigator.clipboard.writeText(url).then(() => showToast('لینک کپی شد!')).catch(() => {});
   }
 }
 
@@ -431,10 +432,10 @@ export function updateVolumeIcon() {
   if (!video || !vBtn) return;
   if (video.muted || video.volume === 0) {
     vBtn.innerHTML = `<svg class="icon icon-md"><use href="#ico-volume-x"/></svg>`;
-    vBtn.setAttribute('title', 'Unmute');
+    vBtn.setAttribute('title', 'فعال‌سازی صدا');
   } else {
     vBtn.innerHTML = `<svg class="icon icon-md"><use href="#ico-volume"/></svg>`;
-    vBtn.setAttribute('title', 'Mute');
+    vBtn.setAttribute('title', 'قطع صدا');
   }
 }
 
@@ -534,7 +535,7 @@ function showSeekFeedback(playerWrap, direction, seconds = 10) {
 
   if (existing && existing.classList.contains(`seek-${direction}`)) {
     const span = existing.querySelector('span');
-    if (span) span.textContent = `${seconds}s`;
+    if (span) span.textContent = `${fa(seconds)}ث`;
 
     clearTimeout(existing.__removeTimer);
     existing.__removeTimer = setTimeout(() => {
@@ -554,11 +555,11 @@ function showSeekFeedback(playerWrap, direction, seconds = 10) {
       <svg class="icon icon-lg" style="fill:#fff;stroke:none;">
         <use href="#ico-skip-b"/>
       </svg>
-      <span>${seconds}s</span>
+      <span>${fa(seconds)}ث</span>
     `;
   } else {
     fb.innerHTML = `
-      <span>${seconds}s</span>
+      <span>${fa(seconds)}ث</span>
       <svg class="icon icon-lg" style="fill:#fff;stroke:none;">
         <use href="#ico-skip-f"/>
       </svg>
@@ -598,7 +599,7 @@ export function updatePlayerTime() {
   }
   const timeEl = document.querySelector('.player-time');
   if (timeEl && video.duration && !isNaN(video.duration)) {
-    timeEl.textContent = `${formatTime(video.currentTime)} / ${formatTime(video.duration)}`;
+    timeEl.textContent = `${faTime(formatTime(video.currentTime))} / ${faTime(formatTime(video.duration))}`;
   }
 }
 
@@ -606,7 +607,7 @@ export function updatePlayerTime() {
    QUALITY SELECTOR
 ============================================ */
 export function initQualitySelector(ep, defaultQuality) {
-  const qualitySelect = document.querySelector('select[title="Quality"]');
+  const qualitySelect = document.querySelector('select[data-ctl="quality"]');
   if (!qualitySelect) return;
 
   if (ep.qualities && ep.qualities.length > 0) {
@@ -669,7 +670,7 @@ function parseVtt(text) {
 }
 
 export function initSubtitleSelector(ep) {
-  const sel = document.querySelector('select[title="Subtitles"]');
+  const sel = document.querySelector('select[data-ctl="subtitles"]');
   if (!sel) return;
   const wrap = sel.closest('.player-icon-select');
   const syncIcon = () => {
@@ -680,16 +681,15 @@ export function initSubtitleSelector(ep) {
   sel.addEventListener('change', syncIcon);
   const subs = ep.subtitles || [];
   if (!subs.length) {
-    sel.innerHTML = '<option value="">No subtitles</option>';
+    sel.innerHTML = '<option value="">بدون زیرنویس</option>';
     sel.disabled = true;
     sel.onchange = null;
     syncIcon();
     return;
   }
   sel.disabled = false;
-  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-  sel.innerHTML = '<option value="off">Subtitles: Off</option>' +
-    subs.map((s) => `<option value="${s.id}">${esc(s.label)}</option>`).join('');
+  sel.innerHTML = '<option value="off">زیرنویس: خاموش</option>' +
+    subs.map((s) => `<option value="${s.id}">${esc(tSubLabel(s))}</option>`).join('');
 
   const tracks = new Map();
   const apply = async (val) => {
@@ -710,7 +710,7 @@ export function initSubtitleSelector(ep) {
         } catch (e) { console.warn('[Anivora] subtitle load failed', e); return; }
       }
       if (window.__realVideo !== video || sel.value !== val) return; // کاربر عوض کرده
-      const track = video.addTextTrack('subtitles', s.label, s.lang);
+      const track = video.addTextTrack('subtitles', tSubLabel(s), s.lang);
       for (const c of cues) {
         const cue = new VTTCue(c.start, c.end, c.text);
         if (c.line != null) { cue.snapToLines = false; cue.line = c.line; } else { cue.line = -5; }
@@ -740,17 +740,16 @@ export function initSubtitleSelector(ep) {
    SPEED SELECTOR
 ============================================ */
 export function initSpeedSelector() {
-  const speedSelect = document.querySelector('select[title="Playback speed"]');
+  const speedSelect = document.querySelector('select[data-ctl="speed"]');
   if (!speedSelect) return;
 
-  speedSelect.value = '1×';
+  speedSelect.value = '1';
 
   speedSelect.onchange = (e) => {
     const video = window.__realVideo;
     if (!video) return;
 
-    const speedStr = e.target.value.replace('×', '').trim();
-    const speed = parseFloat(speedStr);
+    const speed = parseFloat(String(e.target.value).trim());
 
     if (!isNaN(speed) && speed > 0) {
       video.playbackRate = speed;
@@ -881,11 +880,11 @@ function showSeekFeedbackSimple(direction, seconds) {
   if (direction === 'left') {
     fb.innerHTML = `
       <svg class="icon icon-lg" style="fill:#fff;stroke:none;"><use href="#ico-skip-b"/></svg>
-      <span>${seconds}s</span>
+      <span>${fa(seconds)}ث</span>
     `;
   } else {
     fb.innerHTML = `
-      <span>${seconds}s</span>
+      <span>${fa(seconds)}ث</span>
       <svg class="icon icon-lg" style="fill:#fff;stroke:none;"><use href="#ico-skip-f"/></svg>
     `;
   }

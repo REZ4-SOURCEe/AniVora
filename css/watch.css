@@ -364,7 +364,7 @@
 }
 .sidebar-ep-item.active {
   background: var(--accent-dim);
-  border-left: 3px solid var(--accent);
+  border-inline-start: 3px solid var(--accent);
 }
 .sidebar-ep-thumb {
   width: 70px;
@@ -713,7 +713,7 @@
 /* ============================================
    COMPACT PLAYER SELECTS (speed = number only, subtitles = icon only)
 ============================================ */
-.player-ctrl-select[title="Playback speed"] {
+.player-ctrl-select[data-ctl="speed"] {
   -webkit-appearance: none;
   appearance: none;
   text-align: center;

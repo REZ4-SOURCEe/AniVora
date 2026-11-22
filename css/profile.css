@@ -91,7 +91,7 @@
   flex-shrink: 0;
   align-self: center;          /* ★ center → هم‌سطح آواتار */
   margin-top: 0;
-  margin-left: auto;
+  margin-inline-start: auto;
   cursor: pointer;
 }
 
@@ -114,7 +114,7 @@
 .profile-stat:not(:last-child)::after {
   content: '';
   position: absolute;
-  right: 0;
+  left: 0;
   top: 50%;
   transform: translateY(-50%);
   width: 1px;
@@ -305,7 +305,7 @@
   transition: transform 0.2s ease;
 }
 .profile-view-stats-btn:hover svg {
-  transform: translateX(3px);
+  transform: translateX(-3px);
 }
 
 /* ★ موبایل — دایره + فیلدها کنار هم */

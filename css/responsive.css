@@ -321,7 +321,7 @@
   .player-time { display: none; }
 }
 @media (max-width: 768px) {
-.player-ctrl-select[title="Playback speed"] { padding: 4px 8px; min-width: 36px; }
+.player-ctrl-select[data-ctl="speed"] { padding: 4px 8px; min-width: 36px; }
 .player-icon-select { width: 34px; height: 34px; }
 }
 

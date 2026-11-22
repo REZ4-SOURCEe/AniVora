@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,7 +11,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Anivora">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Anivora — Premium Anime Streaming</title>
+<title>Anivora | پخش آنلاین انیمه</title>
+<link rel="preload" href="assets/fonts/Vazirmatn-Bold.ttf" as="font" type="font/ttf" crossorigin>
+<link rel="stylesheet" href="css/fonts.css">
 <link rel="stylesheet" href="css/base.css">
 <link rel="stylesheet" href="css/components.css">
 <link rel="stylesheet" href="css/home.css">
@@ -20,6 +22,7 @@
 <link rel="stylesheet" href="css/watch.css">
 <link rel="stylesheet" href="css/profile.css">
 <link rel="stylesheet" href="css/responsive.css">
+<link rel="stylesheet" href="css/rtl.css">
 </head>
 <body>
 <!-- PAGE LOADER (اولین عنصر body) -->
@@ -53,6 +56,8 @@
     <symbol id="ico-tv" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"/><polyline points="17 2 12 7 7 2"/></symbol>
     <symbol id="ico-chart" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></symbol>
     <symbol id="ico-chevron-r" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></symbol>
+    <symbol id="ico-arrow-fwd" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></symbol>
+    <symbol id="ico-arrow-back" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></symbol>
     <symbol id="ico-chevron-l" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></symbol>
     <symbol id="ico-x" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
     <symbol id="ico-plus" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol>
@@ -96,16 +101,16 @@
     <div class="logo" style="gap:0;">Ani<span>vora</span></div>
   </div>
 <nav class="drawer-nav">
-  <a href="javascript:void(0)" class="active" onclick="goFromDrawer('home')"><svg class="icon icon-md"><use href="#ico-home"/></svg> Home</a>
-  <a href="javascript:void(0)" onclick="goFromDrawer('explore')"><svg class="icon icon-md"><use href="#ico-search"/></svg> Explore</a>
-  <a href="javascript:void(0)" onclick="goFromDrawer('seasonal')"><svg class="icon icon-md"><use href="#ico-sun"/></svg> Seasonal</a>
-  <a href="javascript:void(0)" onclick="goFromDrawer('calendar')"><svg class="icon icon-md"><use href="#ico-calendar"/></svg> Calendar</a>
-  <a href="javascript:void(0)" onclick="goFromDrawer('watchlist')"><svg class="icon icon-md"><use href="#ico-bookmark"/></svg> Watchlist</a>
-  <a href="javascript:void(0)" onclick="goFromDrawer('profile')"><svg class="icon icon-md"><use href="#ico-user"/></svg> Profile</a>
+  <a href="javascript:void(0)" class="active" onclick="goFromDrawer('home')"><svg class="icon icon-md"><use href="#ico-home"/></svg> خانه</a>
+  <a href="javascript:void(0)" onclick="goFromDrawer('explore')"><svg class="icon icon-md"><use href="#ico-search"/></svg> کاوش</a>
+  <a href="javascript:void(0)" onclick="goFromDrawer('seasonal')"><svg class="icon icon-md"><use href="#ico-sun"/></svg> انیمه‌های فصل</a>
+  <a href="javascript:void(0)" onclick="goFromDrawer('calendar')"><svg class="icon icon-md"><use href="#ico-calendar"/></svg> تقویم پخش</a>
+  <a href="javascript:void(0)" onclick="goFromDrawer('watchlist')"><svg class="icon icon-md"><use href="#ico-bookmark"/></svg> لیست من</a>
+  <a href="javascript:void(0)" onclick="goFromDrawer('profile')"><svg class="icon icon-md"><use href="#ico-user"/></svg> پروفایل</a>
   <div class="drawer-divider"></div>
   <a href="javascript:void(0)" id="drawerAuthBtn" onclick="handleDrawerAuth()">
     <svg class="icon icon-md"><use href="#ico-lock"/></svg>
-    <span id="drawerAuthLabel">Login</span>
+    <span id="drawerAuthLabel">ورود</span>
   </a>
 </nav>
 </div>
@@ -114,25 +119,25 @@
 <header class="header">
   <div class="header-inner">
     <div style="display:flex;align-items:center;gap:18px;">
-      <button class="hamburger" onclick="openDrawer()" aria-label="Menu"><span></span><span></span><span></span></button>
+      <button class="hamburger" onclick="openDrawer()" aria-label="منو"><span></span><span></span><span></span></button>
       <div class="logo" onclick="showPage('home')" style="gap:0;">Ani<span>vora</span></div>
     </div>
     <nav class="nav-links">
-      <a href="javascript:void(0)" class="active" onclick="showPage('home')">Home</a>
-      <a href="javascript:void(0)" onclick="showPage('seasonal')">Seasonal</a>
-      <a href="javascript:void(0)" onclick="showCategory('popular')">Popular</a>
-      <a href="javascript:void(0)" onclick="showPage('calendar')">Calendar</a>
+      <a href="javascript:void(0)" class="active" onclick="showPage('home')">خانه</a>
+      <a href="javascript:void(0)" onclick="showPage('seasonal')">فصلی</a>
+      <a href="javascript:void(0)" onclick="showCategory('popular')">محبوب‌ها</a>
+      <a href="javascript:void(0)" onclick="showPage('calendar')">تقویم</a>
     </nav>
     <div class="header-actions">
       <div class="search-bar-mini" onclick="showPage('explore')">
         <svg class="icon icon-sm" style="color:var(--text-muted);flex-shrink:0;"><use href="#ico-search"/></svg>
-        <input type="text" placeholder="Search anime..." readonly>
+        <input type="text" placeholder="جستجوی انیمه..." readonly>
       </div>
-      <button class="icon-btn" onclick="toggleNotif()" aria-label="Notifications" style="position:relative;">
+      <button class="icon-btn" onclick="toggleNotif()" aria-label="اعلان‌ها" style="position:relative;">
         <svg class="icon icon-md"><use href="#ico-bell"/></svg>
         <span class="notif-badge"></span>
       </button>
-      <button class="icon-btn" onclick="showPage('watchlist')" aria-label="Watchlist">
+      <button class="icon-btn" onclick="showPage('watchlist')" aria-label="لیست من">
         <svg class="icon icon-md"><use href="#ico-bookmark"/></svg>
       </button>
       <div class="avatar" onclick="goToProfile()">
@@ -145,17 +150,17 @@
 <!-- NOTIFICATION PANEL -->
 <div class="notif-panel" id="notifPanel">
   <div class="notif-header">
-    <span>Notifications</span>
-    <button style="font-size:12px;color:var(--accent);background:none;border:none;cursor:pointer;font-weight:500;">Mark all read</button>
+    <span>اعلان‌ها</span>
+    <button style="font-size:12px;color:var(--accent);background:none;border:none;cursor:pointer;font-weight:500;">علامت‌گذاری همه به‌عنوان خوانده‌شده</button>
   </div>
   <div class="notif-item unread" onclick="showPage('watch')">
     <div class="notif-icon"><svg class="icon icon-md"><use href="#ico-play"/></svg></div>
-    <div style="flex:1;"><div class="notif-text"><strong>Jujutsu Kaisen</strong> new episode available.</div><div class="notif-time">2 minutes ago</div></div>
+    <div style="flex:1;"><div class="notif-text"><strong><bdi>Jujutsu Kaisen</bdi></strong> قسمت جدید منتشر شد.</div><div class="notif-time">۲ دقیقه پیش</div></div>
     <div class="notif-dot"></div>
   </div>
   <div class="notif-item unread">
     <div class="notif-icon"><svg class="icon icon-md"><use href="#ico-star"/></svg></div>
-    <div style="flex:1;"><div class="notif-text"><strong>Jujutsu Kaisen S2</strong> has been added to the library.</div><div class="notif-time">1 hour ago</div></div>
+    <div style="flex:1;"><div class="notif-text"><strong><bdi>Jujutsu Kaisen S2</bdi></strong> به کتابخانه اضافه شد.</div><div class="notif-time">۱ ساعت پیش</div></div>
     <div class="notif-dot"></div>
   </div>
 </div>
@@ -173,46 +178,46 @@
       <h1 class="hero-title" id="heroTitle"></h1>
       <div class="hero-subtitle" id="heroSubtitle"></div>
       <div class="hero-meta" id="heroMeta"></div>
-      <p class="hero-desc" id="heroDesc"></p>
+      <p class="hero-desc" id="heroDesc" dir="auto"></p>
       <div class="hero-actions" id="heroActions"></div>
     </div>
   </section>
 
   <section class="section" style="padding-top:36px;">
     <div class="section-header">
-      <h2 class="section-title"><span class="section-title-bar"></span>Continue Watching</h2>
-      <a class="section-link" onclick="showCategory('continue-watching')">View All <svg class="icon icon-sm"><use href="#ico-chevron-r"/></svg></a>
+      <h2 class="section-title"><span class="section-title-bar"></span>ادامه تماشا</h2>
+      <a class="section-link" onclick="showCategory('continue-watching')">مشاهده همه <svg class="icon icon-sm"><use href="#ico-arrow-fwd"/></svg></a>
     </div>
     <div class="scroll-row" id="continueRow"></div>
   </section>
 
   <section class="section" style="padding-top:0;">
     <div class="section-header">
-      <h2 class="section-title"><span class="section-title-bar"></span><svg class="icon icon-md" style="color:var(--accent);"><use href="#ico-trending"/></svg>Trending Now</h2>
-      <a class="section-link" onclick="showCategory('trending')">See All <svg class="icon icon-sm"><use href="#ico-chevron-r"/></svg></a>
+      <h2 class="section-title"><span class="section-title-bar"></span><svg class="icon icon-md" style="color:var(--accent);"><use href="#ico-trending"/></svg>پرطرفدارها</h2>
+      <a class="section-link" onclick="showCategory('trending')">مشاهده همه <svg class="icon icon-sm"><use href="#ico-arrow-fwd"/></svg></a>
     </div>
     <div class="scroll-row" id="trendingRow"></div>
   </section>
 
   <section class="section weekly-section" style="padding-top:0;">
     <div class="section-header">
-      <h2 class="section-title"><span class="section-title-bar"></span><svg class="icon icon-md" style="color:var(--gold);"><use href="#ico-gem"/></svg>Weekly Recommendation</h2>
+      <h2 class="section-title"><span class="section-title-bar"></span><svg class="icon icon-md" style="color:var(--gold);"><use href="#ico-gem"/></svg>پیشنهاد هفته</h2>
     </div>
     <div id="weeklyPickWrap"></div>
   </section>
 
   <section class="section" style="padding-top:0;">
     <div class="section-header">
-      <h2 class="section-title"><span class="section-title-bar"></span><svg class="icon icon-md" style="color:var(--accent);"><use href="#ico-zap"/></svg>New Episodes</h2>
-      <a class="section-link" onclick="showCategory('new-episodes')">See All <svg class="icon icon-sm"><use href="#ico-chevron-r"/></svg></a>
+      <h2 class="section-title"><span class="section-title-bar"></span><svg class="icon icon-md" style="color:var(--accent);"><use href="#ico-zap"/></svg>قسمت‌های جدید</h2>
+      <a class="section-link" onclick="showCategory('new-episodes')">مشاهده همه <svg class="icon icon-sm"><use href="#ico-arrow-fwd"/></svg></a>
     </div>
     <div class="scroll-row" id="newEpsRow"></div>
   </section>
 
   <section class="section" style="padding-top:0;padding-bottom:60px;">
     <div class="section-header">
-      <h2 class="section-title"><span class="section-title-bar"></span><svg class="icon icon-md" style="color:var(--gold);"><use href="#ico-star"/></svg>Highest Rated</h2>
-      <a class="section-link" onclick="showCategory('highest-rated')">See All <svg class="icon icon-sm"><use href="#ico-chevron-r"/></svg></a>
+      <h2 class="section-title"><span class="section-title-bar"></span><svg class="icon icon-md" style="color:var(--gold);"><use href="#ico-star"/></svg>بالاترین امتیاز</h2>
+      <a class="section-link" onclick="showCategory('highest-rated')">مشاهده همه <svg class="icon icon-sm"><use href="#ico-arrow-fwd"/></svg></a>
     </div>
     <div class="scroll-row" id="ratedRow"></div>
   </section>
@@ -225,12 +230,12 @@
 <div class="page" id="page-explore">
   <div class="search-page">
     <div class="search-hero">
-      <h1>Discover Anime</h1>
-      <p class="text-secondary" style="margin-bottom:20px;font-size:14px;">Search from thousands of titles</p>
+      <h1>کشف انیمه</h1>
+      <p class="text-secondary" style="margin-bottom:20px;font-size:14px;">جستجو در میان هزاران عنوان</p>
       <div class="search-bar-big">
         <svg class="icon icon-lg" style="color:var(--text-muted);flex-shrink:0;"><use href="#ico-search"/></svg>
-        <input type="text" id="mainSearchInput" placeholder="Search by title, genre, studio..." oninput="filterResults();toggleClearBtn()">
-        <button class="search-clear-btn" id="searchClearBtn" onclick="clearSearch()" aria-label="Clear">
+        <input type="text" id="mainSearchInput" placeholder="جستجو بر اساس نام، ژانر، استودیو..." oninput="filterResults();toggleClearBtn()">
+        <button class="search-clear-btn" id="searchClearBtn" onclick="clearSearch()" aria-label="پاک کردن">
           <svg class="icon icon-md"><use href="#ico-x"/></svg>
         </button>
       </div>
@@ -239,36 +244,57 @@
     <div class="filters-wrap">
       <div class="filters-grid">
         <div class="filter-group">
-          <label class="filter-label">Genre</label>
-          <select class="filter-select" onchange="addFilter(this.value,'Genre');this.value=''">
-            <option value="">All Genres</option>
-            <option>Action</option><option>Adventure</option><option>Comedy</option>
-            <option>Drama</option><option>Fantasy</option><option>Horror</option>
-            <option>Mystery</option><option>Psychological</option><option>Romance</option>
-            <option>Sci-Fi</option><option>Slice of Life</option><option>Sports</option>
-            <option>Supernatural</option><option>Thriller</option>
+          <label class="filter-label">ژانر</label>
+          <select class="filter-select" title="ژانر" aria-label="ژانر" onchange="addFilter(this.value,'Genre');this.value=''">
+            <option value="">همه ژانرها</option>
+            <option value="Action">اکشن</option>
+            <option value="Adventure">ماجراجویی</option>
+            <option value="Comedy">کمدی</option>
+            <option value="Drama">درام</option>
+            <option value="Fantasy">فانتزی</option>
+            <option value="Horror">ترسناک</option>
+            <option value="Mystery">معمایی</option>
+            <option value="Psychological">روان‌شناختی</option>
+            <option value="Romance">عاشقانه</option>
+            <option value="Sci-Fi">علمی‌تخیلی</option>
+            <option value="Slice of Life">برشی از زندگی</option>
+            <option value="Sports">ورزشی</option>
+            <option value="Supernatural">ماورائی</option>
+            <option value="Thriller">هیجان‌انگیز</option>
           </select>
         </div>
         <div class="filter-group">
-          <label class="filter-label">Type</label>
-          <select class="filter-select" onchange="addFilter(this.value,'Type');this.value=''">
-            <option value="">All Types</option>
-            <option>TV</option><option>Movie</option><option>OVA</option><option>ONA</option><option>Special</option>
+          <label class="filter-label">نوع</label>
+          <select class="filter-select" title="نوع" aria-label="نوع" onchange="addFilter(this.value,'Type');this.value=''">
+            <option value="">همه انواع</option>
+            <option value="TV">سریال</option>
+            <option value="Movie">فیلم</option>
+            <option value="OVA">OVA</option>
+            <option value="ONA">ONA</option>
+            <option value="Special">ویژه</option>
           </select>
         </div>
         <div class="filter-group">
-          <label class="filter-label">Status</label>
-          <select class="filter-select" onchange="addFilter(this.value,'Status');this.value=''">
-            <option value="">Any Status</option>
-            <option>Airing</option><option>Finished</option><option>Upcoming</option>
+          <label class="filter-label">وضعیت</label>
+          <select class="filter-select" title="وضعیت" aria-label="وضعیت" onchange="addFilter(this.value,'Status');this.value=''">
+            <option value="">هر وضعیت</option>
+            <option value="Airing">در حال پخش</option>
+            <option value="Finished">پایان‌یافته</option>
+            <option value="Upcoming">به‌زودی</option>
           </select>
         </div>
         <div class="filter-group">
-          <label class="filter-label">Year</label>
-          <select class="filter-select" onchange="addFilter(this.value,'Year');this.value=''">
-            <option value="">Any Year</option>
-            <option>2024</option><option>2023</option><option>2022</option><option>2021</option>
-            <option>2020</option><option>2015–2019</option><option>2010–2014</option><option>2000–2009</option>
+          <label class="filter-label">سال</label>
+          <select class="filter-select" title="سال" aria-label="سال" onchange="addFilter(this.value,'Year');this.value=''">
+            <option value="">هر سال</option>
+            <option value="2024">۲۰۲۴</option>
+            <option value="2023">۲۰۲۳</option>
+            <option value="2022">۲۰۲۲</option>
+            <option value="2021">۲۰۲۱</option>
+            <option value="2020">۲۰۲۰</option>
+            <option value="2015-2019">۲۰۱۵ تا ۲۰۱۹</option>
+            <option value="2010-2014">۲۰۱۰ تا ۲۰۱۴</option>
+            <option value="2000-2009">۲۰۰۰ تا ۲۰۰۹</option>
           </select>
         </div>
       </div>
@@ -277,11 +303,11 @@
     <div class="active-filters" id="activeFilters"></div>
 
     <div style="display:flex;align-items:center;justify-content:space-between;padding:0 16px;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
-      <p style="font-size:13px;color:var(--text-secondary);">Showing <strong style="color:var(--text-primary);" id="resultCount">0</strong> results</p>
-      <select class="filter-select" style="min-width:160px;">
-        <option>Sort: Relevance</option>
-        <option>Sort: Rating</option>
-        <option>Sort: Newest</option>
+      <p style="font-size:13px;color:var(--text-secondary);">نمایش <strong style="color:var(--text-primary);" id="resultCount">۰</strong> نتیجه</p>
+      <select class="filter-select" id="sortSelect" title="مرتب‌سازی" aria-label="مرتب‌سازی" style="min-width:160px;" onchange="filterResults()">
+        <option value="relevance">مرتب‌سازی: مرتبط‌ترین</option>
+        <option value="rating">مرتب‌سازی: بالاترین امتیاز</option>
+        <option value="newest">مرتب‌سازی: جدیدترین</option>
       </select>
     </div>
 
@@ -311,9 +337,9 @@
 <div class="detail-extra-row" id="detailExtraRow"></div>
 <div class="detail-actions-row" id="detailActionsRow"></div>
       <div class="detail-tabs">
-        <button class="tab-btn active" onclick="switchTab(this,'tab-episodes')">Episodes</button>
-        <button class="tab-btn" onclick="switchTab(this,'tab-about')">About</button>
-        <button class="tab-btn" onclick="switchTab(this,'tab-recommended')">Recommended</button>
+        <button class="tab-btn active" data-tab="episodes" onclick="switchTab(this,'tab-episodes')">قسمت‌ها</button>
+        <button class="tab-btn" data-tab="about" onclick="switchTab(this,'tab-about')">درباره</button>
+        <button class="tab-btn" data-tab="recommended" onclick="switchTab(this,'tab-recommended')">پیشنهادی</button>
       </div>
 
       <div class="tab-panel active" id="tab-episodes">
@@ -321,12 +347,12 @@
           <div class="season-header-row">
             <div class="season-dropdown" id="seasonDropdown">
               <button class="season-dropdown-btn" type="button" onclick="toggleSeasonDropdown(event)">
-                <span id="seasonDropdownLabel">Season 1</span>
+                <span id="seasonDropdownLabel">فصل ۱</span>
                 <svg class="icon icon-sm season-chevron"><use href="#ico-chevron-r"/></svg>
               </button>
               <div class="season-dropdown-menu" id="seasonDropdownMenu"></div>
             </div>
-            <span class="season-count-badge" id="seasonCountBadge" title="0 Episodes">0</span>
+            <span class="season-count-badge" id="seasonCountBadge" title="۰ قسمت">۰</span>
           </div>
           <div class="episodes-grid" id="episodesGrid"></div>
         </div>
@@ -336,9 +362,9 @@
         <div class="detail-about-wrap">
           <div class="detail-about-title">
             <span class="detail-about-title-bar"></span>
-            About this anime
+            درباره این انیمه
           </div>
-          <p class="detail-about-text" id="tabAboutDesc"></p>
+          <p class="detail-about-text" id="tabAboutDesc" dir="auto"></p>
         </div>
       </div>
 
@@ -346,7 +372,7 @@
         <div class="detail-recommended-wrap">
           <div class="detail-recommended-title">
             <span class="detail-about-title-bar"></span>
-            You may also like
+            شاید این‌ها را هم بپسندید
           </div>
           <div class="detail-recommended-grid" id="tabRecommendedGrid"></div>
         </div>
@@ -380,29 +406,29 @@
             <button class="player-btn" id="playPauseBtn" onclick="togglePlay(event)">
               <svg class="icon icon-md" style="fill:rgba(255,255,255,0.85);stroke:none;"><use href="#ico-pause"/></svg>
             </button>
-            <button class="player-btn" id="nextBtn" title="Next episode" onclick="playNextEpisode(event)">
+            <button class="player-btn" id="nextBtn" title="قسمت بعد" aria-label="قسمت بعد" onclick="playNextEpisode(event)">
               <svg class="icon icon-md"><use href="#ico-skip-f"/></svg>
             </button>
-            <button class="player-btn" id="volumeBtn" title="Mute" onclick="toggleMute(event)">
+            <button class="player-btn" id="volumeBtn" title="قطع صدا" aria-label="قطع صدا" onclick="toggleMute(event)">
               <svg class="icon icon-md"><use href="#ico-volume"/></svg>
             </button>
-            <span class="player-time">00:00 / 00:00</span>
+            <span class="player-time">۰۰:۰۰ / ۰۰:۰۰</span>
           </div>
           <div class="player-right">
             <div class="player-icon-select" id="subtitleIconWrap">
               <svg class="icon icon-md" viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="3.5"/><path d="M6.5 11.2h3.2M12.2 11.2h5.3M6.5 14.8h5.3M14.3 14.8h3.2"/></svg>
-              <select class="player-ctrl-select" title="Subtitles" aria-label="Subtitles" onclick="event.stopPropagation()">
-                <option value="">No subtitles</option>
+              <select class="player-ctrl-select" data-ctl="subtitles" title="زیرنویس" aria-label="زیرنویس" onclick="event.stopPropagation()">
+                <option value="">بدون زیرنویس</option>
               </select>
             </div>
-            <select class="player-ctrl-select" title="Playback speed">
-              <option>0.5×</option><option>0.75×</option><option selected>1×</option>
-              <option>1.25×</option><option>1.5×</option><option>2×</option>
+            <select class="player-ctrl-select" data-ctl="speed" title="سرعت پخش" aria-label="سرعت پخش">
+              <option value="0.5">۰٫۵×</option><option value="0.75">۰٫۷۵×</option><option value="1" selected>۱×</option>
+              <option value="1.25">۱٫۲۵×</option><option value="1.5">۱٫۵×</option><option value="2">۲×</option>
             </select>
-            <select class="player-ctrl-select" title="Quality">
-              <option>Auto</option><option>1080p</option><option>720p</option>
+            <select class="player-ctrl-select" data-ctl="quality" title="کیفیت" aria-label="کیفیت">
+              <option>خودکار</option><option>1080p</option><option>720p</option>
             </select>
-            <button class="player-btn" id="fullscreenBtn" title="Fullscreen" onclick="toggleFullscreen(event)">
+            <button class="player-btn" id="fullscreenBtn" title="تمام‌صفحه" aria-label="تمام‌صفحه" onclick="toggleFullscreen(event)">
               <svg class="icon icon-md"><use href="#ico-maximize"/></svg>
             </button>
           </div>
@@ -419,13 +445,13 @@
         </div>
 
         <div style="margin-top:20px;">
-          <h3 style="font-size:15px;font-weight:700;margin-bottom:14px;">Up Next</h3>
+          <h3 style="font-size:15px;font-weight:700;margin-bottom:14px;">قسمت‌های بعدی</h3>
           <div style="display:flex;gap:12px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none;" id="upNextRow"></div>
         </div>
       </div>
       <aside class="watch-sidebar">
         <div class="sidebar-episodes">
-          <div class="sidebar-ep-header"><span class="sidebar-ep-title">Episodes</span></div>
+          <div class="sidebar-ep-header"><span class="sidebar-ep-title">قسمت‌ها</span></div>
           <div class="sidebar-ep-list" id="sidebarEpList"></div>
         </div>
       </aside>
@@ -438,19 +464,19 @@
 ============================================ -->
 <div class="page" id="page-seasonal">
   <div style="padding: 32px 0 48px;">
-    <div style="padding:0 16px;margin-bottom:28px;"><h1 style="font-size:24px;font-weight:800;">Seasonal Anime</h1></div>
+    <div style="padding:0 16px;margin-bottom:28px;"><h1 style="font-size:24px;font-weight:800;">انیمه‌های فصل</h1></div>
     <div class="results-grid" id="seasonalGrid"></div>
   </div>
 </div>
 
 <div class="page" id="page-watchlist">
   <div style="padding: 32px 16px 48px; max-width:1000px;margin:0 auto;">
-    <h1 style="font-size:24px;font-weight:800;margin-bottom:24px;">My List</h1>
+    <h1 style="font-size:24px;font-weight:800;margin-bottom:24px;">لیست من</h1>
     <div class="list-category-tabs">
-      <button class="list-cat-btn active" data-filter="all">All</button>
-      <button class="list-cat-btn" data-filter="watching">Watching</button>
-      <button class="list-cat-btn" data-filter="completed">Completed</button>
-      <button class="list-cat-btn" data-filter="favorites">Favorites</button>
+      <button class="list-cat-btn active" data-filter="all">همه</button>
+      <button class="list-cat-btn" data-filter="watching">در حال تماشا</button>
+      <button class="list-cat-btn" data-filter="completed">تکمیل‌شده</button>
+      <button class="list-cat-btn" data-filter="favorites">علاقه‌مندی‌ها</button>
     </div>
     <div id="watchlistContent"></div>
   </div>
@@ -468,30 +494,30 @@
             <svg class="icon icon-xl" style="color:rgba(255,255,255,0.5);margin:auto;display:block;"><use href="#ico-user"/></svg>
           </div>
           <div class="profile-name-block">
-            <div class="profile-name">Anivora User</div>
-            <div class="profile-since">Member since January 2024</div>
+            <div class="profile-name">کاربر Anivora</div>
+            <div class="profile-since">عضو از دی ۱۴۰۲</div>
           </div>
           <button class="btn btn-ghost btn-sm profile-edit-btn">
             <svg class="icon icon-sm"><use href="#ico-edit"/></svg>
-            Edit Profile
+            ویرایش پروفایل
           </button>
         </div>
         <div class="profile-stats-strip">
-          <div class="profile-stat"><span class="profile-stat-val">0</span><span class="profile-stat-label">Anime</span></div>
-          <div class="profile-stat"><span class="profile-stat-val">0</span><span class="profile-stat-label">Episodes</span></div>
-          <div class="profile-stat"><span class="profile-stat-val">0h</span><span class="profile-stat-label">Watch Time</span></div>
-          <div class="profile-stat"><span class="profile-stat-val">0</span><span class="profile-stat-label">Completed</span></div>
-          <div class="profile-stat"><span class="profile-stat-val">0</span><span class="profile-stat-label">Favorites</span></div>
+          <div class="profile-stat"><span class="profile-stat-val">۰</span><span class="profile-stat-label">انیمه</span></div>
+          <div class="profile-stat"><span class="profile-stat-val">۰</span><span class="profile-stat-label">قسمت</span></div>
+          <div class="profile-stat"><span class="profile-stat-val">۰ ساعت</span><span class="profile-stat-label">زمان تماشا</span></div>
+          <div class="profile-stat"><span class="profile-stat-val">۰</span><span class="profile-stat-label">تکمیل‌شده</span></div>
+          <div class="profile-stat"><span class="profile-stat-val">۰</span><span class="profile-stat-label">علاقه‌مندی</span></div>
         </div>
       </div>
     </div>
 
     <div class="profile-tabs">
-  <button class="tab-btn active" onclick="switchProfileTab(this,'ptab-overview')">Overview</button>
-  <button class="tab-btn" onclick="switchProfileTab(this,'ptab-otherlist')">Other List</button>
-  <button class="tab-btn" onclick="switchProfileTab(this,'ptab-history')">History</button>
-  <button class="tab-btn" onclick="switchProfileTab(this,'ptab-favorites')">Favorites</button>
-  <button class="tab-btn" onclick="switchProfileTab(this,'ptab-stats')">Statistics</button>
+  <button class="tab-btn active" onclick="switchProfileTab(this,'ptab-overview')">نمای کلی</button>
+  <button class="tab-btn" onclick="switchProfileTab(this,'ptab-otherlist')">سایر لیست‌ها</button>
+  <button class="tab-btn" onclick="switchProfileTab(this,'ptab-history')">تاریخچه</button>
+  <button class="tab-btn" onclick="switchProfileTab(this,'ptab-favorites')">علاقه‌مندی‌ها</button>
+  <button class="tab-btn" onclick="switchProfileTab(this,'ptab-stats')">آمار</button>
 </div>
 
     <div class="profile-content">
@@ -500,28 +526,28 @@
         <div class="profile-stats-grid">
           <div class="stat-card" style="background:var(--bg-card);border:1px solid var(--border);border-top:3px solid var(--accent);border-radius:var(--radius-md);padding:18px;text-align:center;">
             <svg class="icon icon-md" style="color:var(--accent);margin:0 auto 10px;display:block;"><use href="#ico-tv"/></svg>
-            <div style="font-size:26px;font-weight:800;color:var(--accent);">0</div>
-            <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">Currently Watching</div>
+            <div style="font-size:26px;font-weight:800;color:var(--accent);">۰</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">در حال تماشا</div>
           </div>
           <div class="stat-card" style="background:var(--bg-card);border:1px solid var(--border);border-top:3px solid var(--success);border-radius:var(--radius-md);padding:18px;text-align:center;">
             <svg class="icon icon-md" style="color:var(--success);margin:0 auto 10px;display:block;"><use href="#ico-check"/></svg>
-            <div style="font-size:26px;font-weight:800;color:var(--success);">0</div>
-            <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">Completed</div>
+            <div style="font-size:26px;font-weight:800;color:var(--success);">۰</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">تکمیل‌شده</div>
           </div>
           <div class="stat-card" style="background:var(--bg-card);border:1px solid var(--border);border-top:3px solid var(--gold);border-radius:var(--radius-md);padding:18px;text-align:center;">
             <svg class="icon icon-md" style="color:var(--gold);margin:0 auto 10px;display:block;fill:var(--gold);stroke:none;"><use href="#ico-star"/></svg>
-            <div style="font-size:26px;font-weight:800;color:var(--gold);">0.0</div>
-            <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">Mean Score</div>
+            <div style="font-size:26px;font-weight:800;color:var(--gold);">۰٫۰</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">میانگین امتیاز</div>
           </div>
           <div class="stat-card" style="background:var(--bg-card);border:1px solid var(--border);border-top:3px solid #ff78a0;border-radius:var(--radius-md);padding:18px;text-align:center;">
             <svg class="icon icon-md" style="color:#ff78a0;margin:0 auto 10px;display:block;"><use href="#ico-heart"/></svg>
-            <div style="font-size:26px;font-weight:800;color:#ff78a0;">0</div>
-            <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">Favorites</div>
+            <div style="font-size:26px;font-weight:800;color:#ff78a0;">۰</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">علاقه‌مندی‌ها</div>
           </div>
         </div>
-        <h3 style="font-size:16px;font-weight:700;margin-bottom:14px;">Recent Activity</h3>
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:14px;">فعالیت‌های اخیر</h3>
         <div id="recentActivity"></div>
-        <h3 style="font-size:16px;font-weight:700;margin:24px 0 14px;">Favorite Genres</h3>
+        <h3 style="font-size:16px;font-weight:700;margin:24px 0 14px;">ژانرهای مورد علاقه</h3>
         <div style="display:flex;flex-direction:column;gap:10px;" id="genreProgress"></div>
       </div>
 
@@ -536,15 +562,15 @@
       <div class="tab-panel" id="ptab-stats">
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;">
           <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:20px;">
-            <div style="font-size:14px;font-weight:700;margin-bottom:16px;">Top Genres</div>
+            <div style="font-size:14px;font-weight:700;margin-bottom:16px;">ژانرهای برتر</div>
             <div id="topGenres"></div>
           </div>
           <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:20px;">
-            <div style="font-size:14px;font-weight:700;margin-bottom:16px;">Score Distribution</div>
+            <div style="font-size:14px;font-weight:700;margin-bottom:16px;">توزیع امتیاز</div>
             <div id="scoreDist"></div>
           </div>
           <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:20px;">
-            <div style="font-size:14px;font-weight:700;margin-bottom:16px;">Watch by Year</div>
+            <div style="font-size:14px;font-weight:700;margin-bottom:16px;">تماشا بر اساس سال</div>
             <div id="watchByYear"></div>
           </div>
         </div>
@@ -555,7 +581,7 @@
 
 <div class="page" id="page-calendar">
   <div style="padding: 32px 0 48px;">
-    <div style="padding:0 16px;margin-bottom:24px;"><h1 style="font-size:24px;font-weight:800;">Anime Calendar</h1></div>
+    <div style="padding:0 16px;margin-bottom:24px;"><h1 style="font-size:24px;font-weight:800;">تقویم پخش انیمه</h1></div>
     <div class="calendar-grid" id="calendarGrid"></div>
   </div>
 </div>
@@ -573,11 +599,11 @@
 <!-- BOTTOM NAV -->
 <nav class="bottom-nav">
   <div class="bottom-nav-inner">
-    <div class="bottom-nav-item active" onclick="showPage('home')"><svg class="icon icon-lg"><use href="#ico-home"/></svg>Home</div>
-    <div class="bottom-nav-item" onclick="showPage('explore')"><svg class="icon icon-lg"><use href="#ico-search"/></svg>Search</div>
-    <div class="bottom-nav-item" onclick="showPage('seasonal')"><svg class="icon icon-lg"><use href="#ico-sun"/></svg>Seasonal</div>
-    <div class="bottom-nav-item" onclick="showPage('watchlist')"><svg class="icon icon-lg"><use href="#ico-bookmark"/></svg>My List</div>
-    <div class="bottom-nav-item" onclick="goToProfile()"><svg class="icon icon-lg"><use href="#ico-user"/></svg>Profile</div>
+    <div class="bottom-nav-item active" onclick="showPage('home')"><svg class="icon icon-lg"><use href="#ico-home"/></svg>خانه</div>
+    <div class="bottom-nav-item" onclick="showPage('explore')"><svg class="icon icon-lg"><use href="#ico-search"/></svg>جستجو</div>
+    <div class="bottom-nav-item" onclick="showPage('seasonal')"><svg class="icon icon-lg"><use href="#ico-sun"/></svg>فصلی</div>
+    <div class="bottom-nav-item" onclick="showPage('watchlist')"><svg class="icon icon-lg"><use href="#ico-bookmark"/></svg>لیست من</div>
+    <div class="bottom-nav-item" onclick="goToProfile()"><svg class="icon icon-lg"><use href="#ico-user"/></svg>پروفایل</div>
   </div>
 </nav>
 

@@ -39,6 +39,7 @@ import {
 } from './pages.js';
 
 import { getToken } from './api.js';
+import { cleanGenre } from './i18n.js';
 
 /* ============================================
    GLOBAL DATA
@@ -73,6 +74,8 @@ async function loadData() {
       throw new Error('Data is not a valid array');
     }
 
+    // پاک‌سازی ژانرها (مثلاً "Drama," با ویرگول اضافه در دیتا)
+    data.forEach(a => { a.genres = (Array.isArray(a.genres) ? a.genres : []).map(cleanGenre).filter(Boolean); });
     ANIME_DATA = data;
     window.__animeData = {};
     ANIME_DATA.forEach(a => { window.__animeData[a.id] = a; });
@@ -94,9 +97,9 @@ async function loadData() {
       loader.innerHTML = `
         <div style="text-align:center;color:var(--danger);padding:20px;">
           <svg class="icon icon-xl" style="width:48px;height:48px;margin-bottom:12px;"><use href="#ico-x"/></svg>
-          <div style="font-size:14px;font-weight:600;">Failed to load data</div>
-          <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">Please check your connection and refresh.</div>
-          <button onclick="location.reload()" style="margin-top:16px;padding:8px 20px;background:var(--accent);color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;">Retry</button>
+          <div style="font-size:14px;font-weight:600;">بارگذاری اطلاعات ناموفق بود</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">اتصال اینترنت را بررسی کنید و صفحه را دوباره بارگذاری کنید.</div>
+          <button onclick="location.reload()" style="margin-top:16px;padding:8px 20px;background:var(--accent);color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">تلاش دوباره</button>
         </div>
       `;
     }
@@ -313,7 +316,7 @@ function refreshStoredButtons() {
       const svg = btn.querySelector('svg use');
       if (svg) svg.setAttribute('href', '#ico-heart-fill');
       const label = btn.querySelector('.like-label');
-      if (label) label.textContent = 'Liked';
+      if (label) label.textContent = 'پسندیده شد';
     }
   });
 }

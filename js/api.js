@@ -3,6 +3,8 @@
 ============================================ */
 
 // ⚠️ این رو با URL Worker خودت عوض کن
+import { tError } from './i18n.js';
+
 const API_BASE = 'https://anivora-api.prod-relay-279a51.workers.dev';
 
 const TOKEN_KEY = 'anivora_token';
@@ -47,14 +49,14 @@ async function apiFetch(path, options = {}) {
       cache: 'no-store'
     });
   } catch (netErr) {
-    throw new Error('Network error. Please check your connection.');
+    throw new Error(tError('Network error. Please check your connection.'));
   }
 
   let data = {};
   try { data = await res.json(); } catch(e) {}
 
   if (!res.ok) {
-    throw new Error(data.error || `HTTP ${res.status}`);
+    throw new Error(tError(data.error || `HTTP ${res.status}`));
   }
   return data;
 }

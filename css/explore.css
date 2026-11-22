@@ -162,7 +162,7 @@
   color: var(--accent);
   flex-shrink: 0;
   transition: var(--transition);
-  margin-left: 2px;
+  margin-inline-start: 2px;
 }
 .active-filter-remove:hover {
   opacity: 1;

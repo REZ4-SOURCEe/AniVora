@@ -367,7 +367,7 @@
   color: var(--text-muted);
 }
 .review-score {
-  margin-left: auto;
+  margin-inline-start: auto;
   display: flex;
   align-items: center;
   gap: 4px;
@@ -483,7 +483,7 @@
 .season-dropdown-menu {
   position: absolute;
   top: calc(100% + 6px);
-  left: 0;
+  right: 0;
   min-width: 180px;
   background: var(--bg-card);
   border: 1px solid var(--border-hover);
@@ -514,7 +514,7 @@
   background: transparent;
   border: none;
   cursor: pointer;
-  text-align: left;
+  text-align: start;
   transition: var(--transition);
 }
 .season-dropdown-item:hover {
